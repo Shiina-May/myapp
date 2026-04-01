@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recipe Note</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400;700&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f5ece3; --or:#c8825a; --or-dk:#9e5a35; --or-lt:#e8b898;
+  --text:#3d2a1e; --muted:#7a5c48; --border:#dcc0aa;
+  --card:rgba(255,255,255,0.82); --sand:#f0e0d0;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Lato','Hiragino Kaku Gothic ProN',sans-serif;background:var(--bg);
+  background-image:radial-gradient(ellipse 800px 450px at 8% 15%,rgba(200,130,90,.2) 0%,transparent 65%),
+  radial-gradient(ellipse 650px 450px at 92% 78%,rgba(158,90,53,.15) 0%,transparent 65%);
+  background-attachment:fixed;min-height:100vh;color:var(--text);}
+
+header{text-align:center;padding:52px 24px 32px;}
+.badge{display:inline-block;background:rgba(255,255,255,.5);border:1.5px solid var(--border);border-radius:99px;padding:5px 20px;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--or-dk);font-weight:700;margin-bottom:14px;}
+.title{font-family:'Great Vibes',cursive;font-size:clamp(3rem,8vw,5.5rem);color:var(--or-dk);line-height:1.1;margin-bottom:8px;}
+.sub{font-size:13px;color:var(--muted);letter-spacing:1.5px;}
+
+main{max-width:960px;margin:0 auto;padding:28px 24px 80px;}
+.top-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;}
+.sec-title{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);font-weight:700;}
+.add-btn{background:var(--or);color:#fff;border:none;border-radius:50px;padding:11px 24px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;box-shadow:0 3px 12px rgba(200,130,90,.35);transition:background .15s,transform .1s;}
+.add-btn:hover{background:var(--or-dk);transform:translateY(-1px);}
+
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+.fb{background:rgba(255,255,255,.6);border:1.5px solid var(--border);border-radius:30px;padding:7px 15px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;font-family:'Lato',sans-serif;transition:all .15s;}
+.fb:hover,.fb.active{background:var(--or);border-color:var(--or);color:#fff;}
+
+.recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:20px;}
+
+.rc{background:var(--card);border:1.5px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:4px 6px 18px rgba(158,90,53,.1);transition:transform .18s,box-shadow .18s;cursor:pointer;}
+.rc:hover{transform:translateY(-4px);box-shadow:6px 14px 30px rgba(158,90,53,.16);}
+.rc-img{width:100%;height:140px;object-fit:cover;display:block;background:var(--sand);}
+.rc-img-ph{width:100%;height:140px;background:linear-gradient(135deg,var(--or-lt),var(--sand));display:flex;align-items:center;justify-content:center;font-size:42px;opacity:.4;}
+.rc-bar{height:4px;background:var(--or);}
+.rc-body{padding:18px 18px 14px;}
+.rc-cat{display:inline-block;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:2px 9px;border-radius:20px;margin-bottom:8px;background:rgba(200,130,90,.12);color:var(--or-dk);}
+.rc-name{font-family:'Great Vibes',cursive;font-size:1.7rem;color:var(--text);margin-bottom:6px;line-height:1.2;}
+.rc-memo{font-family:'Caveat',cursive;font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:12px;min-height:36px;}
+.rc-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.tag{background:var(--sand);border-radius:10px;padding:3px 9px;font-size:11px;color:var(--muted);}
+.rc-footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--border);}
+.rc-info{font-size:11px;color:var(--muted);}
+.rc-actions{display:flex;gap:6px;}
+.ab{background:none;border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:12px;cursor:pointer;color:var(--muted);font-family:'Lato',sans-serif;transition:all .15s;}
+.ab:hover{background:var(--sand);color:var(--text);}
+.ab.del:hover{background:#fde8e8;border-color:#e07070;color:#c04040;}
+
+.empty{text-align:center;padding:70px 20px;grid-column:1/-1;color:var(--muted);}
+.empty-icon{font-size:48px;opacity:.35;margin-bottom:16px;}
+.empty-title{font-family:'Great Vibes',cursive;font-size:1.8rem;opacity:.6;margin-bottom:8px;}
+
+/* Overlay */
+.overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(61,42,30,.52);backdrop-filter:blur(5px);align-items:flex-start;justify-content:center;padding:20px 16px;overflow-y:auto;}
+.overlay.open{display:flex;}
+
+/* Modal */
+.modal{background:#fff9f4;border-radius:22px;padding:30px 26px;width:100%;max-width:640px;box-shadow:0 24px 64px rgba(0,0,0,.2);position:relative;margin:auto;}
+.mc{position:absolute;top:14px;right:16px;background:var(--sand);border:none;border-radius:50%;width:30px;height:30px;font-size:14px;cursor:pointer;color:var(--text);transition:background .15s;}
+.mc:hover{background:#e07070;color:#fff;}
+.modal-title{font-family:'Great Vibes',cursive;font-size:2rem;color:var(--or-dk);margin-bottom:22px;}
+
+/* Form */
+.fg{margin-bottom:14px;}
+.fl{display:block;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.fi,.fs{width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:10px;background:rgba(255,255,255,.88);font-size:14px;font-family:'Lato','Hiragino Kaku Gothic ProN',sans-serif;color:var(--text);outline:none;transition:border-color .2s;}
+.fi:focus,.fs:focus{border-color:var(--or);box-shadow:0 0 0 3px rgba(200,130,90,.1);}
+.frow{display:flex;gap:12px;}
+.frow .fg{flex:1;}
+
+/* Dynamic rows */
+.dyn-list{display:flex;flex-direction:column;gap:7px;margin-bottom:7px;}
+.dyn-row{display:flex;gap:7px;align-items:center;}
+.dyn-row .fi{flex:1;}
+.dyn-row .fi.qty{flex:0 0 85px;}
+.step-num{font-size:12px;font-weight:700;color:var(--or);min-width:18px;text-align:right;flex-shrink:0;}
+.rm-btn{background:none;border:1px solid var(--border);border-radius:7px;width:28px;height:32px;cursor:pointer;color:var(--muted);font-size:13px;flex-shrink:0;transition:all .15s;display:flex;align-items:center;justify-content:center;}
+.rm-btn:hover{background:#fde8e8;border-color:#e07070;color:#c04040;}
+.add-row-btn{background:none;border:1.5px dashed var(--border);border-radius:10px;padding:7px 12px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;font-family:'Lato',sans-serif;width:100%;transition:all .15s;margin-top:3px;}
+.add-row-btn:hover{border-color:var(--or);color:var(--or);}
+
+/* Photo */
+.photo-zone{border:2px dashed var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;position:relative;transition:border-color .2s,background .2s;}
+.photo-zone:hover{border-color:var(--or);background:rgba(200,130,90,.04);}
+.photo-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.photo-zone p{font-size:13px;color:var(--muted);pointer-events:none;}
+.photo-previews{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px;}
+.photo-thumb{position:relative;}
+.photo-thumb img{width:70px;height:70px;object-fit:cover;border-radius:9px;border:2px solid var(--border);display:block;}
+.photo-thumb .rm-ph{position:absolute;top:-6px;right:-6px;background:var(--or-dk);color:#fff;border:none;border-radius:50%;width:19px;height:19px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+/* Nutrition */
+.nutr-box{background:rgba(200,130,90,.08);border:1.5px solid var(--or-lt);border-radius:13px;padding:14px 16px;margin-top:14px;}
+.nutr-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--or-dk);margin-bottom:10px;}
+.nutr-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.nutr-item{text-align:center;}
+.nutr-val{font-size:1.3rem;font-weight:700;color:var(--or-dk);line-height:1;}
+.nutr-lbl{font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:.5px;}
+.nutr-note{font-size:10px;color:var(--muted);margin-top:8px;}
+
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;}
+.btn-cancel{background:var(--sand);border:none;border-radius:30px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;color:var(--muted);}
+.btn-save{background:var(--or);color:#fff;border:none;border-radius:30px;padding:10px 24px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Lato',sans-serif;transition:background .15s;}
+.btn-save:hover{background:var(--or-dk);}
+
+/* Detail */
+.dm{background:#fff9f4;border-radius:22px;padding:30px 26px;width:100%;max-width:640px;box-shadow:0 24px 64px rgba(0,0,0,.2);position:relative;margin:auto;}
+.dm-bar{height:5px;border-radius:4px;background:var(--or);margin-bottom:18px;}
+.dm-name{font-family:'Great Vibes',cursive;font-size:2.3rem;color:var(--text);margin-bottom:4px;}
+.dm-meta{font-size:12px;color:var(--muted);margin-bottom:20px;}
+.dm-sec{margin-bottom:18px;}
+.dm-sec-t{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--or-dk);margin-bottom:10px;}
+.ing-list{list-style:none;}
+.ing-list li{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;}
+.ing-list li::before{content:'·';color:var(--or);font-size:18px;line-height:1;}
+.ing-qty{color:var(--muted);font-size:13px;margin-left:auto;white-space:nowrap;}
+.step-list{list-style:none;counter-reset:s;}
+.step-list li{counter-increment:s;display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--border);font-size:14px;line-height:1.65;}
+.step-list li::before{content:counter(s);background:var(--or);color:#fff;font-size:11px;font-weight:700;width:21px;height:21px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.dm-photos{display:flex;gap:8px;flex-wrap:wrap;}
+.dm-photos img{width:86px;height:86px;object-fit:cover;border-radius:10px;}
+.dm-memo{font-family:'Caveat',cursive;font-size:15px;color:var(--muted);background:rgba(200,130,90,.06);border-left:3px solid var(--or);padding:11px 15px;border-radius:0 10px 10px 0;line-height:1.7;}
+.dm-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
+
+footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);opacity:.5;letter-spacing:2px;}
+@media(max-width:580px){
+  header{padding:36px 18px 24px;}main{padding:20px 16px 60px;}
+  .recipe-grid{grid-template-columns:1fr;}.frow{flex-direction:column;gap:0;}
+  .nutr-grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="badge">✦ Recipe Garden ✦</div>
+  <div class="title">Recipe Note</div>
+  <p class="sub">お気に入りのレシピを丁寧に記録する</p>
+</header>
+
+<main>
+  <div class="top-bar">
+    <span class="sec-title">レシピ一覧</span>
+    <button class="add-btn" id="openAddBtn">＋ 新しいレシピを追加</button>
+  </div>
+  <div class="filter-bar">
+    <button class="fb active" data-cat="all">すべて</button>
+    <button class="fb" data-cat="和食">和食</button>
+    <button class="fb" data-cat="洋食">洋食</button>
+    <button class="fb" data-cat="中華">中華</button>
+    <button class="fb" data-cat="お菓子">お菓子</button>
+    <button class="fb" data-cat="パン">パン</button>
+    <button class="fb" data-cat="その他">その他</button>
+  </div>
+  <div class="recipe-grid" id="grid"></div>
+</main>
+
+<footer>🌿 Recipe Note · Made with Claude</footer>
+
+<!-- Form Modal -->
+<div class="overlay" id="fmOverlay">
+<div class="modal">
+  <button class="mc" id="closeFmBtn">✕</button>
+  <div class="modal-title" id="fmTitle">New Recipe</div>
+  <div class="frow">
+    <div class="fg" style="flex:2">
+      <label class="fl">レシピ名 *</label>
+      <input type="text" class="fi" id="f-name" placeholder="例：肉じゃが">
+    </div>
+    <div class="fg">
+      <label class="fl">カテゴリ</label>
+      <select class="fs" id="f-cat">
+        <option>和食</option><option>洋食</option><option>中華</option>
+        <option>お菓子</option><option>パン</option><option>その他</option>
+      </select>
+    </div>
+  </div>
+  <div class="frow">
+    <div class="fg"><label class="fl">人数</label><input type="text" class="fi" id="f-serv" placeholder="例：2人分"></div>
+    <div class="fg"><label class="fl">調理時間</label><input type="text" class="fi" id="f-time" placeholder="例：30分"></div>
+  </div>
+
+  <div class="fg">
+    <label class="fl">材料</label>
+    <div class="dyn-list" id="ingList"></div>
+    <button type="button" class="add-row-btn" id="addIngBtn">＋ 材料を追加</button>
+  </div>
+
+  <div class="fg">
+    <label class="fl">作り方</label>
+    <div class="dyn-list" id="stepList"></div>
+    <button type="button" class="add-row-btn" id="addStepBtn">＋ 手順を追加</button>
+  </div>
+
+  <div class="fg">
+    <label class="fl">写真</label>
+    <div class="photo-zone" id="photoZone">
+      <input type="file" id="photoInput" accept="image/*" multiple>
+      <p>📷 クリックまたはドラッグで写真を追加</p>
+    </div>
+    <div class="photo-previews" id="photoPreviews"></div>
+  </div>
+
+  <div class="fg">
+    <label class="fl">メモ・コツ</label>
+    <input type="text" class="fi" id="f-memo" placeholder="ポイントや気づきなど…">
+  </div>
+
+  <div class="nutr-box" id="nutrBox" style="display:none">
+    <div class="nutr-title">🔢 推定栄養値（全体）</div>
+    <div class="nutr-grid">
+      <div class="nutr-item"><div class="nutr-val" id="nCal">—</div><div class="nutr-lbl">kcal</div></div>
+      <div class="nutr-item"><div class="nutr-val" id="nPro">—</div><div class="nutr-lbl">タンパク質 g</div></div>
+      <div class="nutr-item"><div class="nutr-val" id="nFat">—</div><div class="nutr-lbl">脂質 g</div></div>
+      <div class="nutr-item"><div class="nutr-val" id="nCarb">—</div><div class="nutr-lbl">炭水化物 g</div></div>
+    </div>
+    <div class="nutr-note">※ 主な食材のみの推定値です。目安としてご利用ください。</div>
+  </div>
+
+  <div class="modal-actions">
+    <button class="btn-cancel" id="cancelFmBtn">キャンセル</button>
+    <button class="btn-save" id="saveFmBtn">保存する</button>
+  </div>
+</div>
+</div>
+
+<!-- Detail Modal -->
+<div class="overlay" id="dtOverlay">
+<div class="dm">
+  <button class="mc" id="closeDtBtn">✕</button>
+  <div class="dm-bar"></div>
+  <div class="dm-name" id="dtName"></div>
+  <div class="dm-meta" id="dtMeta"></div>
+  <div class="dm-sec" id="dtIngSec"><div class="dm-sec-t">🧺 材料</div><ul class="ing-list" id="dtIng"></ul></div>
+  <div class="dm-sec" id="dtStepSec"><div class="dm-sec-t">📋 作り方</div><ol class="step-list" id="dtSteps"></ol></div>
+  <div class="dm-sec" id="dtPhotoSec"><div class="dm-sec-t">📷 写真</div><div class="dm-photos" id="dtPhotos"></div></div>
+  <div class="dm-sec" id="dtMemoSec"><div class="dm-sec-t">📝 メモ</div><div class="dm-memo" id="dtMemo"></div></div>
+  <div class="dm-sec" id="dtNutrSec">
+    <div class="dm-sec-t">🔢 推定栄養値</div>
+    <div class="nutr-grid" id="dtNutrGrid"></div>
+    <div class="nutr-note">※ 主な食材のみの推定値です。</div>
+  </div>
+  <div class="dm-actions">
+    <button class="btn-cancel" id="closeDtBtn2">閉じる</button>
+    <button class="btn-save" id="editDtBtn">編集</button>
+  </div>
+</div>
+</div>
+
+<script>
+'use strict';
+
+// ===== 栄養DB =====
+const NUTR_DB = [
+  {k:['米','ご飯','白米','玄米'],cal:168,p:2.5,f:0.3,c:37.1},
+  {k:['パスタ','スパゲッティ','うどん','そば','ラーメン'],cal:150,p:5.2,f:0.9,c:29.2},
+  {k:['食パン','パン'],cal:264,p:9.3,f:4.4,c:46.7},
+  {k:['小麦粉','薄力粉','強力粉','片栗粉'],cal:368,p:8.3,f:1.5,c:75.8},
+  {k:['鶏胸','鶏むね','鶏もも','鶏肉','とりにく','チキン'],cal:108,p:22.3,f:1.5,c:0},
+  {k:['豚ロース','豚バラ','豚肉','ぶたにく','豚'],cal:263,p:19.3,f:19.2,c:0.2},
+  {k:['牛肉','ぎゅうにく','牛バラ','牛ロース','牛'],cal:240,p:17.9,f:18.7,c:0.1},
+  {k:['ひき肉','合いびき','鶏ひき','豚ひき'],cal:200,p:17.0,f:14.0,c:0.1},
+  {k:['鮭','サーモン','さけ'],cal:133,p:20.1,f:4.1,c:0.1},
+  {k:['まぐろ','ツナ'],cal:125,p:26.4,f:1.4,c:0.1},
+  {k:['えび','海老'],cal:83,p:18.4,f:0.3,c:0.1},
+  {k:['卵','たまご'],cal:151,p:12.3,f:10.3,c:0.3},
+  {k:['豆腐','もめん','絹ごし'],cal:72,p:6.6,f:4.2,c:1.6},
+  {k:['牛乳','ミルク'],cal:61,p:3.3,f:3.5,c:4.8},
+  {k:['チーズ'],cal:339,p:22.7,f:26.0,c:1.3},
+  {k:['バター'],cal:745,p:0.5,f:81.0,c:0.2},
+  {k:['油','オリーブオイル','サラダ油','ごま油'],cal:884,p:0,f:100,c:0},
+  {k:['じゃがいも','ジャガイモ','芋'],cal:76,p:1.8,f:0.1,c:17.3},
+  {k:['さつまいも','サツマイモ'],cal:132,p:1.2,f:0.2,c:31.5},
+  {k:['にんじん','人参'],cal:39,p:0.6,f:0.1,c:9.0},
+  {k:['玉ねぎ','たまねぎ','玉葱'],cal:37,p:1.0,f:0.1,c:8.4},
+  {k:['キャベツ'],cal:23,p:1.3,f:0.2,c:5.2},
+  {k:['ほうれん草'],cal:20,p:2.2,f:0.4,c:3.1},
+  {k:['ブロッコリー'],cal:33,p:4.3,f:0.5,c:5.2},
+  {k:['トマト'],cal:19,p:0.7,f:0.1,c:4.7},
+  {k:['なす','ナス'],cal:18,p:1.1,f:0.1,c:4.1},
+  {k:['ピーマン','パプリカ'],cal:22,p:0.9,f:0.2,c:5.1},
+  {k:['きのこ','しいたけ','えのき','まいたけ'],cal:18,p:2.0,f:0.3,c:3.0},
+  {k:['砂糖','さとう'],cal:384,p:0,f:0,c:99.2},
+  {k:['醤油','しょうゆ'],cal:71,p:5.7,f:0,c:10.1},
+  {k:['みりん'],cal:241,p:0.3,f:0,c:54.9},
+  {k:['味噌','みそ'],cal:217,p:12.5,f:6.0,c:21.9},
+  {k:['生クリーム','クリーム'],cal:433,p:2.8,f:45.0,c:3.1},
+  {k:['豆乳'],cal:46,p:3.6,f:2.0,c:3.1},
+  {k:['大豆','枝豆'],cal:140,p:11.5,f:6.2,c:11.1},
+];
+
+function parseGrams(qty) {
+  if (!qty) return null;
+  const s = qty.trim();
+  let m;
+  if ((m = s.match(/(\d+\.?\d*)\s*kg/i))) return +m[1] * 1000;
+  if ((m = s.match(/(\d+\.?\d*)\s*g/i)))  return +m[1];
+  if ((m = s.match(/(\d+\.?\d*)\s*ml/i))) return +m[1];
+  if ((m = s.match(/(\d+\.?\d*)\s*個/)))  return +m[1] * 100;
+  if ((m = s.match(/(\d+\.?\d*)\s*枚/)))  return +m[1] * 60;
+  if ((m = s.match(/(\d+\.?\d*)\s*本/)))  return +m[1] * 100;
+  if ((m = s.match(/大さじ\s*(\d+\.?\d*)/))) return +m[1] * 15;
+  if ((m = s.match(/小さじ\s*(\d+\.?\d*)/))) return +m[1] * 5;
+  if ((m = s.match(/(\d+\.?\d*)\s*カップ/))) return +m[1] * 200;
+  if ((m = s.match(/^(\d+\.?\d*)/)))      return +m[1] * 80;
+  return null;
+}
+
+function calcNutr(ings) {
+  let cal=0,p=0,f=0,c=0,found=false;
+  ings.forEach(function(ing) {
+    if (!ing.name) return;
+    var nl = ing.name.toLowerCase();
+    var g = parseGrams(ing.qty);
+    if (!g) return;
+    var entry = NUTR_DB.find(function(d) {
+      return d.k.some(function(k) { return nl.includes(k); });
+    });
+    if (entry) {
+      var r = g / 100;
+      cal += entry.cal * r;
+      p   += entry.p * r;
+      f   += entry.f * r;
+      c   += entry.c * r;
+      found = true;
+    }
+  });
+  return found ? {cal:Math.round(cal), p:Math.round(p*10)/10, f:Math.round(f*10)/10, c:Math.round(c*10)/10} : null;
+}
+
+// ===== State =====
+var STORAGE_KEY = 'recipeNoteV3';
+var recipes = [];
+var editId = null;
+var curFilter = 'all';
+var dtId = null;
+var formPhotos = [];
+
+function load() {
+  try { recipes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch(e) { recipes = []; }
+}
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes)); }
+
+var catEmoji = {和食:'🍱',洋食:'🍝',中華:'🥢',お菓子:'🍰',パン:'🍞',その他:'🌿'};
+
+// ===== Render grid =====
+function render() {
+  var grid = document.getElementById('grid');
+  var list = curFilter === 'all' ? recipes : recipes.filter(function(r){ return r.cat === curFilter; });
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty"><div class="empty-icon">🌿</div><div class="empty-title">' +
+      (curFilter==='all' ? 'まだレシピがありません' : 'このカテゴリはまだありません') +
+      '</div><p style="font-size:13px;margin-top:8px">「＋ 新しいレシピを追加」で記録しましょう</p></div>';
+    return;
+  }
+  var html = '';
+  list.forEach(function(r) {
+    var imgHtml = (r.photos && r.photos.length)
+      ? '<img class="rc-img" src="' + r.photos[0] + '" alt="' + r.name + '">'
+      : '<div class="rc-img-ph">' + (catEmoji[r.cat]||'🌿') + '</div>';
+    var tags = '';
+    if (r.servings) tags += '<span class="tag">👥 ' + r.servings + '</span>';
+    if (r.time)     tags += '<span class="tag">⏱ ' + r.time + '</span>';
+    if (r.ingredients && r.ingredients.length) tags += '<span class="tag">🧺 ' + r.ingredients.length + '品目</span>';
+    html += '<div class="rc" data-id="' + r.id + '">' +
+      imgHtml +
+      '<div class="rc-bar"></div>' +
+      '<div class="rc-body">' +
+        '<span class="rc-cat">' + (catEmoji[r.cat]||'🌿') + ' ' + r.cat + '</span>' +
+        '<div class="rc-name">' + r.name + '</div>' +
+        '<div class="rc-memo">' + (r.memo ? '"' + r.memo.slice(0,55) + (r.memo.length>55?'…':'') + '"' : '<span style="opacity:.3">メモなし</span>') + '</div>' +
+        '<div class="rc-tags">' + tags + '</div>' +
+        '<div class="rc-footer">' +
+          '<span class="rc-info">' + r.cat + '</span>' +
+          '<div class="rc-actions">' +
+            '<button class="ab edit-btn" data-id="' + r.id + '">編集</button>' +
+            '<button class="ab del del-btn" data-id="' + r.id + '">削除</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  });
+  grid.innerHTML = html;
+
+  grid.querySelectorAll('.rc').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      if (e.target.classList.contains('edit-btn') || e.target.classList.contains('del-btn')) return;
+      openDt(el.dataset.id);
+    });
+  });
+  grid.querySelectorAll('.edit-btn').forEach(function(el) {
+    el.addEventListener('click', function(e) { e.stopPropagation(); openEdit(el.dataset.id); });
+  });
+  grid.querySelectorAll('.del-btn').forEach(function(el) {
+    el.addEventListener('click', function(e) { e.stopPropagation(); delR(el.dataset.id); });
+  });
+}
+
+// ===== Filter =====
+document.querySelector('.filter-bar').addEventListener('click', function(e) {
+  var btn = e.target.closest('.fb');
+  if (!btn) return;
+  curFilter = btn.dataset.cat;
+  document.querySelectorAll('.fb').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  render();
+});
+
+// ===== Ingredient rows =====
+function addIngRow(name, qty) {
+  name = name || ''; qty = qty || '';
+  var row = document.createElement('div');
+  row.className = 'dyn-row';
+  row.innerHTML =
+    '<input type="text" class="fi ing-name" placeholder="材料名（例：鶏もも肉）" value="' + escHtml(name) + '">' +
+    '<input type="text" class="fi qty ing-qty" placeholder="量（例：200g）" value="' + escHtml(qty) + '">' +
+    '<button type="button" class="rm-btn">×</button>';
+  row.querySelector('.rm-btn').addEventListener('click', function(){ row.remove(); updateNutr(); });
+  row.querySelector('.ing-name').addEventListener('input', updateNutr);
+  row.querySelector('.ing-qty').addEventListener('input', updateNutr);
+  document.getElementById('ingList').appendChild(row);
+  updateNutr();
+}
+
+function addStepRow(text) {
+  text = text || '';
+  var list = document.getElementById('stepList');
+  var idx = list.children.length + 1;
+  var row = document.createElement('div');
+  row.className = 'dyn-row';
+  row.innerHTML =
+    '<span class="step-num">' + idx + '</span>' +
+    '<input type="text" class="fi" placeholder="手順を入力…" value="' + escHtml(text) + '">' +
+    '<button type="button" class="rm-btn">×</button>';
+  row.querySelector('.rm-btn').addEventListener('click', function(){ row.remove(); renumberSteps(); });
+  list.appendChild(row);
+}
+
+function renumberSteps() {
+  document.querySelectorAll('#stepList .step-num').forEach(function(el, i){ el.textContent = i+1; });
+}
+
+document.getElementById('addIngBtn').addEventListener('click', function(){ addIngRow(); });
+document.getElementById('addStepBtn').addEventListener('click', function(){ addStepRow(); });
+
+function getIngredients() {
+  var names = document.querySelectorAll('#ingList .ing-name');
+  var qtys  = document.querySelectorAll('#ingList .ing-qty');
+  var result = [];
+  names.forEach(function(el, i) {
+    var n = el.value.trim();
+    if (n) result.push({ name: n, qty: qtys[i] ? qtys[i].value.trim() : '' });
+  });
+  return result;
+}
+
+function updateNutr() {
+  var nutr = calcNutr(getIngredients());
+  var box = document.getElementById('nutrBox');
+  if (nutr) {
+    box.style.display = '';
+    document.getElementById('nCal').textContent  = nutr.cal;
+    document.getElementById('nPro').textContent  = nutr.p;
+    document.getElementById('nFat').textContent  = nutr.f;
+    document.getElementById('nCarb').textContent = nutr.c;
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+// ===== Photos =====
+document.getElementById('photoInput').addEventListener('change', function(e) {
+  Array.from(e.target.files).forEach(function(file) {
+    var reader = new FileReader();
+    reader.onload = function(ev) { formPhotos.push(ev.target.result); renderPhotoPreviews(); };
+    reader.readAsDataURL(file);
+  });
+  this.value = '';
+});
+
+function renderPhotoPreviews() {
+  var wrap = document.getElementById('photoPreviews');
+  var html = '';
+  formPhotos.forEach(function(src, i) {
+    html += '<div class="photo-thumb"><img src="' + src + '"><button class="rm-ph" data-i="' + i + '">×</button></div>';
+  });
+  wrap.innerHTML = html;
+  wrap.querySelectorAll('.rm-ph').forEach(function(btn) {
+    btn.addEventListener('click', function(){ formPhotos.splice(+btn.dataset.i, 1); renderPhotoPreviews(); });
+  });
+}
+
+// ===== Open form =====
+function openAdd() {
+  editId = null; formPhotos = [];
+  document.getElementById('fmTitle').textContent = 'New Recipe';
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-cat').value = '和食';
+  document.getElementById('f-serv').value = '';
+  document.getElementById('f-time').value = '';
+  document.getElementById('f-memo').value = '';
+  document.getElementById('ingList').innerHTML = '';
+  document.getElementById('stepList').innerHTML = '';
+  document.getElementById('photoPreviews').innerHTML = '';
+  document.getElementById('nutrBox').style.display = 'none';
+  // 記入例
+  addIngRow('鶏もも肉', '300g');
+  addIngRow('じゃがいも', '2個');
+  addIngRow('玉ねぎ', '1個');
+  addIngRow('にんじん', '1本');
+  addIngRow('醤油', '大さじ3');
+  addIngRow('砂糖', '大さじ2');
+  addIngRow('みりん', '大さじ2');
+  addStepRow('材料を一口大に切る');
+  addStepRow('鍋に油を熱し、肉を炒める');
+  addStepRow('野菜を加えてさらに炒め、だし汁を注ぐ');
+  addStepRow('調味料を加えて落し蓋をし、中火で20分煮る');
+  document.getElementById('f-name').value = '肉じゃが（記入例）';
+  document.getElementById('f-serv').value = '4人分';
+  document.getElementById('f-time').value = '35分';
+  document.getElementById('f-memo').value = 'じゃがいもは煮崩れ注意。落し蓋で味が染み込みます。';
+  updateNutr();
+  openOverlay('fmOverlay');
+}
+
+function openEdit(id) {
+  var r = recipes.find(function(x){ return x.id === id; });
+  if (!r) return;
+  editId = id; formPhotos = (r.photos || []).slice();
+  document.getElementById('fmTitle').textContent = 'Edit Recipe';
+  document.getElementById('f-name').value = r.name;
+  document.getElementById('f-cat').value = r.cat;
+  document.getElementById('f-serv').value = r.servings || '';
+  document.getElementById('f-time').value = r.time || '';
+  document.getElementById('f-memo').value = r.memo || '';
+  document.getElementById('ingList').innerHTML = '';
+  document.getElementById('stepList').innerHTML = '';
+  (r.ingredients || []).forEach(function(ing){ addIngRow(ing.name, ing.qty); });
+  (r.steps || []).forEach(function(s){ addStepRow(s); });
+  renderPhotoPreviews();
+  updateNutr();
+  openOverlay('fmOverlay');
+}
+
+document.getElementById('openAddBtn').addEventListener('click', openAdd);
+document.getElementById('closeFmBtn').addEventListener('click', function(){ closeOverlay('fmOverlay'); });
+document.getElementById('cancelFmBtn').addEventListener('click', function(){ closeOverlay('fmOverlay'); });
+document.getElementById('fmOverlay').addEventListener('click', function(e){ if(e.target===this) closeOverlay('fmOverlay'); });
+
+// ===== Save =====
+document.getElementById('saveFmBtn').addEventListener('click', function() {
+  var name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('レシピ名を入力してください'); return; }
+  var ings  = getIngredients();
+  var steps = Array.from(document.querySelectorAll('#stepList .fi')).map(function(el){ return el.value.trim(); }).filter(Boolean);
+  var nutr  = calcNutr(ings);
+  var r = {
+    id:         editId || String(Date.now()),
+    name:       name,
+    cat:        document.getElementById('f-cat').value,
+    servings:   document.getElementById('f-serv').value.trim(),
+    time:       document.getElementById('f-time').value.trim(),
+    ingredients:ings,
+    steps:      steps,
+    memo:       document.getElementById('f-memo').value.trim(),
+    photos:     formPhotos.slice(),
+    nutr:       nutr,
+    date:       editId ? (recipes.find(function(x){return x.id===editId;})||{}).date : new Date().toISOString()
+  };
+  if (editId) {
+    recipes = recipes.map(function(x){ return x.id === editId ? r : x; });
+  } else {
+    recipes.unshift(r);
+  }
+  save(); closeOverlay('fmOverlay'); render();
+});
+
+// ===== Delete =====
+function delR(id) {
+  if (!confirm('このレシピを削除しますか？')) return;
+  recipes = recipes.filter(function(x){ return x.id !== id; });
+  save(); render();
+}
+
+// ===== Detail =====
+function openDt(id) {
+  dtId = id;
+  var r = recipes.find(function(x){ return x.id === id; });
+  if (!r) return;
+  document.getElementById('dtName').textContent = (catEmoji[r.cat]||'🌿') + ' ' + r.name;
+  document.getElementById('dtMeta').textContent = r.cat + (r.servings?' · '+r.servings:'') + (r.time?' · '+r.time:'');
+
+  var ingSec = document.getElementById('dtIngSec');
+  if (r.ingredients && r.ingredients.length) {
+    ingSec.style.display = '';
+    document.getElementById('dtIng').innerHTML = r.ingredients.map(function(ing){
+      return '<li>' + escHtml(ing.name) + '<span class="ing-qty">' + escHtml(ing.qty) + '</span></li>';
+    }).join('');
+  } else { ingSec.style.display = 'none'; }
+
+  var stepSec = document.getElementById('dtStepSec');
+  if (r.steps && r.steps.length) {
+    stepSec.style.display = '';
+    document.getElementById('dtSteps').innerHTML = r.steps.map(function(s){ return '<li>' + escHtml(s) + '</li>'; }).join('');
+  } else { stepSec.style.display = 'none'; }
+
+  var photoSec = document.getElementById('dtPhotoSec');
+  if (r.photos && r.photos.length) {
+    photoSec.style.display = '';
+    document.getElementById('dtPhotos').innerHTML = r.photos.map(function(s){ return '<img src="'+s+'" alt="">'; }).join('');
+  } else { photoSec.style.display = 'none'; }
+
+  var memoSec = document.getElementById('dtMemoSec');
+  if (r.memo) { memoSec.style.display=''; document.getElementById('dtMemo').textContent = r.memo; }
+  else { memoSec.style.display = 'none'; }
+
+  var nutrSec = document.getElementById('dtNutrSec');
+  if (r.nutr) {
+    nutrSec.style.display = '';
+    document.getElementById('dtNutrGrid').innerHTML =
+      '<div class="nutr-item"><div class="nutr-val">'+r.nutr.cal+'</div><div class="nutr-lbl">kcal</div></div>' +
+      '<div class="nutr-item"><div class="nutr-val">'+r.nutr.p+'</div><div class="nutr-lbl">タンパク質 g</div></div>' +
+      '<div class="nutr-item"><div class="nutr-val">'+r.nutr.f+'</div><div class="nutr-lbl">脂質 g</div></div>' +
+      '<div class="nutr-item"><div class="nutr-val">'+r.nutr.c+'</div><div class="nutr-lbl">炭水化物 g</div></div>';
+  } else { nutrSec.style.display = 'none'; }
+
+  openOverlay('dtOverlay');
+}
+
+document.getElementById('closeDtBtn').addEventListener('click', function(){ closeOverlay('dtOverlay'); });
+document.getElementById('closeDtBtn2').addEventListener('click', function(){ closeOverlay('dtOverlay'); });
+document.getElementById('editDtBtn').addEventListener('click', function(){ closeOverlay('dtOverlay'); openEdit(dtId); });
+document.getElementById('dtOverlay').addEventListener('click', function(e){ if(e.target===this) closeOverlay('dtOverlay'); });
+
+// ===== Overlay helpers =====
+function openOverlay(id)  { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
+function closeOverlay(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
+
+// ===== Escape HTML =====
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ closeOverlay('fmOverlay'); closeOverlay('dtOverlay'); } });
+
+// ===== Init =====
+load();
+render();
+</script>
+</body>
+</html>

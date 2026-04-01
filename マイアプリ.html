@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>マイアプリ</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400;700&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#e4ecf2; --blue:#7a9fb8; --blue-dk:#4a6b84; --blue-lt:#b8d0e0;
+  --text:#2a3d4f; --muted:#607080; --border:#c0d4e0;
+  --card:rgba(255,255,255,0.88); --shadow:rgba(74,107,132,0.15);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Lato','Hiragino Kaku Gothic ProN',sans-serif;
+  background:var(--bg);
+  background-image:
+    radial-gradient(ellipse 800px 500px at 10% 10%, rgba(122,159,184,.25) 0%,transparent 65%),
+    radial-gradient(ellipse 600px 400px at 90% 80%, rgba(74,107,132,.18) 0%,transparent 65%);
+  background-attachment:fixed;
+  min-height:100vh;
+  color:var(--text);
+}
+
+/* ===== Header ===== */
+header{
+  text-align:center;
+  padding:60px 24px 40px;
+}
+.badge{
+  display:inline-block;
+  background:rgba(255,255,255,.55);
+  border:1.5px solid var(--border);
+  border-radius:99px;
+  padding:5px 22px;
+  font-size:10px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--blue-dk);
+  font-weight:700;
+  margin-bottom:16px;
+}
+.title{
+  font-family:'Great Vibes',cursive;
+  font-size:clamp(3.5rem,9vw,6rem);
+  color:var(--blue-dk);
+  line-height:1.1;
+  margin-bottom:10px;
+}
+.sub{
+  font-size:13px;
+  color:var(--muted);
+  letter-spacing:2px;
+}
+
+/* ===== Main ===== */
+main{
+  max-width:1000px;
+  margin:0 auto;
+  padding:10px 24px 80px;
+}
+
+.section-label{
+  font-size:10px;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  color:var(--muted);
+  font-weight:700;
+  margin-bottom:20px;
+}
+
+/* ===== App Grid ===== */
+.app-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+  gap:24px;
+  margin-bottom:48px;
+}
+
+.app-card{
+  background:var(--card);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 4px 20px var(--shadow);
+  text-decoration:none;
+  color:inherit;
+  transition:transform .2s, box-shadow .2s;
+  display:block;
+  cursor:pointer;
+  border:1.5px solid rgba(255,255,255,.8);
+}
+.app-card:hover{
+  transform:translateY(-5px);
+  box-shadow:0 10px 36px var(--shadow);
+}
+
+.card-img{
+  width:100%;
+  height:160px;
+  object-fit:cover;
+  display:block;
+}
+
+.card-body{
+  padding:18px 20px 20px;
+}
+
+.card-cat{
+  font-size:10px;
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:8px;
+  font-weight:700;
+}
+
+.card-name-en{
+  font-family:'Great Vibes',cursive;
+  font-size:1.9rem;
+  line-height:1.1;
+  margin-bottom:4px;
+}
+
+.card-name{
+  font-size:13px;
+  font-weight:700;
+  color:var(--muted);
+  margin-bottom:10px;
+  letter-spacing:.5px;
+}
+
+.card-desc{
+  font-size:12.5px;
+  color:var(--muted);
+  line-height:1.7;
+  margin-bottom:14px;
+}
+
+.card-btn{
+  display:inline-block;
+  padding:8px 20px;
+  border-radius:50px;
+  font-size:12px;
+  font-weight:700;
+  color:#fff;
+  letter-spacing:.5px;
+  transition:opacity .15s, transform .1s;
+}
+.card-btn:hover{
+  opacity:.85;
+  transform:translateY(-1px);
+}
+
+/* ===== Footer ===== */
+footer{
+  text-align:center;
+  padding:32px 24px;
+  color:var(--muted);
+  font-size:11px;
+  letter-spacing:2px;
+  opacity:.7;
+}
+
+/* ===== Empty state ===== */
+.empty{
+  text-align:center;
+  padding:60px 24px;
+  color:var(--muted);
+}
+.empty p{font-size:14px;line-height:1.8;}
+
+/* ===== Divider ===== */
+.divider{
+  height:1.5px;
+  background:linear-gradient(90deg,transparent,var(--border),transparent);
+  margin:8px 0 28px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Private App Suite</div>
+  <h1 class="title">My Apps</h1>
+  <p class="sub">satukiのプライベートアプリ一覧</p>
+</header>
+
+<main>
+  <div class="section-label">Apps</div>
+  <div class="divider"></div>
+  <div class="app-grid" id="appGrid"></div>
+</main>
+
+<footer>
+  <p>© satuki · Private · Local</p>
+</footer>
+
+<script>
+'use strict';
+
+// ============================================================
+//  アプリ一覧  ← クロちゃんが新しいアプリをここに追加します
+// ============================================================
+var APPS = [
+  {
+    name:    'レシピノート',
+    nameEn:  'Recipe Note',
+    file:    'レシピノート.html',
+    cat:     '料理 · Recipe',
+    desc:    '材料・手順を記録して栄養計算。肉じゃがなどの和食から洋食まで、大切なレシピを美しく保存できます。',
+    image:   'https://images.unsplash.com/photo-1466637574441-749b8f19452f?w=600&q=80&auto=format&fit=crop',
+    accent:  '#c8825a'
+  },
+  {
+    name:    '紅茶ログ',
+    nameEn:  'Tea Diary',
+    file:    '紅茶ログ.html',
+    cat:     'お茶 · Tea',
+    desc:    '紅茶・緑茶・ハーブティーなど全7カテゴリのお茶を記録。水温・蒸らし時間・茶の水色まで詳細に残せます。',
+    image:   'https://images.unsplash.com/photo-1597318181409-cf64d0b5d8a2?w=600&q=80&auto=format&fit=crop',
+    accent:  '#9b7a4a'
+  }
+  // ← ここにアプリを追加
+];
+// ============================================================
+
+function renderApps() {
+  var grid = document.getElementById('appGrid');
+
+  if (!APPS.length) {
+    grid.innerHTML = '<div class="empty"><p>まだアプリはありません。<br>クロちゃんに新しいアプリを作ってもらいましょう！</p></div>';
+    return;
+  }
+
+  var html = APPS.map(function(app) {
+    return [
+      '<a class="app-card" href="' + app.file + '" target="_blank">',
+        '<img class="card-img" src="' + app.image + '" alt="' + app.name + '" onerror="this.style.background=\'var(--blue-lt)\';this.style.height=\'160px\'">',
+        '<div class="card-body">',
+          '<div class="card-cat">' + app.cat + '</div>',
+          '<div class="card-name-en" style="color:' + app.accent + '">' + app.nameEn + '</div>',
+          '<div class="card-name">' + app.name + '</div>',
+          '<div class="card-desc">' + app.desc + '</div>',
+          '<span class="card-btn" style="background:' + app.accent + '">開く →</span>',
+        '</div>',
+      '</a>'
+    ].join('');
+  }).join('');
+
+  grid.innerHTML = html;
+}
+
+renderApps();
+</script>
+</body>
+</html>
