@@ -137,7 +137,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);opacity:
 </style>
 </head>
 <body>
-<a href="index.html" style="display:inline-block; margin: 10px 0; padding: 10cpx 14px; background:#f3f3f3; color:#333; text-decoration:none; border-radius:10px;">
+<a href="index.html" style="display:inline-block; margin: 10px 0; padding: 10px 14px; background:#f3f3f3; color:#333; text-decoration:none; border-radius:10px;">
   ← 戻る
 </a>
 <header>
@@ -338,7 +338,7 @@ function calcNutr(ings) {
 
 // ===== State =====
 var STORAGE_KEY = 'recipeNoteV3';
-var recipes = [];
+let recipes = [];
 var editId = null;
 var curFilter = 'all';
 var dtId = null;
@@ -581,7 +581,9 @@ document.getElementById('saveFmBtn').addEventListener('click', function() {
   } else {
     recipes.unshift(r);
   }
-  save(); closeOverlay('fmOverlay'); render();
+  save();
+  closeOverlay('fmOverlay');
+  render();
 });
 
 // ===== Delete =====
