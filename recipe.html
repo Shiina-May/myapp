@@ -392,9 +392,11 @@ function render() {
   }
   var html = '';
   list.forEach(function(r) {
-    var imgHtml = (r.photos && r.photos.length)
-      ? '<img class="rc-img" src="' + r.photos[0] + '" alt="' + r.name + '">'
-      : '<div class="rc-img-ph">' + (catEmoji[r.cat]||'🌿') + '</div>';
+var imgHtml = r.thumbnail
+  ? '<img class="rc-img" src="' + r.thumbnail + '" alt="' + r.name + '">'
+  : (r.photos && r.photos.length)
+    ? '<img class="rc-img" src="' + r.photos[0] + '" alt="' + r.name + '">'
+    : '<div class="rc-img-ph">' + (catEmoji[r.cat]||'🌿') + '</div>';
     var tags = '';
     if (r.servings) tags += '<span class="tag">👥 ' + r.servings + '</span>';
     if (r.time)     tags += '<span class="tag">⏱ ' + r.time + '</span>';
@@ -601,6 +603,7 @@ document.getElementById('saveFmBtn').addEventListener('click', function() {
     steps:      steps,
     memo:       document.getElementById('f-memo').value.trim(),
     photos:     formPhotos.slice(),
+    thumbnail: formPhotos[0] || '',
     nutr:       nutr,
     date:       editId ? (recipes.find(function(x){return x.id===editId;})||{}).date : new Date().toISOString()
   };
