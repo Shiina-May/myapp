@@ -11,6 +11,11 @@
   --text:#3d2a1e; --muted:#7a5c48; --border:#dcc0aa;
   --card:rgba(255,255,255,0.82); --sand:#f0e0d0;
 }
+textarea.fi {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.6;
+}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Lato','Hiragino Kaku Gothic ProN',sans-serif;background:var(--bg);
   background-image:radial-gradient(ellipse 800px 450px at 8% 15%,rgba(200,130,90,.2) 0%,transparent 65%),
@@ -125,7 +130,7 @@ main{max-width:960px;margin:0 auto;padding:28px 24px 80px;}
 .step-list li::before{content:counter(s);background:var(--or);color:#fff;font-size:11px;font-weight:700;width:21px;height:21px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
 .dm-photos{display:flex;gap:8px;flex-wrap:wrap;}
 .dm-photos img{width:86px;height:86px;object-fit:cover;border-radius:10px;}
-.dm-memo{font-family:'Caveat',cursive;font-size:15px;color:var(--muted);background:rgba(200,130,90,.06);border-left:3px solid var(--or);padding:11px 15px;border-radius:0 10px 10px 0;line-height:1.7;}
+.dm-memo{font-family:'Caveat',cursive;font-size:15px;color:var(--muted);background:rgba(200,130,90,.06);border-left:3px solid var(--or);padding:11px 15px;border-radius:0 10px 10px 0;line-height:1.7;white-space:pre-wrap;}
 .dm-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
 
 footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);opacity:.5;letter-spacing:2px;}
@@ -209,10 +214,10 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);opacity:
     <div class="photo-previews" id="photoPreviews"></div>
   </div>
 
-  <div class="fg">
-    <label class="fl">メモ・コツ</label>
-    <input type="text" class="fi" id="f-memo" placeholder="ポイントや気づきなど…">
-  </div>
+<div class="fg">
+  <label class="fl">メモ・コツ</label>
+  <textarea class="fi" id="f-memo" rows="6" placeholder="ポイントや気づきなど…"></textarea>
+</div>
 
   <div class="nutr-box" id="nutrBox" style="display:none">
     <div class="nutr-title">🔢 推定栄養値（全体）</div>
