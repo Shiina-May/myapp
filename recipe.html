@@ -130,6 +130,27 @@ main{max-width:960px;margin:0 auto;padding:28px 24px 80px;}
 .step-list li::before{content:counter(s);background:var(--or);color:#fff;font-size:11px;font-weight:700;width:21px;height:21px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
 .dm-photos{display:flex;gap:8px;flex-wrap:wrap;}
 .dm-photos img{width:86px;height:86px;object-fit:cover;border-radius:10px;}
+.image-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.image-modal.show {
+  display: flex;
+}
+
+.image-modal-img {
+  max-width: 90vw;
+  max-height: 85vh;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
 .dm-memo{font-family:'Caveat',cursive;font-size:15px;color:var(--muted);background:rgba(200,130,90,.06);border-left:3px solid var(--or);padding:11px 15px;border-radius:0 10px 10px 0;line-height:1.7;white-space:pre-wrap;}
 .dm-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
 
@@ -259,7 +280,9 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);opacity:
   </div>
 </div>
 </div>
-
+<div id="imageModal" class="image-modal" onclick="closeImageModal()">
+  <img id="imageModalImg" class="image-modal-img" src="" alt="拡大画像">
+</div>
 <script>
 'use strict';
 
@@ -623,7 +646,9 @@ function openDt(id) {
   var photoSec = document.getElementById('dtPhotoSec');
   if (r.photos && r.photos.length) {
     photoSec.style.display = '';
-    document.getElementById('dtPhotos').innerHTML = r.photos.map(function(s){ return '<img src="'+s+'" alt="">'; }).join('');
+   document.getElementById('dtPhotos').innerHTML = r.photos.map(function(s){
+  return '<img src="'+s+'" alt="" onclick="openImageModal(\'' + s + '\')">';
+}).join('');
   } else { photoSec.style.display = 'none'; }
 
   var memoSec = document.getElementById('dtMemoSec');
@@ -659,7 +684,16 @@ function escHtml(s) {
 }
 
 document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ closeOverlay('fmOverlay'); closeOverlay('dtOverlay'); } });
+function openImageModal(src) {
+  const modal = document.getElementById('imageModal');
+  const img = document.getElementById('imageModalImg');
+  img.src = src;
+  modal.classList.add('show');
+}
 
+function closeImageModal() {
+  document.getElementById('imageModal').classList.remove('show');
+}
 // ===== Init =====
 load();
 render();
