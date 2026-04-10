@@ -98,8 +98,25 @@ main{max-width:960px;margin:0 auto;padding:28px 24px 80px;}
 .photo-previews{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px;}
 .photo-thumb{position:relative;}
 .photo-thumb img{width:70px;height:70px;object-fit:cover;border-radius:9px;border:2px solid var(--border);display:block;}
-.photo-thumb .rm-ph{position:absolute;top:-6px;right:-6px;background:var(--or-dk);color:#fff;border:none;border-radius:50%;width:19px;height:19px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.photo-controls {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  margin-top: 6px;
+}
 
+.photo-controls button {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.photo-controls button:hover {
+  background: var(--sand);
+}
 /* Nutrition */
 .nutr-box{background:rgba(200,130,90,.08);border:1.5px solid var(--or-lt);border-radius:13px;padding:14px 16px;margin-top:14px;}
 .nutr-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--or-dk);margin-bottom:10px;}
@@ -518,14 +535,54 @@ document.getElementById('photoInput').addEventListener('change', function(e) {
 });
 
 function renderPhotoPreviews() {
+  function movePhotoLeft(index) {
+  if (index <= 0) return;
+  var temp = formPhotos[index];
+  formPhotos[index] = formPhotos[index - 1];
+  formPhotos[index - 1] = temp;
+  renderPhotoPreviews();
+}
+
+function movePhotoRight(index) {
+  if (index >= formPhotos.length - 1) return;
+  var temp = formPhotos[index];
+  formPhotos[index] = formPhotos[index + 1];
+  formPhotos[index + 1] = temp;
+  renderPhotoPreviews();
+}
   var wrap = document.getElementById('photoPreviews');
   var html = '';
+
   formPhotos.forEach(function(src, i) {
-    html += '<div class="photo-thumb"><img src="' + src + '"><button class="rm-ph" data-i="' + i + '">×</button></div>';
+    html += '<div class="photo-thumb">' +
+      '<img src="' + src + '">' +
+      '<div class="photo-controls">' +
+        '<button type="button" class="mv-left" data-i="' + i + '">←</button>' +
+        '<button type="button" class="mv-right" data-i="' + i + '">→</button>' +
+        '<button type="button" class="rm-ph" data-i="' + i + '">×</button>' +
+      '</div>' +
+    '</div>';
   });
+
   wrap.innerHTML = html;
+
   wrap.querySelectorAll('.rm-ph').forEach(function(btn) {
-    btn.addEventListener('click', function(){ formPhotos.splice(+btn.dataset.i, 1); renderPhotoPreviews(); });
+    btn.addEventListener('click', function() {
+      formPhotos.splice(+btn.dataset.i, 1);
+      renderPhotoPreviews();
+    });
+  });
+
+  wrap.querySelectorAll('.mv-left').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      movePhotoLeft(+btn.dataset.i);
+    });
+  });
+
+  wrap.querySelectorAll('.mv-right').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      movePhotoRight(+btn.dataset.i);
+    });
   });
 }
 
