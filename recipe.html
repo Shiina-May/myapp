@@ -168,6 +168,35 @@ main{max-width:960px;margin:0 auto;padding:28px 24px 80px;}
   border-radius: 12px;
   box-shadow: 0 8px 30px rgba(0,0,0,0.3);
 }
+
+#imgPrevBtn,
+#imgNextBtn,
+#imgCloseBtn {
+  position: absolute;
+  background: rgba(255,255,255,0.9);
+  border: none;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+#imgPrevBtn {
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+#imgNextBtn {
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+#imgCloseBtn {
+  top: 20px;
+  right: 20px;
+}
 .dm-memo{font-family:'Caveat',cursive;font-size:15px;color:var(--muted);background:rgba(200,130,90,.06);border-left:3px solid var(--or);padding:11px 15px;border-radius:0 10px 10px 0;line-height:1.7;white-space:pre-wrap;}
 .dm-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
 
@@ -297,8 +326,11 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);opacity:
   </div>
 </div>
 </div>
-<div id="imageModal" class="image-modal" onclick="closeImageModal()">
+<div id="imageModal" class="image-modal">
+  <button type="button" id="imgPrevBtn" onclick="showPrevImage()">←</button>
   <img id="imageModalImg" class="image-modal-img" src="" alt="拡大画像">
+  <button type="button" id="imgNextBtn" onclick="showNextImage()">→</button>
+  <button type="button" id="imgCloseBtn" onclick="closeImageModal()">×</button>
 </div>
 <script>
 'use strict';
@@ -388,6 +420,8 @@ var editId = null;
 var curFilter = 'all';
 var dtId = null;
 var formPhotos = [];
+var currentImageList = [];
+var currentImageIndex = 0;
 
 function load() {
   try { recipes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
@@ -703,13 +737,22 @@ function openDt(id) {
     document.getElementById('dtSteps').innerHTML = r.steps.map(function(s){ return '<li>' + escHtml(s) + '</li>'; }).join('');
   } else { stepSec.style.display = 'none'; }
 
-  var photoSec = document.getElementById('dtPhotoSec');
-  if (r.photos && r.photos.length) {
-    photoSec.style.display = '';
-   document.getElementById('dtPhotos').innerHTML = r.photos.map(function(s){
-  return '<img src="'+s+'" alt="" onclick="openImageModal(\'' + s + '\')">';
-}).join('');
-  } else { photoSec.style.display = 'none'; }
+var photoSec = document.getElementById('dtPhotoSec');
+
+if (r.photos && r.photos.length) {
+  photoSec.style.display = '';
+  document.getElementById('dtPhotos').innerHTML = r.photos.map(function(s, i){
+    return '<img src="' + s + '" alt="" data-index="' + i + '">';
+  }).join('');
+
+  document.querySelectorAll('#dtPhotos img').forEach(function(img, i) {
+    img.addEventListener('click', function() {
+      openImageModal(r.photos[i], r.photos);
+    });
+  });
+} else {
+  photoSec.style.display = 'none';
+}
 
   var memoSec = document.getElementById('dtMemoSec');
   if (r.memo) { memoSec.style.display=''; document.getElementById('dtMemo').textContent = r.memo; }
@@ -744,15 +787,45 @@ function escHtml(s) {
 }
 
 document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ closeOverlay('fmOverlay'); closeOverlay('dtOverlay'); } });
-function openImageModal(src) {
+function openImageModal(src, photoList) {
   const modal = document.getElementById('imageModal');
   const img = document.getElementById('imageModalImg');
-  img.src = src;
+
+  currentImageList = photoList.slice();
+  currentImageIndex = currentImageList.indexOf(src);
+
+  if (currentImageIndex === -1) currentImageIndex = 0;
+
+  img.src = currentImageList[currentImageIndex];
   modal.classList.add('show');
+}
+
+function showPrevImage() {
+  if (!currentImageList.length) return;
+
+  currentImageIndex--;
+  if (currentImageIndex < 0) {
+    currentImageIndex = currentImageList.length - 1;
+  }
+
+  document.getElementById('imageModalImg').src = currentImageList[currentImageIndex];
+}
+
+function showNextImage() {
+  if (!currentImageList.length) return;
+
+  currentImageIndex++;
+  if (currentImageIndex >= currentImageList.length) {
+    currentImageIndex = 0;
+  }
+
+  document.getElementById('imageModalImg').src = currentImageList[currentImageIndex];
 }
 
 function closeImageModal() {
   document.getElementById('imageModal').classList.remove('show');
+  currentImageList = [];
+  currentImageIndex = 0;
 }
 // ===== Init =====
 load();
