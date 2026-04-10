@@ -703,9 +703,10 @@ document.getElementById('saveFmBtn').addEventListener('click', function() {
   } else {
     recipes.unshift(r);
   }
-  save();
-  closeOverlay('fmOverlay');
-  render();
+save();
+closeOverlay('fmOverlay');
+render();
+openDt(r.id);
 });
 
 // ===== Delete =====
