@@ -504,11 +504,9 @@ function render() {
   }
   var html = '';
   list.forEach(function(r) {
-var imgHtml = r.thumbnail
-  ? '<img class="rc-img" src="' + r.thumbnail + '" alt="' + r.name + '">'
-  : (r.photos && r.photos.length)
-    ? '<img class="rc-img" src="' + r.photos[0] + '" alt="' + r.name + '">'
-    : '<div class="rc-img-ph">' + (catEmoji[r.cat]||'🌿') + '</div>';
+var imgHtml = (r.photos && r.photos.length)
+  ? '<img class="rc-img" src="' + r.photos[0] + '" alt="' + escHtml(r.name) + '">'
+  : '<div class="rc-img-ph">' + (catEmoji[r.cat]||'🌿') + '</div>';
     var tags = '';
     if (r.servings) tags += '<span class="tag">👥 ' + r.servings + '</span>';
     if (r.time)     tags += '<span class="tag">⏱ ' + r.time + '</span>';
@@ -841,21 +839,20 @@ document.getElementById('saveFmBtn').addEventListener('click', function() {
     ? (recipes.find(function(x) { return x.id === editId; }) || null)
     : null;
 
-  var r = {
-    id: editId || String(Date.now()),
-    name: name,
-    cat: document.getElementById('f-cat').value,
-    servings: document.getElementById('f-serv').value.trim(),
-    time: document.getElementById('f-time').value.trim(),
-    ingredients: ings,
-    steps: steps,
-    memo: document.getElementById('f-memo').value.trim(),
-    photos: formPhotos.slice(),
-    thumbnail: formPhotos[0] || '',
-    nutr: nutr,
-    date: oldRecipe ? oldRecipe.date : new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
+var r = {
+  id: editId || String(Date.now()),
+  name: name,
+  cat: document.getElementById('f-cat').value,
+  servings: document.getElementById('f-serv').value.trim(),
+  time: document.getElementById('f-time').value.trim(),
+  ingredients: ings,
+  steps: steps,
+  memo: document.getElementById('f-memo').value.trim(),
+  photos: formPhotos.slice(),
+  nutr: nutr,
+  date: oldRecipe ? oldRecipe.date : new Date().toISOString(),
+  updatedAt: new Date().toISOString()
+};
 
   var backup = recipes.slice();
 
