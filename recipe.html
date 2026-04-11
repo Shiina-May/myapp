@@ -219,10 +219,13 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);opacity:
 </header>
 
 <main>
-  <div class="top-bar">
-    <span class="sec-title">レシピ一覧</span>
+<div class="top-bar">
+  <span class="sec-title">レシピ一覧</span>
+  <div style="display:flex; gap:8px; flex-wrap:wrap;">
     <button class="add-btn" id="openAddBtn">＋ 新しいレシピを追加</button>
+    <button class="add-btn" id="openTrashBtn" style="background:#8c6a58;">🗑 ゴミ箱</button>
   </div>
+</div>
   <div class="filter-bar">
     <button class="fb active" data-cat="all">すべて</button>
     <button class="fb" data-cat="和食">和食</button>
@@ -332,9 +335,33 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);opacity:
   <button type="button" id="imgNextBtn" onclick="showNextImage()">→</button>
   <button type="button" id="imgCloseBtn" onclick="closeImageModal()">×</button>
 </div>
+<div class="overlay" id="trashOverlay">
+  <div class="modal">
+    <button class="mc" id="closeTrashBtn">✕</button>
+    <div class="modal-title">Trash</div>
+    <div id="trashList"></div>
+  </div>
+</div>
 <script>
 'use strict';
+function showToast(msg, bg) {
+  var el = document.getElementById('toastMsg');
+  el.textContent = msg;
+  el.style.background = bg || '#333';
+  el.style.display = 'block';
+  clearTimeout(el._timer);
+  el._timer = setTimeout(function() {
+    el.style.display = 'none';
+  }, 3200);
+}
 
+function showError(msg) {
+  showToast(msg, '#c04040');
+}
+
+function showSuccess(msg) {
+  showToast(msg, '#2d7a46');
+}
 // ===== 栄養DB =====
 const NUTR_DB = [
   {k:['米','ご飯','白米','玄米'],cal:168,p:2.5,f:0.3,c:37.1},
@@ -415,6 +442,9 @@ function calcNutr(ings) {
 
 // ===== State =====
 var STORAGE_KEY = 'recipeNoteV3';
+var TRASH_KEY = 'recipeNoteTrashV1';
+var DRAFT_KEY = 'recipeNoteDraftV1';
+
 let recipes = [];
 var editId = null;
 var curFilter = 'all';
@@ -424,10 +454,41 @@ var currentImageList = [];
 var currentImageIndex = 0;
 
 function load() {
-  try { recipes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch(e) { recipes = []; }
+  try {
+    recipes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch (e) {
+    recipes = [];
+  }
 }
-function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes)); }
+function save() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes));
+    return true;
+  } catch (e) {
+    console.error('保存失敗:', e);
+    showError('保存に失敗しました。写真が大きすぎるか、保存容量がいっぱいです。');
+    return false;
+  }
+}
+
+function saveTrash(trash) {
+  try {
+    localStorage.setItem(TRASH_KEY, JSON.stringify(trash));
+    return true;
+  } catch (e) {
+    console.error('ゴミ箱保存失敗:', e);
+    showError('ゴミ箱への保存に失敗しました。');
+    return false;
+  }
+}
+
+function loadTrash() {
+  try {
+    return JSON.parse(localStorage.getItem(TRASH_KEY)) || [];
+  } catch (e) {
+    return [];
+  }
+}
 
 var catEmoji = {和食:'🍱',洋食:'🍝',中華:'🥢',お菓子:'🍰',パン:'🍞',その他:'🌿'};
 
@@ -457,8 +518,8 @@ var imgHtml = r.thumbnail
       '<div class="rc-bar"></div>' +
       '<div class="rc-body">' +
         '<span class="rc-cat">' + (catEmoji[r.cat]||'🌿') + ' ' + r.cat + '</span>' +
-        '<div class="rc-name">' + r.name + '</div>' +
-        '<div class="rc-memo">' + (r.memo ? '"' + r.memo.slice(0,55) + (r.memo.length>55?'…':'') + '"' : '<span style="opacity:.3">メモなし</span>') + '</div>' +
+'<div class="rc-name">' + escHtml(r.name) + '</div>' +
+'<div class="rc-memo">' + (r.memo ? '"' + escHtml(r.memo.slice(0,55)) + (r.memo.length>55?'…':'') + '"' : '<span style="opacity:.3">メモなし</span>') + '</div>' +
         '<div class="rc-tags">' + tags + '</div>' +
         '<div class="rc-footer">' +
           '<span class="rc-info">' + r.cat + '</span>' +
@@ -557,14 +618,66 @@ function updateNutr() {
     box.style.display = 'none';
   }
 }
-
-// ===== Photos =====
-document.getElementById('photoInput').addEventListener('change', function(e) {
-  Array.from(e.target.files).forEach(function(file) {
+function compressImage(file) {
+  return new Promise(function(resolve, reject) {
     var reader = new FileReader();
-    reader.onload = function(ev) { formPhotos.push(ev.target.result); renderPhotoPreviews(); };
+
+    reader.onload = function(e) {
+      var img = new Image();
+
+      img.onload = function() {
+        var maxW = 1600;
+        var maxH = 1600;
+        var w = img.width;
+        var h = img.height;
+
+        if (w > maxW || h > maxH) {
+          var ratio = Math.min(maxW / w, maxH / h);
+          w = Math.round(w * ratio);
+          h = Math.round(h * ratio);
+        }
+
+        var canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        resolve(dataUrl);
+      };
+
+      img.onerror = function() {
+        reject(new Error('画像の読み込みに失敗しました'));
+      };
+
+      img.src = e.target.result;
+    };
+
+    reader.onerror = function() {
+      reject(new Error('ファイルの読み込みに失敗しました'));
+    };
+
     reader.readAsDataURL(file);
   });
+}
+// ===== Photos =====
+document.getElementById('photoInput').addEventListener('change', async function(e) {
+  var files = Array.from(e.target.files || []);
+  if (!files.length) return;
+
+  for (var i = 0; i < files.length; i++) {
+    try {
+      var compressed = await compressImage(files[i]);
+      formPhotos.push(compressed);
+    } catch (err) {
+      console.error(err);
+      showError('画像の追加に失敗しました: ' + files[i].name);
+    }
+  }
+
+  renderPhotoPreviews();
   this.value = '';
 });
 
@@ -676,44 +789,172 @@ document.getElementById('openAddBtn').addEventListener('click', openAdd);
 document.getElementById('closeFmBtn').addEventListener('click', function(){ closeOverlay('fmOverlay'); });
 document.getElementById('cancelFmBtn').addEventListener('click', function(){ closeOverlay('fmOverlay'); });
 document.getElementById('fmOverlay').addEventListener('click', function(e){ if(e.target===this) closeOverlay('fmOverlay'); });
+document.getElementById('openTrashBtn').addEventListener('click', function() {
+  renderTrash();
+  openOverlay('trashOverlay');
+});
 
+document.getElementById('closeTrashBtn').addEventListener('click', function() {
+  closeOverlay('trashOverlay');
+});
+
+document.getElementById('trashOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeOverlay('trashOverlay');
+});
 // ===== Save =====
 document.getElementById('saveFmBtn').addEventListener('click', function() {
   var name = document.getElementById('f-name').value.trim();
-  if (!name) { alert('レシピ名を入力してください'); return; }
-  var ings  = getIngredients();
-  var steps = Array.from(document.querySelectorAll('#stepList .fi')).map(function(el){ return el.value.trim(); }).filter(Boolean);
-  var nutr  = calcNutr(ings);
+
+  if (!name) {
+    showError('レシピ名を入力してください');
+    return;
+  }
+
+  var ings = getIngredients();
+  var steps = Array.from(document.querySelectorAll('#stepList .fi'))
+    .map(function(el) { return el.value.trim(); })
+    .filter(Boolean);
+  var nutr = calcNutr(ings);
+
+  var oldRecipe = editId
+    ? (recipes.find(function(x) { return x.id === editId; }) || null)
+    : null;
+
   var r = {
-    id:         editId || String(Date.now()),
-    name:       name,
-    cat:        document.getElementById('f-cat').value,
-    servings:   document.getElementById('f-serv').value.trim(),
-    time:       document.getElementById('f-time').value.trim(),
-    ingredients:ings,
-    steps:      steps,
-    memo:       document.getElementById('f-memo').value.trim(),
-    photos:     formPhotos.slice(),
+    id: editId || String(Date.now()),
+    name: name,
+    cat: document.getElementById('f-cat').value,
+    servings: document.getElementById('f-serv').value.trim(),
+    time: document.getElementById('f-time').value.trim(),
+    ingredients: ings,
+    steps: steps,
+    memo: document.getElementById('f-memo').value.trim(),
+    photos: formPhotos.slice(),
     thumbnail: formPhotos[0] || '',
-    nutr:       nutr,
-    date:       editId ? (recipes.find(function(x){return x.id===editId;})||{}).date : new Date().toISOString()
+    nutr: nutr,
+    date: oldRecipe ? oldRecipe.date : new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   };
+
+  var backup = recipes.slice();
+
   if (editId) {
-    recipes = recipes.map(function(x){ return x.id === editId ? r : x; });
+    recipes = recipes.map(function(x) {
+      return x.id === editId ? r : x;
+    });
   } else {
     recipes.unshift(r);
   }
-save();
-closeOverlay('fmOverlay');
-render();
-openDt(r.id);
+
+  if (!save()) {
+    recipes = backup;
+    showError('保存できませんでした。写真が大きすぎる可能性があります。');
+    return;
+  }
+
+  closeOverlay('fmOverlay');
+  render();
+  openDt(r.id);
+  showSuccess('保存しました');
 });
 
 // ===== Delete =====
+function renderTrash() {
+  var trash = loadTrash();
+  var wrap = document.getElementById('trashList');
+
+  if (!trash.length) {
+    wrap.innerHTML = '<div class="empty"><div class="empty-icon">🗑</div><div class="empty-title">ゴミ箱は空です</div></div>';
+    return;
+  }
+
+  wrap.innerHTML = trash.map(function(item, i) {
+    var r = item.recipe;
+    return '<div class="rc" style="margin-bottom:12px; cursor:default;">' +
+      '<div class="rc-body">' +
+        '<span class="rc-cat">🗑 ' + escHtml(r.cat || 'その他') + '</span>' +
+        '<div class="rc-name">' + escHtml(r.name || '名称なし') + '</div>' +
+        '<div class="rc-memo">' + (r.memo ? escHtml(r.memo.slice(0, 60)) : '<span style="opacity:.3">メモなし</span>') + '</div>' +
+        '<div class="rc-actions" style="margin-top:12px;">' +
+          '<button class="ab restore-btn" data-i="' + i + '">復元</button>' +
+          '<button class="ab del forever-btn" data-i="' + i + '">完全削除</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  wrap.querySelectorAll('.restore-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      restoreTrashItem(+btn.dataset.i);
+    });
+  });
+
+  wrap.querySelectorAll('.forever-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      deleteTrashItem(+btn.dataset.i);
+    });
+  });
+}
+
+function restoreTrashItem(index) {
+  var trash = loadTrash();
+  var item = trash[index];
+  if (!item || !item.recipe) return;
+
+  recipes.unshift(item.recipe);
+
+  if (!save()) {
+    recipes = recipes.filter(function(x) {
+      return x.id !== item.recipe.id;
+    });
+    showError('復元に失敗しました');
+    return;
+  }
+
+  trash.splice(index, 1);
+  saveTrash(trash);
+  render();
+  renderTrash();
+  showSuccess('レシピを復元しました');
+}
+function deleteTrashItem(index) {
+  var trash = loadTrash();
+  if (!trash[index]) return;
+
+  if (!confirm('完全に削除しますか？元に戻せません。')) return;
+
+  trash.splice(index, 1);
+
+  if (!saveTrash(trash)) return;
+
+  renderTrash();
+  showSuccess('完全に削除しました');
+}
 function delR(id) {
-  if (!confirm('このレシピを削除しますか？')) return;
-  recipes = recipes.filter(function(x){ return x.id !== id; });
-  save(); render();
+  var r = recipes.find(function(x) { return x.id === id; });
+  if (!r) return;
+
+  if (!confirm('このレシピをゴミ箱に移動しますか？')) return;
+
+  var trash = loadTrash();
+  trash.unshift({
+    deletedAt: new Date().toISOString(),
+    recipe: r
+  });
+
+  if (!saveTrash(trash)) return;
+
+  var backup = recipes.slice();
+  recipes = recipes.filter(function(x) { return x.id !== id; });
+
+  if (!save()) {
+    recipes = backup;
+    showError('ゴミ箱への移動に失敗しました');
+    return;
+  }
+
+  render();
+  showSuccess('ゴミ箱に移動しました');
 }
 
 // ===== Detail =====
@@ -787,7 +1028,14 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ closeOverlay('fmOverlay'); closeOverlay('dtOverlay'); } });
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeImageModal();
+    closeOverlay('fmOverlay');
+    closeOverlay('dtOverlay');
+    closeOverlay('trashOverlay');
+  }
+});
 function openImageModal(src, photoList) {
   const modal = document.getElementById('imageModal');
   const img = document.getElementById('imageModalImg');
@@ -828,9 +1076,29 @@ function closeImageModal() {
   currentImageList = [];
   currentImageIndex = 0;
 }
+
+document.getElementById('imageModal').addEventListener('click', function(e) {
+  if (e.target === this) closeImageModal();
+});
 // ===== Init =====
 load();
 render();
 </script>
+  <div id="toastMsg" style="
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  z-index: 99999;
+  display: none;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+"></div>
 </body>
 </html>
