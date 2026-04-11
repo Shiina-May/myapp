@@ -618,6 +618,19 @@ function updateNutr() {
     box.style.display = 'none';
   }
 }
+function isHeicLike(file) {
+  if (!file) return false;
+
+  var type = (file.type || '').toLowerCase();
+  var name = (file.name || '').toLowerCase();
+
+  return (
+    type.includes('heic') ||
+    type.includes('heif') ||
+    name.endsWith('.heic') ||
+    name.endsWith('.heif')
+  );
+}
 function compressImage(file) {
   return new Promise(function(resolve, reject) {
     var reader = new FileReader();
@@ -649,8 +662,8 @@ function compressImage(file) {
       };
 
       img.onerror = function() {
-        reject(new Error('画像の読み込みに失敗しました'));
-      };
+        reject(new Error('画像の読み込みに失敗しました。HEIC/HEIF形式の可能性があります。'));
+};
 
       img.src = e.target.result;
     };
@@ -658,6 +671,7 @@ function compressImage(file) {
     reader.onerror = function() {
       reject(new Error('ファイルの読み込みに失敗しました'));
     };
+    
 
     reader.readAsDataURL(file);
   });
@@ -668,12 +682,19 @@ document.getElementById('photoInput').addEventListener('change', async function(
   if (!files.length) return;
 
   for (var i = 0; i < files.length; i++) {
+    var file = files[i];
+
+    if (isHeicLike(file)) {
+      showError('この写真はiPhoneのHEIC形式です。iPhoneの「設定 → カメラ → フォーマット → 互換性優先」に変えるか、写真をJPEGにしてから追加してください。');
+      continue;
+    }
+
     try {
-      var compressed = await compressImage(files[i]);
+      var compressed = await compressImage(file);
       formPhotos.push(compressed);
     } catch (err) {
       console.error(err);
-      showError('画像の追加に失敗しました: ' + files[i].name);
+      showError('画像の追加に失敗しました: ' + (file.name || '名称不明の画像'));
     }
   }
 
