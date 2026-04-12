@@ -710,7 +710,7 @@ textarea.fi{
           <div class="fg full">
             <label class="fl">📷 写真</label>
             <div class="photo-zone" id="photoZone">
-              <input type="file" id="photoInput" accept="image/*" multiple>
+             <input type="file" id="photoInput" accept="image/*" multiple="multiple">
               <p>📷 クリックまたはドラッグ＆ドロップで写真を追加</p>
             </div>
             <div class="photo-previews" id="photoPreviews"></div>
@@ -743,7 +743,12 @@ textarea.fi{
         <option value="rating-low">評価：低い順</option>
       </select>
     </div>
-    <div id="historyList"></div>
+   <div id="historyList"></div>
+
+<div class="card" style="margin-top:1rem;">
+  <div class="card-title">🗑️ ゴミ箱</div>
+  <div id="trashList"></div>
+</div>
   </div>
 
   <!-- ===== STATS TAB ===== -->
@@ -883,7 +888,9 @@ var TEA_COLORS = [
 
 /* ===== STATE ===== */
 var STORAGE_KEY = 'teaDiaryV3';
+var TRASH_KEY = 'teaDiaryTrashV1';
 var teaLogs = [];
+var trashLogs = [];
 var formPhotos = [];
 var selectedCategory = '紅茶';
 var selectedColor = TEA_COLORS[0].hex;
@@ -907,6 +914,24 @@ function saveLogs() {
     return true;
   } catch(e) {
     alert('⚠️ 保存に失敗しました。\n写真のデータが大きすぎる可能性があります。\n写真を減らすか、解像度を下げてから再度お試しください。');
+    return false;
+  }
+}
+
+function loadTrashLogs() {
+  try {
+    trashLogs = JSON.parse(localStorage.getItem(TRASH_KEY)) || [];
+  } catch(e) {
+    trashLogs = [];
+  }
+}
+
+function saveTrashLogs() {
+  try {
+    localStorage.setItem(TRASH_KEY, JSON.stringify(trashLogs));
+    return true;
+  } catch(e) {
+    alert('⚠️ ゴミ箱の保存に失敗しました。');
     return false;
   }
 }
@@ -1042,28 +1067,57 @@ function updateColorHexPreview() {
 
 /* ===== IMAGE COMPRESSION ===== */
 function compressImage(file, callback) {
+  if (!file || !file.type || file.type.indexOf('image/') !== 0) {
+    alert('画像ファイルを選んでください。');
+    return;
+  }
+
   var reader = new FileReader();
+
+  reader.onerror = function() {
+    alert('画像の読み込みに失敗しました。');
+  };
+
   reader.onload = function(ev) {
     var img = new Image();
+
+    img.onerror = function() {
+      alert('画像を開けませんでした。別の画像で試してください。');
+    };
+
     img.onload = function() {
-      var maxPx = 1200;
-      var w = img.width, h = img.height;
-      // EXIF orientation (rough heuristic: check if we need to swap)
-      // We just draw as-is; modern browsers handle EXIF in <img> but not in FileReader
+      var maxPx = 1000;
+      var w = img.width;
+      var h = img.height;
+
       if (w > maxPx || h > maxPx) {
-        if (w >= h) { h = Math.round(h * maxPx / w); w = maxPx; }
-        else        { w = Math.round(w * maxPx / h); h = maxPx; }
+        if (w >= h) {
+          h = Math.round(h * maxPx / w);
+          w = maxPx;
+        } else {
+          w = Math.round(w * maxPx / h);
+          h = maxPx;
+        }
       }
+
       var canvas = document.createElement('canvas');
-      canvas.width  = w;
+      canvas.width = w;
       canvas.height = h;
+
       var ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
-      var dataUrl = canvas.toDataURL('image/jpeg', 0.75);
-      callback(dataUrl);
+
+      try {
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        callback(dataUrl);
+      } catch (e) {
+        alert('画像の変換に失敗しました。');
+      }
     };
+
     img.src = ev.target.result;
   };
+
   reader.readAsDataURL(file);
 }
 
@@ -1124,20 +1178,37 @@ function resetTimer() {
 
 /* ===== PHOTOS ===== */
 document.getElementById('photoInput').addEventListener('change', function(e){
-  var files = Array.from(e.target.files);
+  var files = Array.from(e.target.files || []);
   if (!files.length) return;
-  var results = new Array(files.length);
+
+  var maxAdd = 5;
+  var remain = maxAdd - formPhotos.length;
+
+  if (remain <= 0) {
+    alert('写真は最大5枚までです。');
+    this.value = '';
+    return;
+  }
+
+  files = files.slice(0, remain);
+
+  var results = [];
   var done = 0;
-  files.forEach(function(file, idx){
+
+  files.forEach(function(file){
     compressImage(file, function(dataUrl){
-      results[idx] = dataUrl;
+      results.push(dataUrl);
       done++;
+
       if (done === files.length) {
-        results.forEach(function(d){ formPhotos.push(d); });
+        results.forEach(function(d){
+          formPhotos.push(d);
+        });
         renderPhotoPreviews();
       }
     });
   });
+
   this.value = '';
 });
 
@@ -1397,6 +1468,7 @@ function renderHistory() {
   var cont = document.getElementById('historyList');
   if (!logs.length) {
     cont.innerHTML = '<div class="empty-state">🍵 まだ記録がありません</div>';
+    renderTrash();
     return;
   }
 
@@ -1461,16 +1533,85 @@ function renderHistory() {
       deleteLog(btn.dataset.id);
     });
   });
+
+  renderTrash();
 }
 
 function deleteLog(id) {
-  if (!confirm('この記録を削除しますか？')) return;
+  if (!confirm('この記録をゴミ箱に移動しますか？')) return;
+
+  var target = teaLogs.find(function(l){ return l.id === id; });
+  if (!target) return;
+
   teaLogs = teaLogs.filter(function(l){ return l.id !== id; });
-  saveLogs();
+  trashLogs.unshift(target);
+
+  var ok1 = saveLogs();
+  var ok2 = saveTrashLogs();
+
+  if (!ok1 || !ok2) {
+    loadLogs();
+    loadTrashLogs();
+    alert('移動に失敗しました。');
+    return;
+  }
+
   renderHistory();
-  showToast('🗑️ 削除しました');
+  showToast('🗑️ ゴミ箱に移動しました');
 }
 
+function restoreLog(id) {
+  var target = trashLogs.find(function(l){ return l.id === id; });
+  if (!target) return;
+
+  trashLogs = trashLogs.filter(function(l){ return l.id !== id; });
+  teaLogs.unshift(target);
+
+  var ok1 = saveLogs();
+  var ok2 = saveTrashLogs();
+
+  if (!ok1 || !ok2) {
+    loadLogs();
+    loadTrashLogs();
+    alert('復元に失敗しました。');
+    return;
+  }
+
+  renderHistory();
+  showToast('♻️ 復元しました');
+}
+function renderTrash() {
+  var cont = document.getElementById('trashList');
+  if (!cont) return;
+
+  if (!trashLogs.length) {
+    cont.innerHTML = '<div class="empty-state" style="padding:1rem;">ゴミ箱は空です</div>';
+    return;
+  }
+
+  var html = '';
+  trashLogs.forEach(function(l){
+    var title = escHtml(l.brand || l.type || '無題の記録');
+    var date = escHtml(l.date || '');
+
+    html += '<div class="log-card" style="cursor:default;">'
+          + '<div class="log-card-header">'
+          + '<div><h3>' + title + '</h3><div class="log-date">' + date + '</div></div>'
+          + '<div style="display:flex;align-items:center;gap:.5rem;">'
+          + '<button class="edit-log-btn restore-log-btn" data-id="' + escHtml(l.id) + '">♻️ 復元</button>'
+          + '</div>'
+          + '</div>'
+          + '</div>';
+  });
+
+  cont.innerHTML = html;
+
+  cont.querySelectorAll('.restore-log-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      restoreLog(btn.dataset.id);
+    });
+  });
+}
 /* ===== STATS ===== */
 function renderStats() {
   var n = teaLogs.length;
@@ -1687,19 +1828,23 @@ function showToast(msg) {
 
 /* ===== INIT ===== */
 loadLogs();
+loadTrashLogs();
 renderCatPills();
 updateLeafOptions();
 renderColorPicker();
 updateEffects();
 document.getElementById('f-date').value = todayStr();
+
 document.getElementById('f-type').addEventListener('change', function(){
   updateCustomTypeVis();
   updateEffects();
 });
+
 document.getElementById('f-type-custom').addEventListener('input', updateEffects);
 document.getElementById('f-color-hex').addEventListener('input', updateColorHexPreview);
-// 初期プレビュー（空欄なので#eee）
+
 updateColorHexPreview();
+renderTrash();
 </script>
 </body>
 </html>
