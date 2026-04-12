@@ -1034,7 +1034,14 @@ function getFinalTeaType() {
   }
   return sel;
 }
-
+function updateColorHexPreview() {
+  var hexEl = document.getElementById('f-color-hex');
+  var prev  = document.getElementById('colorHexPreview');
+  if (!hexEl || !prev) return;
+  var hex = normalizeHex(hexEl.value);
+  prev.style.background  = hex || '#eee';
+  prev.style.borderColor = hex ? hex : 'var(--border)';
+}
 /* ===== COLOR CUSTOM HELPERS ===== */
 function normalizeHex(s) {
   s = (s || '').trim();
@@ -1063,69 +1070,39 @@ function getFinalColorName() {
   return selectedColorName;
 }
 function compressImage(file, callback) {
-  if (!file) {
-    alert('画像ファイルを選んでください。');
-    return;
-  }
-
-  var isImage = file.type && file.type.indexOf('image/') === 0;
-  var lowerName = (file.name || '').toLowerCase();
-  var looksLikeHeic = lowerName.endsWith('.heic') || lowerName.endsWith('.heif');
-
-  if (!isImage && !looksLikeHeic) {
-    alert('画像ファイルを選んでください。');
-    return;
-  }
-
   var reader = new FileReader();
-
   reader.onerror = function() {
-    alert('画像の読み込みに失敗しました。');
+    callback(null);
   };
-
   reader.onload = function(ev) {
     var originalDataUrl = ev.target.result;
     var img = new Image();
-
+    img.onerror = function() {
+      // 画像として開けない場合（HEICなど）はそのまま使用
+      callback(originalDataUrl);
+    };
     img.onload = function() {
-      var maxPx = 800;
-      var w = img.width;
-      var h = img.height;
-
-      if (w > maxPx || h > maxPx) {
-        if (w >= h) {
-          h = Math.round(h * maxPx / w);
-          w = maxPx;
-        } else {
-          w = Math.round(w * maxPx / h);
-          h = maxPx;
-        }
-      }
-
       try {
+        var maxPx = 1200;
+        var w = img.width  || 1;
+        var h = img.height || 1;
+        if (w > maxPx || h > maxPx) {
+          if (w >= h) { h = Math.round(h * maxPx / w); w = maxPx; }
+          else        { w = Math.round(w * maxPx / h); h = maxPx; }
+        }
         var canvas = document.createElement('canvas');
-        canvas.width = w;
+        canvas.width  = w;
         canvas.height = h;
-
         var ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, w, h);
-
-        var dataUrl = canvas.toDataURL('image/jpeg', 0.6);
-        callback(dataUrl);
-      } catch (e) {
-        // canvas変換に失敗しても、元画像で続行
+        callback(canvas.toDataURL('image/jpeg', 0.75));
+      } catch(e) {
+        // canvas変換失敗時は元画像で続行
         callback(originalDataUrl);
       }
     };
-
-    img.onerror = function() {
-      // HEICなどでimgとして開けない場合でも、元画像で続行
-      callback(originalDataUrl);
-    };
-
     img.src = originalDataUrl;
   };
-
   reader.readAsDataURL(file);
 }
 
