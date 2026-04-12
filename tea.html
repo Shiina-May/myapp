@@ -1036,6 +1036,32 @@ function getFinalTeaType() {
 }
 
 /* ===== COLOR CUSTOM HELPERS ===== */
+function normalizeHex(s) {
+  s = (s || '').trim();
+  if (!s) return '';
+  if (!/^#/.test(s)) s = '#' + s;
+  if (/^#[0-9a-fA-F]{6}$/.test(s)) return s.toLowerCase();
+  return '';
+}
+
+function getFinalColor() {
+  var hexEl = document.getElementById('f-color-hex');
+  var hex = hexEl ? normalizeHex(hexEl.value) : '';
+  return hex || selectedColor;
+}
+
+function getFinalColorName() {
+  var nameEl = document.getElementById('f-color-name');
+  var hexEl = document.getElementById('f-color-hex');
+
+  var name = nameEl ? (nameEl.value || '').trim() : '';
+  if (name) return name;
+
+  var hex = hexEl ? normalizeHex(hexEl.value) : '';
+  if (hex) return hex;
+
+  return selectedColorName;
+}
 function compressImage(file, callback) {
   if (!file) {
     alert('画像ファイルを選んでください。');
