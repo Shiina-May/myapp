@@ -857,12 +857,33 @@ var editingId = null;
 var currentDetailId = null;
 
 /* ===== STORAGE ===== */
+/* ===== STORAGE ===== */
 function loadLogs() {
-  try { teaLogs = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch(e) { teaLogs = []; }
+  try {
+    teaLogs = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch(e) {
+    teaLogs = [];
+    console.error('読み込み失敗:', e);
+  }
 }
+
 function saveLogs() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(teaLogs));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(teaLogs));
+    return true;
+  } catch(e) {
+    console.error('保存失敗:', e);
+
+    if (e && (
+      e.name === 'QuotaExceededError' ||
+      e.name === 'NS_ERROR_DOM_QUOTA_REACHED'
+    )) {
+      alert('保存できませんでした。写真が大きすぎる可能性があります。写真を減らすか、小さくしてください。');
+    } else {
+      alert('保存に失敗しました。Safariのストレージ制限か、データ容量オーバーの可能性があります。');
+    }
+    return false;
+  }
 }
 
 /* ===== ESCAPE HTML ===== */
@@ -986,14 +1007,60 @@ function resetTimer() {
 }
 
 /* ===== PHOTOS ===== */
+/* ===== PHOTOS ===== */
 document.getElementById('photoInput').addEventListener('change', function(e){
-  Array.from(e.target.files).forEach(function(file){
-    var r = new FileReader();
-    r.onload = function(ev){ formPhotos.push(ev.target.result); renderPhotoPreviews(); };
-    r.readAsDataURL(file);
+  var files = Array.from(e.target.files);
+
+  files.forEach(function(file){
+    resizeImage(file, 1200, 1200, 0.75, function(resizedBase64){
+      formPhotos.push(resizedBase64);
+      renderPhotoPreviews();
+    });
   });
+
   this.value = '';
 });
+
+function resizeImage(file, maxWidth, maxHeight, quality, callback) {
+  var reader = new FileReader();
+
+  reader.onload = function(ev) {
+    var img = new Image();
+
+    img.onload = function() {
+      var width = img.width;
+      var height = img.height;
+
+      if (width > maxWidth || height > maxHeight) {
+        var ratio = Math.min(maxWidth / width, maxHeight / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+
+      var canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      var resizedBase64 = canvas.toDataURL('image/jpeg', quality);
+      callback(resizedBase64);
+    };
+
+    img.onerror = function() {
+      alert('画像の読み込みに失敗しました。');
+    };
+
+    img.src = ev.target.result;
+  };
+
+  reader.onerror = function() {
+    alert('画像ファイルの読み込みに失敗しました。');
+  };
+
+  reader.readAsDataURL(file);
+}
 
 function renderPhotoPreviews() {
   var wrap = document.getElementById('photoPreviews');
@@ -1065,16 +1132,30 @@ function saveTea(e) {
 
   if (isEdit) {
     teaLogs = teaLogs.map(function(l){ return l.id === editingId ? entry : l; });
-    showToast('✅ 記録を更新しました！');
   } else {
     teaLogs.unshift(entry);
+  }
+
+  var saved = saveLogs();
+
+  if (!saved) {
+    // 保存失敗したら、追加した分を元に戻す
+    if (isEdit) {
+      loadLogs();
+    } else {
+      teaLogs.shift();
+    }
+    return;
+  }
+
+  if (isEdit) {
+    showToast('✅ 記録を更新しました！');
+  } else {
     showToast('✅ 記録を保存しました！');
   }
 
-  saveLogs();
   resetForm();
   openDetailModal(entryId);
-}
 
 /* ===== EDIT ===== */
 function openEdit(id) {
