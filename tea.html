@@ -857,7 +857,6 @@ var editingId = null;
 var currentDetailId = null;
 
 /* ===== STORAGE ===== */
-/* ===== STORAGE ===== */
 function loadLogs() {
   try {
     teaLogs = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
@@ -1156,7 +1155,7 @@ function saveTea(e) {
 
   resetForm();
   openDetailModal(entryId);
-
+  }
 /* ===== EDIT ===== */
 function openEdit(id) {
   var l = teaLogs.find(function(x){ return x.id === id; });
