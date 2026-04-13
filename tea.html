@@ -533,6 +533,11 @@ textarea.fi{
   <h1>🍵 Tea Diary</h1>
   <p>丁寧に淹れる、丁寧に記す</p>
 </header>
+<!-- ===== iOS Chrome 誘導バナー（SafariでiPhoneアクセス時のみ表示） ===== -->
+<div id="iOSChromeBanner" style="display:none;background:#1a73e8;color:#fff;text-align:center;padding:.7rem 1rem;font-size:.84rem;line-height:1.5;">
+  📱 iPhoneで写真を安定して保存するには<strong>Chrome</strong>での利用を推奨しています。
+  <a id="openInChromeBtn" href="#" style="display:inline-block;margin-left:.6rem;color:#fff;font-weight:bold;text-decoration:underline;white-space:nowrap;">Chromeで開く →</a>
+</div>
 <nav>
   <button type="button" class="active" onclick="switchTab('record')">✏️ 記録</button>
   <button type="button" onclick="switchTab('history')">📖 ログ</button>
@@ -1059,108 +1064,112 @@ function resetTimer() {
 
 /* ===== EXIF ORIENTATION ===== */
 /*
- * iPhoneで撮影したJPEG写真にはEXIF回転情報が含まれています。
- * Safariのcanvasはこの情報を無視するため、写真が横向きになります。
- * JPEGのバイナリを直接読み込み、orientation値を取得してcanvasで補正します。
- *
- * orientation 値の意味:
- *   1 = 正常, 3 = 180°回転, 6 = 90°CW(iPhoneの縦撮りに多い), 8 = 90°CCW
+ * JPEGのArrayBufferからEXIF orientation値を同期的に取得します。
+ * iPhoneで縦向き撮影した写真は orientation=6（90°CW）が最多。
+ * orientation 値: 1=正常, 3=180°, 6=90°CW(iPhone縦撮り), 8=90°CCW
  */
-function readExifOrientation(file, callback) {
-  var reader = new FileReader();
-  reader.onerror = function() { callback(1); };
-  reader.onload = function(e) {
-    try {
-      var view   = new DataView(e.target.result);
-      /* JPEGマーカー確認 */
-      if (view.getUint16(0, false) !== 0xFFD8) { callback(1); return; }
-      var len    = view.byteLength;
-      var offset = 2;
-      while (offset < len) {
-        var marker = view.getUint16(offset, false);
-        offset += 2;
-        if (marker === 0xFFE1) {          /* APP1 (EXIF) セグメント */
-          if (view.getUint32(offset + 2, false) !== 0x45786966) { callback(1); return; }
-          var tiff   = offset + 8; /* "Exif\0\0" の6バイト後がTIFFヘッダ */
-          var little = view.getUint16(tiff, false) === 0x4949;
-          var ifdOff = view.getUint32(tiff + 4, little);
-          var ifd    = tiff + ifdOff;
-          var tags   = view.getUint16(ifd, little);
-          for (var i = 0; i < tags; i++) {
-            var tagOff = ifd + 2 + i * 12;
-            if (view.getUint16(tagOff, little) === 0x0112) { /* Orientation tag */
-              callback(view.getUint16(tagOff + 8, little));
-              return;
-            }
+function getOrientationFromBuffer(buffer) {
+  try {
+    var view   = new DataView(buffer);
+    if (view.getUint16(0, false) !== 0xFFD8) return 1; /* JPEG以外 */
+    var len    = view.byteLength;
+    var offset = 2;
+    while (offset < len) {
+      var marker = view.getUint16(offset, false);
+      offset += 2;
+      if (marker === 0xFFE1) { /* APP1 = EXIF セグメント */
+        if (view.getUint32(offset + 2, false) !== 0x45786966) return 1;
+        var tiff   = offset + 8; /* "Exif\0\0" の後がTIFFヘッダ */
+        var little = view.getUint16(tiff, false) === 0x4949;
+        var ifdOff = view.getUint32(tiff + 4, little);
+        var ifd    = tiff + ifdOff;
+        var tags   = view.getUint16(ifd, little);
+        for (var i = 0; i < tags; i++) {
+          var tagOff = ifd + 2 + i * 12;
+          if (view.getUint16(tagOff, little) === 0x0112) { /* Orientation tag */
+            return view.getUint16(tagOff + 8, little);
           }
-          callback(1); return;
-        } else if ((marker & 0xFF00) !== 0xFF00) {
-          break;
-        } else {
-          offset += view.getUint16(offset, false);
         }
+        return 1;
+      } else if ((marker & 0xFF00) !== 0xFF00) {
+        break;
+      } else {
+        offset += view.getUint16(offset, false);
       }
-    } catch(ex) {}
-    callback(1);
-  };
-  reader.readAsArrayBuffer(file);
+    }
+  } catch(ex) {}
+  return 1;
 }
 
 /* ===== IMAGE COMPRESSION ===== */
 /*
- * 最大1200px・JPEG 0.75に圧縮しつつ、EXIF回転を補正します。
- * Safariのcanvasはimg.naturalWidth/Heightにストアされた寸法を使いますが、
- * EXIF orientationを無視するため、手動でTransformを適用します。
+ * 【iOS Safari 対応】ファイルを ArrayBuffer で1回だけ読み込み、
+ * EXIF回転補正＋リサイズ圧縮してJPEG dataURLを返します。
+ *
+ * 旧実装では DataURL + ArrayBuffer を2回読み込んでいたため、
+ * iOSでファイルオブジェクトが無効化され写真が保存できない問題がありました。
+ *
+ * iOSでは localStorage の容量制限が厳しいため解像度を小さくしています:
+ *   iOS   : 最大800px / JPEG品質 0.65
+ *   その他: 最大1200px / JPEG品質 0.75
  */
 function compressImage(file, callback) {
+  var isIOS   = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  var maxPx   = isIOS ? 800  : 1200;
+  var quality = isIOS ? 0.65 : 0.75;
+
   var reader = new FileReader();
   reader.onerror = function() { callback(null); };
   reader.onload = function(ev) {
-    var dataUrl = ev.target.result;
-    /* まずEXIF orientation を取得してからcanvasへ描画する */
-    readExifOrientation(file, function(orientation) {
-      var img = new Image();
-      img.onerror = function() { callback(dataUrl); };
-      img.onload = function() {
-        try {
-          var srcW = img.width  || 1;
-          var srcH = img.height || 1;
-          /* orientation 5〜8 は90°/270°回転なので幅と高さが入れ替わる */
-          var swap = (orientation >= 5 && orientation <= 8);
-          var maxPx = 1200;
-          var outW  = swap ? srcH : srcW;
-          var outH  = swap ? srcW : srcH;
-          /* maxPx でリサイズ */
-          if (outW > maxPx || outH > maxPx) {
-            if (outW >= outH) { outH = Math.round(outH * maxPx / outW); outW = maxPx; }
-            else              { outW = Math.round(outW * maxPx / outH); outH = maxPx; }
-          }
-          var cW = outW, cH = outH;
-          var canvas = document.createElement('canvas');
-          canvas.width  = cW;
-          canvas.height = cH;
-          var ctx = canvas.getContext('2d');
-          /* EXIF orientation に応じてcanvasのTransformを設定 */
-          switch (orientation) {
-            case 2: ctx.transform(-1,  0,  0,  1, cW,  0); break; /* 水平反転 */
-            case 3: ctx.transform(-1,  0,  0, -1, cW, cH); break; /* 180° */
-            case 4: ctx.transform( 1,  0,  0, -1,  0, cH); break; /* 垂直反転 */
-            case 5: ctx.transform( 0,  1,  1,  0,  0,  0); break; /* 転置 */
-            case 6: ctx.transform( 0,  1, -1,  0, cH,  0); break; /* 90°CW（iPhoneで最多） */
-            case 7: ctx.transform( 0, -1, -1,  0, cH, cW); break; /* 横反転+90°CW */
-            case 8: ctx.transform( 0, -1,  1,  0,  0, cW); break; /* 90°CCW */
-            /* case 1: 変換不要 */
-          }
-          /* swapしている場合は描画先の幅と高さを入れ替える */
-          if (swap) { ctx.drawImage(img, 0, 0, cH, cW); }
-          else      { ctx.drawImage(img, 0, 0, cW, cH); }
-          callback(canvas.toDataURL('image/jpeg', 0.75));
-        } catch(e) { callback(dataUrl); }
-      };
-      img.src = dataUrl;
-    });
+    var buffer      = ev.target.result;
+    var orientation = getOrientationFromBuffer(buffer);
+
+    /* ArrayBuffer → Blob → ObjectURL で Image に読み込む（iOS でも安全） */
+    var blob      = new Blob([buffer], { type: file.type || 'image/jpeg' });
+    var objectUrl = URL.createObjectURL(blob);
+
+    var img = new Image();
+    img.onerror = function() {
+      URL.revokeObjectURL(objectUrl);
+      callback(null);
+    };
+    img.onload = function() {
+      URL.revokeObjectURL(objectUrl); /* 使い終わったらメモリ解放 */
+      try {
+        var srcW = img.width  || 1;
+        var srcH = img.height || 1;
+        /* orientation 5〜8 は90°/270°回転なので幅と高さが入れ替わる */
+        var swap = (orientation >= 5 && orientation <= 8);
+        var outW = swap ? srcH : srcW;
+        var outH = swap ? srcW : srcH;
+        if (outW > maxPx || outH > maxPx) {
+          if (outW >= outH) { outH = Math.round(outH * maxPx / outW); outW = maxPx; }
+          else              { outW = Math.round(outW * maxPx / outH); outH = maxPx; }
+        }
+        var cW = outW, cH = outH;
+        var canvas = document.createElement('canvas');
+        canvas.width  = cW;
+        canvas.height = cH;
+        var ctx = canvas.getContext('2d');
+        /* EXIF orientation に応じた変換行列 */
+        switch (orientation) {
+          case 2: ctx.transform(-1,  0,  0,  1, cW,  0); break; /* 水平反転 */
+          case 3: ctx.transform(-1,  0,  0, -1, cW, cH); break; /* 180° */
+          case 4: ctx.transform( 1,  0,  0, -1,  0, cH); break; /* 垂直反転 */
+          case 5: ctx.transform( 0,  1,  1,  0,  0,  0); break; /* 転置 */
+          case 6: ctx.transform( 0,  1, -1,  0, cH,  0); break; /* 90°CW（iPhoneで最多） */
+          case 7: ctx.transform( 0, -1, -1,  0, cH, cW); break; /* 横反転+90°CW */
+          case 8: ctx.transform( 0, -1,  1,  0,  0, cW); break; /* 90°CCW */
+          /* case 1: 変換不要 */
+        }
+        if (swap) { ctx.drawImage(img, 0, 0, cH, cW); }
+        else      { ctx.drawImage(img, 0, 0, cW, cH); }
+        callback(canvas.toDataURL('image/jpeg', quality));
+      } catch(e) { callback(null); }
+    };
+    img.src = objectUrl;
   };
-  reader.readAsDataURL(file);
+  reader.readAsArrayBuffer(file); /* 1回だけ読む */
 }
 
 /* ===== PHOTOS ===== */
@@ -1744,6 +1753,34 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(function(){ t.classList.remove('show'); }, 2800);
 }
+
+/* ===== iOS Chrome 誘導バナー ===== */
+/*
+ * iPhoneのSafariでアクセスした場合にバナーを表示します。
+ * Chromeは iOS では "CriOS" という UserAgent を持ちます。
+ * バナーの「Chromeで開く」ボタンは googlechromes:// スキームで
+ * 同じURLをChromeアプリで開きます（Chromeがインストール済みの場合のみ機能）。
+ */
+(function() {
+  var ua       = navigator.userAgent;
+  var isIOS    = /iPhone|iPad|iPod/.test(ua);
+  var isChrome = /CriOS/.test(ua);   /* iOS上のChromeはCriOSを含む */
+  if (isIOS && !isChrome) {
+    var banner = document.getElementById('iOSChromeBanner');
+    if (banner) banner.style.display = '';
+    var btn = document.getElementById('openInChromeBtn');
+    if (btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        /* https:// → googlechromes://, http:// → googlechrome:// に変換 */
+        var url = window.location.href;
+        var chromeUrl = url.replace(/^https:\/\//, 'googlechromes://')
+                           .replace(/^http:\/\//, 'googlechrome://');
+        window.location.href = chromeUrl;
+      });
+    }
+  }
+})();
 
 /* ===== INIT ===== */
 loadLogs();
