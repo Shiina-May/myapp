@@ -26,11 +26,10 @@ body{
   background-image:
     radial-gradient(ellipse 700px 400px at 5% 10%, rgba(200,149,92,.18) 0%, transparent 65%),
     radial-gradient(ellipse 600px 400px at 95% 80%, rgba(123,74,45,.12) 0%, transparent 65%);
-  background-attachment:fixed;
+  background-attachment:scroll; /* fixed はiOS Safariで正しく動作しないため scroll に変更 */
   color:var(--text);
   min-height:100vh;
 }
-
 /* ===== HEADER ===== */
 header{
   text-align:center;
@@ -40,7 +39,6 @@ header{
 }
 header h1{font-size:clamp(1.8rem,5vw,2.6rem);letter-spacing:.15em;}
 header p{font-size:.85rem;opacity:.75;margin-top:.4rem;letter-spacing:.08em;}
-
 /* ===== NAV ===== */
 nav{
   display:flex;
@@ -61,12 +59,10 @@ nav button.active{
   border-bottom:3px solid var(--gold);
 }
 nav button:hover:not(.active){color:#fff;background:rgba(255,255,255,.08);}
-
 /* ===== MAIN ===== */
 main{max-width:880px;margin:0 auto;padding:1.5rem 1rem 4rem;}
 .tab-content{display:none;}
 .tab-content.active{display:block;}
-
 /* ===== CARD ===== */
 .card{
   background:var(--card);
@@ -81,7 +77,6 @@ main{max-width:880px;margin:0 auto;padding:1.5rem 1rem 4rem;}
   padding-left:.75rem;margin-bottom:1.3rem;
   font-weight:bold;letter-spacing:.03em;
 }
-
 /* ===== FORM ===== */
 .form-grid{
   display:grid;
@@ -89,17 +84,19 @@ main{max-width:880px;margin:0 auto;padding:1.5rem 1rem 4rem;}
   gap:1rem 1.2rem;
 }
 @media(max-width:560px){.form-grid{grid-template-columns:1fr;}}
-
 .fg{display:flex;flex-direction:column;gap:.4rem;}
 .fg.full{grid-column:1/-1;}
-
 .fl{
   font-size:.76rem;font-weight:700;
   color:var(--muted);letter-spacing:.07em;
   text-transform:uppercase;
 }
 .fl .unit{font-weight:400;color:#bbb;margin-left:.3rem;text-transform:none;}
-
+.fl-sub{
+  font-size:.72rem;font-weight:700;
+  color:var(--muted);letter-spacing:.06em;
+  margin-bottom:.25rem;display:block;
+}
 .fi,.fs{
   width:100%;padding:.65rem .9rem;
   border:1.5px solid var(--border);
@@ -126,7 +123,6 @@ textarea.fi{
   background-position:right .8rem center;
   padding-right:2.2rem;
 }
-
 /* ===== CATEGORY PILLS ===== */
 .cat-pills{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.15rem;}
 .cat-pill{
@@ -137,7 +133,8 @@ textarea.fi{
 }
 .cat-pill:hover{border-color:var(--br-lt);color:var(--br-mid);}
 .cat-pill.active{background:var(--br-mid);border-color:var(--br-mid);color:#fff;}
-
+/* ===== CUSTOM TYPE WRAP ===== */
+#customTypeWrap{margin-top:.6rem;display:none;}
 /* ===== EFFECTS BOX ===== */
 .effects-box{
   background:rgba(200,149,92,.08);
@@ -153,7 +150,6 @@ textarea.fi{
   border:1px solid rgba(200,130,90,.28);
 }
 .effects-none{font-size:.82rem;color:#ccc;}
-
 /* ===== COLOR PICKER ===== */
 .color-row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;}
 .tea-color{
@@ -168,7 +164,21 @@ textarea.fi{
   box-shadow:0 0 0 2px #fff,0 0 0 4px var(--br-dark);
 }
 .color-name-lbl{font-size:.8rem;color:var(--muted);margin-left:.2rem;}
-
+/* ===== COLOR CUSTOM ROW ===== */
+.color-custom-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:.8rem;
+  margin-top:.8rem;
+}
+@media(max-width:560px){.color-custom-row{grid-template-columns:1fr;}}
+.hex-input-row{display:flex;gap:.5rem;align-items:center;}
+.hex-input-row .fi{flex:1;min-width:0;}
+#colorHexPreview{
+  width:32px;height:32px;flex-shrink:0;
+  border-radius:50%;border:2px solid var(--border);
+  background:#eee;transition:background .2s;
+}
 /* ===== TIMER ===== */
 .timer-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;}
 .timer-row .fi{flex:1;min-width:80px;}
@@ -187,7 +197,6 @@ textarea.fi{
   color:var(--br-dark);min-width:50px;
   text-align:center;letter-spacing:.05em;
 }
-
 /* ===== STAR RATING ===== */
 .star-row{display:flex;flex-direction:row-reverse;gap:.15rem;margin-top:.1rem;}
 .star-row input{display:none;}
@@ -199,7 +208,6 @@ textarea.fi{
 .star-row input:checked ~ label,
 .star-row label:hover,
 .star-row label:hover ~ label{color:var(--gold);}
-
 /* ===== PHOTO UPLOAD ===== */
 .photo-zone{
   border:2px dashed var(--border);
@@ -209,9 +217,8 @@ textarea.fi{
   transition:border-color .2s,background .2s;
 }
 .photo-zone:hover{border-color:var(--br-lt);background:rgba(200,149,92,.04);}
-.photo-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.photo-zone input{position:absolute;top:0;left:0;right:0;bottom:0;opacity:0;cursor:pointer;width:100%;height:100%;}
 .photo-zone p{font-size:.88rem;color:var(--muted);pointer-events:none;}
-
 .photo-previews{display:flex;gap:10px;flex-wrap:wrap;margin-top:.8rem;}
 .photo-thumb{display:flex;flex-direction:column;align-items:center;}
 .photo-thumb img{
@@ -228,7 +235,6 @@ textarea.fi{
 }
 .photo-controls button:hover{background:var(--cream-dk);color:var(--text);}
 .photo-controls button.del:hover{background:#fde8e8;border-color:#e07070;color:#c04040;}
-
 /* ===== SUBMIT BTN ===== */
 .submit-btn{
   width:100%;padding:1rem;
@@ -242,7 +248,6 @@ textarea.fi{
 }
 .submit-btn:hover{opacity:.92;transform:translateY(-2px);box-shadow:0 6px 20px rgba(74,44,26,.3);}
 .submit-btn:active{transform:scale(.99);}
-
 /* ===== HISTORY FILTERS ===== */
 .filter-row{display:flex;gap:.7rem;flex-wrap:wrap;align-items:center;margin-bottom:1.2rem;}
 .filter-row input,.filter-row select{
@@ -262,7 +267,6 @@ textarea.fi{
   background-position:right .7rem center;
   padding-right:2rem;
 }
-
 /* ===== LOG CARDS ===== */
 .log-card{
   background:var(--card);border-radius:12px;
@@ -293,9 +297,7 @@ textarea.fi{
 .log-memo{font-size:.85rem;color:#666;margin-top:.55rem;line-height:1.5;}
 .log-thumbs{display:flex;gap:.4rem;margin-top:.65rem;flex-wrap:wrap;}
 .log-thumbs img{width:56px;height:56px;object-fit:cover;border-radius:6px;}
-
 .empty-state{text-align:center;padding:3rem;color:#bbb;font-size:1rem;}
-
 /* ===== STATS ===== */
 .stats-grid{
   display:grid;
@@ -309,7 +311,6 @@ textarea.fi{
 }
 .stat-number{font-size:1.9rem;font-weight:bold;color:var(--br-mid);line-height:1;}
 .stat-label{font-size:.76rem;color:var(--muted);margin-top:.3rem;}
-
 .chart-card{background:var(--card);border-radius:12px;padding:1.4rem;box-shadow:0 2px 10px var(--shadow);}
 .chart-title{font-size:.88rem;color:var(--br-mid);font-weight:bold;margin-bottom:1rem;}
 .bar-chart{display:flex;flex-direction:column;gap:.65rem;}
@@ -318,11 +319,10 @@ textarea.fi{
 .bar-track{flex:1;background:var(--cream-dk);border-radius:4px;height:13px;}
 .bar-fill{background:linear-gradient(90deg,var(--br-lt),var(--br-mid));height:13px;border-radius:4px;transition:width .5s;}
 .bar-count{font-size:.78rem;color:var(--muted);min-width:28px;text-align:right;}
-
 /* ===== OVERLAY ===== */
 .overlay{
   display:none;
-  position:fixed;inset:0;z-index:1000;
+  position:fixed;top:0;left:0;right:0;bottom:0;z-index:1000;
   background:rgba(61,42,30,.55);
   -webkit-backdrop-filter:blur(4px);
   backdrop-filter:blur(4px);
@@ -332,7 +332,6 @@ textarea.fi{
   -webkit-overflow-scrolling:touch;
 }
 .overlay.open{display:flex;}
-
 /* ===== DETAIL MODAL ===== */
 .detail-modal{
   background:#fff9f4;border-radius:18px;
@@ -351,12 +350,10 @@ textarea.fi{
   transition:background .15s;
 }
 .modal-close:hover{background:#fde8e8;color:#c04040;}
-
 .dm-bar{height:5px;border-radius:4px;background:var(--br-lt);margin-bottom:1.2rem;}
 .dm-title{font-size:1.45rem;color:var(--br-dark);margin-bottom:.3rem;font-weight:bold;line-height:1.3;word-break:break-word;}
 .dm-meta{font-size:.8rem;color:var(--muted);margin-bottom:.5rem;}
 .dm-stars{color:var(--gold);font-size:1.1rem;margin-bottom:1.3rem;}
-
 .dm-section{margin-bottom:1.4rem;}
 .dm-section-t{
   font-size:.7rem;font-weight:700;
@@ -374,7 +371,6 @@ textarea.fi{
 .dm-row:last-child{border-bottom:none;}
 .dm-row-lbl{color:var(--muted);font-size:.78rem;min-width:100px;flex-shrink:0;}
 .dm-row-val{color:var(--text);word-break:break-word;}
-
 .dm-memo-box{
   background:rgba(200,149,92,.06);
   border-left:3px solid var(--br-lt);
@@ -384,7 +380,6 @@ textarea.fi{
   line-height:1.7;white-space:pre-wrap;
   word-break:break-word;
 }
-
 .dm-eff-tags{display:flex;gap:.4rem;flex-wrap:wrap;}
 .dm-eff-tag{
   background:rgba(200,130,90,.12);
@@ -392,7 +387,6 @@ textarea.fi{
   padding:.25rem .7rem;border-radius:20px;
   border:1px solid rgba(200,130,90,.28);
 }
-
 .dm-photos{display:flex;gap:8px;flex-wrap:wrap;}
 .dm-photos img{
   width:80px;height:80px;
@@ -402,7 +396,6 @@ textarea.fi{
   transition:opacity .15s,transform .15s;
 }
 .dm-photos img:hover{opacity:.85;transform:scale(1.05);}
-
 .dm-actions{
   display:flex;gap:.8rem;justify-content:flex-end;
   margin-top:1.4rem;padding-top:1rem;
@@ -416,11 +409,10 @@ textarea.fi{
   color:var(--muted);transition:background .15s;
 }
 .btn-close-modal:hover{background:#e0d0c0;}
-
 /* ===== IMAGE MODAL ===== */
 .image-modal{
   display:none;
-  position:fixed;inset:0;
+  position:fixed;top:0;left:0;right:0;bottom:0;
   background:rgba(0,0,0,.82);
   z-index:9999;
   justify-content:center;align-items:center;
@@ -463,7 +455,6 @@ textarea.fi{
   border-radius:20px;z-index:10000;
   pointer-events:none;
 }
-
 /* ===== EDIT MODE BANNER ===== */
 .edit-banner{
   background:rgba(200,149,92,.15);
@@ -488,7 +479,6 @@ textarea.fi{
   transition:background .15s;
 }
 .edit-cancel-btn:hover{background:var(--cream-dk);}
-
 /* ===== EDIT LOG BTN ===== */
 .edit-log-btn{
   background:none;border:1px solid var(--border);
@@ -496,9 +486,10 @@ textarea.fi{
   font-size:.75rem;cursor:pointer;
   font-family:inherit;color:var(--muted);
   transition:all .15s;white-space:nowrap;
+  /* ボタン内のクリックを確実に受け取る */
+  pointer-events:auto;
 }
 .edit-log-btn:hover{background:var(--cream-dk);border-color:var(--br-lt);color:var(--br-mid);}
-
 /* ===== BTN EDIT IN MODAL ===== */
 .btn-edit-modal{
   background:var(--br-mid);color:#fff;
@@ -509,7 +500,6 @@ textarea.fi{
   transition:background .15s;
 }
 .btn-edit-modal:hover{background:var(--br-dark);}
-
 /* ===== TOAST ===== */
 #toast{
   position:fixed;bottom:2rem;left:50%;
@@ -522,31 +512,6 @@ textarea.fi{
   white-space:nowrap;
 }
 #toast.show{opacity:1;}
-
-/* ===== CUSTOM TYPE WRAP ===== */
-#customTypeWrap{margin-top:.6rem;}
-
-/* ===== COLOR CUSTOM ROW ===== */
-.color-custom-row{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:.8rem;
-  margin-top:.8rem;
-}
-@media(max-width:560px){.color-custom-row{grid-template-columns:1fr;}}
-.fl-sub{
-  font-size:.72rem;font-weight:700;
-  color:var(--muted);letter-spacing:.06em;
-  margin-bottom:.25rem;display:block;
-}
-.hex-input-row{display:flex;gap:.5rem;align-items:center;}
-.hex-input-row .fi{flex:1;min-width:0;}
-#colorHexPreview{
-  width:32px;height:32px;flex-shrink:0;
-  border-radius:50%;border:2px solid var(--border);
-  background:#eee;transition:background .2s;
-}
-
 /* ===== RESPONSIVE ===== */
 @media(max-width:480px){
   nav button{font-size:.78rem;padding:.8rem .2rem;}
@@ -564,20 +529,16 @@ textarea.fi{
 </style>
 </head>
 <body>
-
 <header>
   <h1>🍵 Tea Diary</h1>
   <p>丁寧に淹れる、丁寧に記す</p>
 </header>
-
 <nav>
-  <button class="active" onclick="switchTab('record')">✏️ 記録</button>
-  <button onclick="switchTab('history')">📖 ログ</button>
-  <button onclick="switchTab('stats')">📊 統計</button>
+  <button type="button" class="active" onclick="switchTab('record')">✏️ 記録</button>
+  <button type="button" onclick="switchTab('history')">📖 ログ</button>
+  <button type="button" onclick="switchTab('stats')">📊 統計</button>
 </nav>
-
 <main>
-
   <!-- ===== RECORD TAB ===== -->
   <div id="tab-record" class="tab-content active">
     <div class="card">
@@ -589,47 +550,39 @@ textarea.fi{
       </div>
       <form id="teaForm" onsubmit="saveTea(event)" autocomplete="off">
         <div class="form-grid">
-
           <div class="fg">
             <label class="fl">📅 日付</label>
             <input type="date" class="fi" id="f-date" required>
           </div>
-
           <div class="fg">
             <label class="fl">☕ カテゴリ</label>
             <div class="cat-pills" id="catPills"></div>
           </div>
-
           <div class="fg full">
             <label class="fl">🌿 茶葉の種類</label>
             <select class="fs" id="f-type">
               <option value="">選択してください</option>
             </select>
-            <div id="customTypeWrap" style="display:none">
+            <div id="customTypeWrap">
               <input type="text" class="fi" id="f-type-custom" placeholder="自由に入力してください（例: ほうじ茶ラテ、白桃烏龍…）">
             </div>
           </div>
-
           <div class="fg full">
             <label class="fl">🏷️ 銘柄・ブランド</label>
             <input type="text" class="fi" id="f-brand" placeholder="例: マリアージュ フレール、フォートナム&amp;メイソン…">
           </div>
-
           <div class="fg">
             <label class="fl">⚖️ 茶葉の量 <span class="unit">g</span></label>
             <input type="number" class="fi" id="f-amount" min="0" step="0.1" placeholder="例: 3">
           </div>
-
           <div class="fg">
             <label class="fl">💧 水の量 <span class="unit">ml</span></label>
             <input type="number" class="fi" id="f-water" min="0" step="10" placeholder="例: 200">
           </div>
-
           <div class="fg">
             <label class="fl">🌡️ お湯の温度 <span class="unit">℃</span></label>
             <input type="number" class="fi" id="f-temp" min="40" max="100" placeholder="例: 95">
           </div>
-
           <div class="fg">
             <label class="fl">🚰 水の種類</label>
             <select class="fs" id="f-waterType">
@@ -641,7 +594,6 @@ textarea.fi{
               <option>水道水</option>
             </select>
           </div>
-
           <div class="fg full">
             <label class="fl">⏱️ 蒸らし時間 <span class="unit">分:秒</span></label>
             <div class="timer-row">
@@ -651,7 +603,6 @@ textarea.fi{
               <button type="button" class="timer-btn reset" onclick="resetTimer()">■ リセット</button>
             </div>
           </div>
-
           <div class="fg full">
             <label class="fl">🎨 水色（茶の色）</label>
             <div class="color-row" id="colorPicker"></div>
@@ -669,7 +620,6 @@ textarea.fi{
               </div>
             </div>
           </div>
-
           <div class="fg">
             <label class="fl">🍃 茶葉の形状</label>
             <select class="fs" id="f-leafShape">
@@ -683,7 +633,6 @@ textarea.fi{
               <option>粉末・抹茶タイプ</option>
             </select>
           </div>
-
           <div class="fg">
             <label class="fl">⭐ 評価</label>
             <div class="star-row">
@@ -694,34 +643,29 @@ textarea.fi{
               <input type="radio" name="rating" id="r1" value="1"><label for="r1">★</label>
             </div>
           </div>
-
           <div class="fg full">
             <label class="fl">💚 期待できる効能</label>
             <div class="effects-box" id="effectsBox">
               <span class="effects-none">茶葉の種類を選択すると表示されます</span>
             </div>
           </div>
-
           <div class="fg full">
             <label class="fl">📝 テイスティングメモ</label>
             <textarea class="fi" id="f-memo" placeholder="香り、渋み、甘さ、余韻、色合いなど自由に…"></textarea>
           </div>
-
           <div class="fg full">
             <label class="fl">📷 写真</label>
             <div class="photo-zone" id="photoZone">
-            <input type="file" id="photoInput" accept="image/*,.jpg,.jpeg,.png,.webp,.heic,.heif" multiple="multiple">
+              <input type="file" id="photoInput" accept="image/*" multiple>
               <p>📷 クリックまたはドラッグ＆ドロップで写真を追加</p>
             </div>
             <div class="photo-previews" id="photoPreviews"></div>
           </div>
-
         </div>
         <button type="submit" class="submit-btn">☕ 記録を保存する</button>
       </form>
     </div>
   </div>
-
   <!-- ===== HISTORY TAB ===== -->
   <div id="tab-history" class="tab-content">
     <div class="filter-row">
@@ -743,14 +687,12 @@ textarea.fi{
         <option value="rating-low">評価：低い順</option>
       </select>
     </div>
-   <div id="historyList"></div>
-
-<div class="card" style="margin-top:1rem;">
-  <div class="card-title">🗑️ ゴミ箱</div>
-  <div id="trashList"></div>
-</div>
+    <div id="historyList"></div>
+    <div class="card" style="margin-top:1rem;">
+      <div class="card-title">🗑️ ゴミ箱</div>
+      <div id="trashList"></div>
+    </div>
   </div>
-
   <!-- ===== STATS TAB ===== -->
   <div id="tab-stats" class="tab-content">
     <div class="stats-grid" id="statsBoxes"></div>
@@ -759,75 +701,80 @@ textarea.fi{
       <div class="bar-chart" id="barChart"></div>
     </div>
   </div>
-
 </main>
-
 <!-- ===== DETAIL MODAL ===== -->
 <div class="overlay" id="detailOverlay">
   <div class="detail-modal">
-    <button class="modal-close" onclick="closeDetailModal()">✕</button>
+    <button type="button" class="modal-close" onclick="closeDetailModal()">✕</button>
     <div class="dm-bar"></div>
     <div class="dm-title" id="dmTitle"></div>
     <div class="dm-meta" id="dmMeta"></div>
     <div class="dm-stars" id="dmStars"></div>
-
     <div class="dm-section" id="dmBasicSec">
       <div class="dm-section-t">🌿 基本情報</div>
       <div id="dmBasicRows"></div>
     </div>
-
     <div class="dm-section" id="dmBrewSec">
       <div class="dm-section-t">⚗️ 抽出条件</div>
       <div id="dmBrewRows"></div>
     </div>
-
     <div class="dm-section" id="dmMemoSec">
       <div class="dm-section-t">📝 テイスティングメモ</div>
       <div class="dm-memo-box" id="dmMemo"></div>
     </div>
-
     <div class="dm-section" id="dmEffSec">
       <div class="dm-section-t">💚 期待できる効能</div>
       <div class="dm-eff-tags" id="dmEffTags"></div>
     </div>
-
     <div class="dm-section" id="dmPhotoSec">
       <div class="dm-section-t">📷 写真</div>
       <div class="dm-photos" id="dmPhotos"></div>
     </div>
-
     <div class="dm-actions">
-      <button class="btn-close-modal" onclick="closeDetailModal()">閉じる</button>
-      <button class="btn-edit-modal" id="dmEditBtn" onclick="startEditFromModal()">✏️ 編集する</button>
+      <button type="button" class="btn-close-modal" onclick="closeDetailModal()">閉じる</button>
+      <button type="button" class="btn-edit-modal" id="dmEditBtn" onclick="startEditFromModal()">✏️ 編集する</button>
     </div>
   </div>
 </div>
-
 <!-- ===== IMAGE MODAL ===== -->
 <div class="image-modal" id="imageModal" onclick="handleImgOverlayClick(event)">
-  <button class="img-nav-btn" id="imgPrevBtn" onclick="showPrevImage(event)">←</button>
+  <button type="button" class="img-nav-btn" id="imgPrevBtn" onclick="showPrevImage(event)">←</button>
   <img class="image-modal-img" id="imageModalImg" src="" alt="拡大画像">
-  <button class="img-nav-btn" id="imgNextBtn" onclick="showNextImage(event)">→</button>
-  <button id="imgCloseBtn" onclick="closeImageModal(event)">✕</button>
+  <button type="button" class="img-nav-btn" id="imgNextBtn" onclick="showNextImage(event)">→</button>
+  <button type="button" id="imgCloseBtn" onclick="closeImageModal(event)">✕</button>
   <div class="img-counter" id="imgCounter"></div>
 </div>
-
 <div id="toast"></div>
-
 <script>
 'use strict';
-
+/* ===== SAFARI POLYFILLS ===== */
+/* Element.matches (Safari < 9) */
+if (!Element.prototype.matches) {
+  Element.prototype.matches =
+    Element.prototype.msMatchesSelector ||
+    Element.prototype.webkitMatchesSelector;
+}
+/* Element.closest (Safari < 9) */
+if (!Element.prototype.closest) {
+  Element.prototype.closest = function(s) {
+    var el = this;
+    do {
+      if (el.matches && el.matches(s)) return el;
+      el = el.parentElement || el.parentNode;
+    } while (el !== null && el.nodeType === 1);
+    return null;
+  };
+}
 /* ===== TEA DATA ===== */
 var TEA_DATA = {
-  '紅茶':        { emoji:'🍵', leaves:['アッサム','ダージリン（ファースト）','ダージリン（セカンド）','ダージリン（オータムナル）','ウバ','ヌワラエリヤ','キャンディ','ディンブラ','アールグレイ','イングリッシュブレックファスト','アイリッシュブレックファスト','中国紅茶（キームン）','台湾紅茶','フレーバード紅茶','その他の紅茶'] },
-  '緑茶':        { emoji:'🍃', leaves:['煎茶','深蒸し煎茶','玉露','抹茶','ほうじ茶','玄米茶','かぶせ茶','新茶','その他の緑茶'] },
-  '烏龍茶':      { emoji:'🫖', leaves:['鉄観音','凍頂烏龍茶','武夷岩茶（大紅袍）','東方美人','水仙','高山烏龍','その他の烏龍茶'] },
-  '白茶':        { emoji:'🌸', leaves:['白毫銀針','白牡丹','寿眉','貢眉','その他の白茶'] },
+  '紅茶':         { emoji:'🍵', leaves:['アッサム','ダージリン（ファースト）','ダージリン（セカンド）','ダージリン（オータムナル）','ウバ','ヌワラエリヤ','キャンディ','ディンブラ','アールグレイ','イングリッシュブレックファスト','アイリッシュブレックファスト','中国紅茶（キームン）','台湾紅茶','フレーバード紅茶','その他の紅茶'] },
+  '緑茶':         { emoji:'🍃', leaves:['煎茶','深蒸し煎茶','玉露','抹茶','ほうじ茶','玄米茶','かぶせ茶','新茶','その他の緑茶'] },
+  '烏龍茶':       { emoji:'🫖', leaves:['鉄観音','凍頂烏龍茶','武夷岩茶（大紅袍）','東方美人','水仙','高山烏龍','その他の烏龍茶'] },
+  '白茶':         { emoji:'🌸', leaves:['白毫銀針','白牡丹','寿眉','貢眉','その他の白茶'] },
   '黒茶・プーアル':{ emoji:'🏺', leaves:['プーアル茶（生茶）','プーアル茶（熟茶）','六堡茶','雲南黒茶','その他の黒茶'] },
-  'ハーブティー': { emoji:'🌿', leaves:['カモミール','ペパーミント','ローズヒップ','ハイビスカス','レモングラス','ラベンダー','エルダーフラワー','ルイボス','リコリス','ジンジャー','その他のハーブティー'] },
-  'その他':      { emoji:'☕', leaves:['ジャスミン茶','菊花茶','タンポポ茶','そば茶','むぎ茶','チコリ茶','その他'] }
+  'ハーブティー':  { emoji:'🌿', leaves:['カモミール','ペパーミント','ローズヒップ','ハイビスカス','レモングラス','ラベンダー','エルダーフラワー','ルイボス','リコリス','ジンジャー','その他のハーブティー'] },
+  'その他':       { emoji:'☕', leaves:['ジャスミン茶','菊花茶','タンポポ茶','そば茶','むぎ茶','チコリ茶','その他'] }
 };
-
 var EFFECTS_DB = {
   'アッサム':                ['カフェイン補給','集中力向上','抗酸化作用（カテキン）','消化促進'],
   'ダージリン（ファースト）':  ['抗酸化作用','リラックス効果','ポリフェノール補給','気分転換'],
@@ -864,17 +811,15 @@ var EFFECTS_DB = {
   'エルダーフラワー':         ['免疫サポート','抗炎症','リラックス効果'],
   'リコリス':                ['消化促進','抗炎症','甘みによるリラックス']
 };
-
 var CAT_EFFECTS = {
-  '紅茶':        ['抗酸化作用（ポリフェノール）','カフェイン（集中力）','消化促進'],
-  '緑茶':        ['カテキン（抗菌・抗酸化）','テアニン（リラックス）','ビタミンC'],
-  '烏龍茶':      ['脂肪分解サポート','抗酸化作用','ポリフェノール'],
-  '白茶':        ['高い抗酸化作用','低カフェイン','美容サポート'],
+  '紅茶':         ['抗酸化作用（ポリフェノール）','カフェイン（集中力）','消化促進'],
+  '緑茶':         ['カテキン（抗菌・抗酸化）','テアニン（リラックス）','ビタミンC'],
+  '烏龍茶':       ['脂肪分解サポート','抗酸化作用','ポリフェノール'],
+  '白茶':         ['高い抗酸化作用','低カフェイン','美容サポート'],
   '黒茶・プーアル':['消化促進','腸内環境改善','代謝サポート'],
-  'ハーブティー': ['ノンカフェイン','リラックス効果','自然由来の効能'],
-  'その他':      ['抗酸化作用','健康サポート']
+  'ハーブティー':  ['ノンカフェイン','リラックス効果','自然由来の効能'],
+  'その他':       ['抗酸化作用','健康サポート']
 };
-
 var TEA_COLORS = [
   { hex:'#f9e4b7', name:'ゴールデン' },
   { hex:'#e8c97a', name:'イエローゴールド' },
@@ -885,22 +830,21 @@ var TEA_COLORS = [
   { hex:'#c9a96e', name:'ミルクティー' },
   { hex:'#a8c96e', name:'グリーン（緑茶）' }
 ];
-
 /* ===== STATE ===== */
 var STORAGE_KEY = 'teaDiaryV3';
-var TRASH_KEY = 'teaDiaryTrashV1';
-var teaLogs = [];
+var TRASH_KEY   = 'teaDiaryTrashV1';
+var teaLogs   = [];
 var trashLogs = [];
 var formPhotos = [];
-var selectedCategory = '紅茶';
-var selectedColor = TEA_COLORS[0].hex;
+var selectedCategory  = '紅茶';
+var selectedColor     = TEA_COLORS[0].hex;
 var selectedColorName = TEA_COLORS[0].name;
-var timerInterval = null;
-var timerSeconds = 0;
-var timerRunning = false;
-var currentImageList = [];
+var timerInterval  = null;
+var timerSeconds   = 0;
+var timerRunning   = false;
+var currentImageList  = [];
 var currentImageIndex = 0;
-var editingId = null;
+var editingId       = null;
 var currentDetailId = null;
 
 /* ===== STORAGE ===== */
@@ -913,19 +857,14 @@ function saveLogs() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(teaLogs));
     return true;
   } catch(e) {
-    alert('⚠️ 保存に失敗しました。\n写真のデータが大きすぎる可能性があります。\n写真を減らすか、解像度を下げてから再度お試しください。');
+    alert('⚠️ 保存に失敗しました。\n写真のデータが大きすぎる可能性があります。\n写真を減らしてから再度お試しください。');
     return false;
   }
 }
-
 function loadTrashLogs() {
-  try {
-    trashLogs = JSON.parse(localStorage.getItem(TRASH_KEY)) || [];
-  } catch(e) {
-    trashLogs = [];
-  }
+  try { trashLogs = JSON.parse(localStorage.getItem(TRASH_KEY)) || []; }
+  catch(e) { trashLogs = []; }
 }
-
 function saveTrashLogs() {
   try {
     localStorage.setItem(TRASH_KEY, JSON.stringify(trashLogs));
@@ -978,10 +917,36 @@ function renderCatPills() {
   });
 }
 
+/* ===== TEA TYPE HELPERS ===== */
+function isOtherType(val) {
+  return !!(val && val.indexOf('その他') > -1);
+}
+function updateCustomTypeVis() {
+  var val  = document.getElementById('f-type').value;
+  var wrap = document.getElementById('customTypeWrap');
+  if (!wrap) return;
+  if (isOtherType(val)) {
+    wrap.style.display = '';
+  } else {
+    wrap.style.display = 'none';
+    var cust = document.getElementById('f-type-custom');
+    if (cust) cust.value = '';
+  }
+}
+function getFinalTeaType() {
+  var sel = document.getElementById('f-type').value;
+  if (isOtherType(sel)) {
+    var custom = (document.getElementById('f-type-custom').value || '').trim();
+    if (custom) return custom;
+  }
+  return sel;
+}
+
+/* ===== LEAF OPTIONS ===== */
 function updateLeafOptions() {
-  var sel = document.getElementById('f-type');
-  var cur = sel.value;
-  var leaves = (TEA_DATA[selectedCategory]||{}).leaves||[];
+  var sel    = document.getElementById('f-type');
+  var cur    = sel.value;
+  var leaves = (TEA_DATA[selectedCategory] || {}).leaves || [];
   sel.innerHTML = '<option value="">選択してください</option>';
   leaves.forEach(function(lf){
     var o = document.createElement('option');
@@ -997,7 +962,7 @@ function updateLeafOptions() {
 function updateEffects() {
   var type = getFinalTeaType();
   var effs = EFFECTS_DB[type] || CAT_EFFECTS[selectedCategory] || [];
-  var box = document.getElementById('effectsBox');
+  var box  = document.getElementById('effectsBox');
   if (effs.length) {
     box.innerHTML = '<div class="eff-tags">'+effs.map(function(e){
       return '<span class="eff-tag">'+escHtml(e)+'</span>';
@@ -1007,32 +972,13 @@ function updateEffects() {
   }
 }
 
-/* ===== ITS OTHER TYPE HELPERS ===== */
-function isOtherType(val) {
-  // 「その他」を含む選択肢かどうか
-  return val && val.indexOf('その他') > -1;
-}
-
-function updateCustomTypeVis() {
-  var val = document.getElementById('f-type').value;
-  var wrap = document.getElementById('customTypeWrap');
-  if (!wrap) return;
-  if (isOtherType(val)) {
-    wrap.style.display = '';
-  } else {
-    wrap.style.display = 'none';
-    var cust = document.getElementById('f-type-custom');
-    if (cust) cust.value = '';
-  }
-}
-
-function getFinalTeaType() {
-  var sel = document.getElementById('f-type').value;
-  if (isOtherType(sel)) {
-    var custom = (document.getElementById('f-type-custom').value||'').trim();
-    if (custom) return custom;
-  }
-  return sel;
+/* ===== COLOR HELPERS ===== */
+function normalizeHex(s) {
+  s = (s || '').trim();
+  if (!s) return '';
+  if (!/^#/.test(s)) s = '#' + s;
+  if (/^#[0-9a-fA-F]{6}$/.test(s)) return s.toLowerCase();
+  return '';
 }
 function updateColorHexPreview() {
   var hexEl = document.getElementById('f-color-hex');
@@ -1042,73 +988,24 @@ function updateColorHexPreview() {
   prev.style.background  = hex || '#eee';
   prev.style.borderColor = hex ? hex : 'var(--border)';
 }
-/* ===== COLOR CUSTOM HELPERS ===== */
-function normalizeHex(s) {
-  s = (s || '').trim();
-  if (!s) return '';
-  if (!/^#/.test(s)) s = '#' + s;
-  if (/^#[0-9a-fA-F]{6}$/.test(s)) return s.toLowerCase();
-  return '';
-}
-
 function getFinalColor() {
   var hexEl = document.getElementById('f-color-hex');
-  var hex = hexEl ? normalizeHex(hexEl.value) : '';
+  var hex   = hexEl ? normalizeHex(hexEl.value) : '';
   return hex || selectedColor;
 }
-
 function getFinalColorName() {
   var nameEl = document.getElementById('f-color-name');
-  var hexEl = document.getElementById('f-color-hex');
-
-  var name = nameEl ? (nameEl.value || '').trim() : '';
+  var hexEl  = document.getElementById('f-color-hex');
+  var name   = nameEl ? (nameEl.value || '').trim() : '';
   if (name) return name;
-
   var hex = hexEl ? normalizeHex(hexEl.value) : '';
   if (hex) return hex;
-
   return selectedColorName;
-}
-function compressImage(file, callback) {
-  var reader = new FileReader();
-  reader.onerror = function() {
-    callback(null);
-  };
-  reader.onload = function(ev) {
-    var originalDataUrl = ev.target.result;
-    var img = new Image();
-    img.onerror = function() {
-      // 画像として開けない場合（HEICなど）はそのまま使用
-      callback(originalDataUrl);
-    };
-    img.onload = function() {
-      try {
-        var maxPx = 1200;
-        var w = img.width  || 1;
-        var h = img.height || 1;
-        if (w > maxPx || h > maxPx) {
-          if (w >= h) { h = Math.round(h * maxPx / w); w = maxPx; }
-          else        { w = Math.round(w * maxPx / h); h = maxPx; }
-        }
-        var canvas = document.createElement('canvas');
-        canvas.width  = w;
-        canvas.height = h;
-        var ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, w, h);
-        callback(canvas.toDataURL('image/jpeg', 0.75));
-      } catch(e) {
-        // canvas変換失敗時は元画像で続行
-        callback(originalDataUrl);
-      }
-    };
-    img.src = originalDataUrl;
-  };
-  reader.readAsDataURL(file);
 }
 
 /* ===== COLOR PICKER ===== */
 function renderColorPicker() {
-  var c = document.getElementById('colorPicker');
+  var c    = document.getElementById('colorPicker');
   var html = '';
   TEA_COLORS.forEach(function(col){
     var sel = col.hex === selectedColor ? ' selected' : '';
@@ -1119,13 +1016,12 @@ function renderColorPicker() {
   c.innerHTML = html;
   c.querySelectorAll('.tea-color').forEach(function(el){
     el.addEventListener('click', function(){
-      selectedColor = el.dataset.hex;
+      selectedColor     = el.dataset.hex;
       selectedColorName = el.dataset.name;
-      document.querySelectorAll('.tea-color').forEach(function(e){ e.classList.remove('selected'); });
+      c.querySelectorAll('.tea-color').forEach(function(e){ e.classList.remove('selected'); });
       el.classList.add('selected');
       var lbl = document.getElementById('colorNameLbl');
       if (lbl) lbl.textContent = selectedColorName;
-      // カスタムフィールドにもセット
       var nameEl = document.getElementById('f-color-name');
       var hexEl  = document.getElementById('f-color-hex');
       if (nameEl) nameEl.value = selectedColorName;
@@ -1145,9 +1041,9 @@ function toggleTimer() {
     document.getElementById('timerStartBtn').textContent = '⏸ 停止';
     timerInterval = setInterval(function(){
       timerSeconds++;
-      var m = Math.floor(timerSeconds/60);
-      var s = timerSeconds%60;
-      var txt = m+':'+(s<10?'0':'')+s;
+      var m   = Math.floor(timerSeconds / 60);
+      var s   = timerSeconds % 60;
+      var txt = m + ':' + (s < 10 ? '0' : '') + s;
       document.getElementById('timerDisplay').textContent = txt;
       document.getElementById('f-steep').value = txt;
     }, 1000);
@@ -1157,43 +1053,140 @@ function resetTimer() {
   clearInterval(timerInterval);
   timerRunning = false; timerSeconds = 0;
   document.getElementById('timerStartBtn').textContent = '▶ 開始';
-  document.getElementById('timerDisplay').textContent = '0:00';
+  document.getElementById('timerDisplay').textContent  = '0:00';
   document.getElementById('f-steep').value = '';
+}
+
+/* ===== EXIF ORIENTATION ===== */
+/*
+ * iPhoneで撮影したJPEG写真にはEXIF回転情報が含まれています。
+ * Safariのcanvasはこの情報を無視するため、写真が横向きになります。
+ * JPEGのバイナリを直接読み込み、orientation値を取得してcanvasで補正します。
+ *
+ * orientation 値の意味:
+ *   1 = 正常, 3 = 180°回転, 6 = 90°CW(iPhoneの縦撮りに多い), 8 = 90°CCW
+ */
+function readExifOrientation(file, callback) {
+  var reader = new FileReader();
+  reader.onerror = function() { callback(1); };
+  reader.onload = function(e) {
+    try {
+      var view   = new DataView(e.target.result);
+      /* JPEGマーカー確認 */
+      if (view.getUint16(0, false) !== 0xFFD8) { callback(1); return; }
+      var len    = view.byteLength;
+      var offset = 2;
+      while (offset < len) {
+        var marker = view.getUint16(offset, false);
+        offset += 2;
+        if (marker === 0xFFE1) {          /* APP1 (EXIF) セグメント */
+          if (view.getUint32(offset + 2, false) !== 0x45786966) { callback(1); return; }
+          var tiff   = offset + 8; /* "Exif\0\0" の6バイト後がTIFFヘッダ */
+          var little = view.getUint16(tiff, false) === 0x4949;
+          var ifdOff = view.getUint32(tiff + 4, little);
+          var ifd    = tiff + ifdOff;
+          var tags   = view.getUint16(ifd, little);
+          for (var i = 0; i < tags; i++) {
+            var tagOff = ifd + 2 + i * 12;
+            if (view.getUint16(tagOff, little) === 0x0112) { /* Orientation tag */
+              callback(view.getUint16(tagOff + 8, little));
+              return;
+            }
+          }
+          callback(1); return;
+        } else if ((marker & 0xFF00) !== 0xFF00) {
+          break;
+        } else {
+          offset += view.getUint16(offset, false);
+        }
+      }
+    } catch(ex) {}
+    callback(1);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+/* ===== IMAGE COMPRESSION ===== */
+/*
+ * 最大1200px・JPEG 0.75に圧縮しつつ、EXIF回転を補正します。
+ * Safariのcanvasはimg.naturalWidth/Heightにストアされた寸法を使いますが、
+ * EXIF orientationを無視するため、手動でTransformを適用します。
+ */
+function compressImage(file, callback) {
+  var reader = new FileReader();
+  reader.onerror = function() { callback(null); };
+  reader.onload = function(ev) {
+    var dataUrl = ev.target.result;
+    /* まずEXIF orientation を取得してからcanvasへ描画する */
+    readExifOrientation(file, function(orientation) {
+      var img = new Image();
+      img.onerror = function() { callback(dataUrl); };
+      img.onload = function() {
+        try {
+          var srcW = img.width  || 1;
+          var srcH = img.height || 1;
+          /* orientation 5〜8 は90°/270°回転なので幅と高さが入れ替わる */
+          var swap = (orientation >= 5 && orientation <= 8);
+          var maxPx = 1200;
+          var outW  = swap ? srcH : srcW;
+          var outH  = swap ? srcW : srcH;
+          /* maxPx でリサイズ */
+          if (outW > maxPx || outH > maxPx) {
+            if (outW >= outH) { outH = Math.round(outH * maxPx / outW); outW = maxPx; }
+            else              { outW = Math.round(outW * maxPx / outH); outH = maxPx; }
+          }
+          var cW = outW, cH = outH;
+          var canvas = document.createElement('canvas');
+          canvas.width  = cW;
+          canvas.height = cH;
+          var ctx = canvas.getContext('2d');
+          /* EXIF orientation に応じてcanvasのTransformを設定 */
+          switch (orientation) {
+            case 2: ctx.transform(-1,  0,  0,  1, cW,  0); break; /* 水平反転 */
+            case 3: ctx.transform(-1,  0,  0, -1, cW, cH); break; /* 180° */
+            case 4: ctx.transform( 1,  0,  0, -1,  0, cH); break; /* 垂直反転 */
+            case 5: ctx.transform( 0,  1,  1,  0,  0,  0); break; /* 転置 */
+            case 6: ctx.transform( 0,  1, -1,  0, cH,  0); break; /* 90°CW（iPhoneで最多） */
+            case 7: ctx.transform( 0, -1, -1,  0, cH, cW); break; /* 横反転+90°CW */
+            case 8: ctx.transform( 0, -1,  1,  0,  0, cW); break; /* 90°CCW */
+            /* case 1: 変換不要 */
+          }
+          /* swapしている場合は描画先の幅と高さを入れ替える */
+          if (swap) { ctx.drawImage(img, 0, 0, cH, cW); }
+          else      { ctx.drawImage(img, 0, 0, cW, cH); }
+          callback(canvas.toDataURL('image/jpeg', 0.75));
+        } catch(e) { callback(dataUrl); }
+      };
+      img.src = dataUrl;
+    });
+  };
+  reader.readAsDataURL(file);
 }
 
 /* ===== PHOTOS ===== */
 document.getElementById('photoInput').addEventListener('change', function(e){
   var files = Array.from(e.target.files || []);
   if (!files.length) return;
-
   var maxAdd = 5;
   var remain = maxAdd - formPhotos.length;
-
   if (remain <= 0) {
     alert('写真は最大5枚までです。');
     this.value = '';
     return;
   }
-
   files = files.slice(0, remain);
-
   var results = new Array(files.length);
-  var done = 0;
-
+  var done    = 0;
   files.forEach(function(file, index){
     compressImage(file, function(dataUrl){
       results[index] = dataUrl;
       done++;
-
       if (done === files.length) {
-        results.forEach(function(d){
-          if (d) formPhotos.push(d);
-        });
+        results.forEach(function(d){ if (d) formPhotos.push(d); });
         renderPhotoPreviews();
       }
     });
   });
-
   this.value = '';
 });
 
@@ -1222,7 +1215,7 @@ function renderPhotoPreviews() {
   wrap.querySelectorAll('.mv-r').forEach(function(btn){
     btn.addEventListener('click', function(){
       var i = +btn.dataset.i;
-      if (i >= formPhotos.length-1) return;
+      if (i >= formPhotos.length - 1) return;
       var tmp = formPhotos[i]; formPhotos[i] = formPhotos[i+1]; formPhotos[i+1] = tmp;
       renderPhotoPreviews();
     });
@@ -1238,14 +1231,13 @@ function renderPhotoPreviews() {
 /* ===== SAVE ===== */
 function saveTea(e) {
   e.preventDefault();
-  var rating = parseInt((document.querySelector('input[name="rating"]:checked')||{}).value||'3', 10);
-  var type = getFinalTeaType();
+  var rating         = parseInt((document.querySelector('input[name="rating"]:checked') || {}).value || '3', 10);
+  var type           = getFinalTeaType();
   var finalColor     = getFinalColor();
   var finalColorName = getFinalColorName();
-  var effects = EFFECTS_DB[type] || CAT_EFFECTS[selectedCategory] || [];
-
-  var isEdit = !!editingId;
-  var entryId = isEdit ? editingId : String(Date.now());
+  var effects        = EFFECTS_DB[type] || CAT_EFFECTS[selectedCategory] || [];
+  var isEdit         = !!editingId;
+  var entryId        = isEdit ? editingId : String(Date.now());
 
   var entry = {
     id:        entryId,
@@ -1267,29 +1259,16 @@ function saveTea(e) {
     photos:    formPhotos.slice()
   };
 
-  // バックアップ（保存失敗時に復元用）
   var prevLogs = teaLogs.slice();
-  var isNew = !isEdit;
-
   if (isEdit) {
     teaLogs = teaLogs.map(function(l){ return l.id === editingId ? entry : l; });
   } else {
     teaLogs.unshift(entry);
   }
-
   var ok = saveLogs();
-  if (!ok) {
-    // 保存失敗 → 変更を元に戻してフォームは維持
-    teaLogs = prevLogs;
-    return;
-  }
+  if (!ok) { teaLogs = prevLogs; return; }
 
-  if (isEdit) {
-    showToast('✅ 記録を更新しました！');
-  } else {
-    showToast('✅ 記録を保存しました！');
-  }
-
+  showToast(isEdit ? '✅ 記録を更新しました！' : '✅ 記録を保存しました！');
   resetForm();
   openDetailModal(entryId);
 }
@@ -1299,87 +1278,75 @@ function openEdit(id) {
   var l = teaLogs.find(function(x){ return x.id === id; });
   if (!l) return;
 
-  editingId = id;
-
-  // カテゴリをセット
+  editingId        = id;
   selectedCategory = l.category || '紅茶';
   renderCatPills();
   updateLeafOptions();
 
-  // フォームに値を流し込む
   document.getElementById('f-date').value = l.date || todayStr();
 
-  // 茶葉の種類（updateLeafOptionsの後にセット）
-  var typeEl = document.getElementById('f-type');
+  /* 茶葉の種類 */
+  var typeEl    = document.getElementById('f-type');
   var savedType = l.type || '';
-  // まずそのままセットを試みる
-  typeEl.value = savedType;
+  typeEl.value  = savedType;
   if (!typeEl.value && savedType) {
-    // リストにない値 → 「その他」系オプションを探して選択し、カスタムフィールドに値を入れる
+    /* リストにない値 → 「その他」系オプションを探す */
     var otherOpt = null;
-    Array.prototype.forEach.call(typeEl.options, function(opt){
-      if (isOtherType(opt.value)) otherOpt = opt;
-    });
+    for (var oi = 0; oi < typeEl.options.length; oi++) {
+      if (isOtherType(typeEl.options[oi].value)) { otherOpt = typeEl.options[oi]; break; }
+    }
     if (otherOpt) {
       typeEl.value = otherOpt.value;
       var customEl = document.getElementById('f-type-custom');
       if (customEl) customEl.value = savedType;
     } else {
-      // 見つからなければ選択肢として追加
-      var opt = document.createElement('option');
-      opt.value = savedType; opt.textContent = savedType; opt.selected = true;
-      typeEl.appendChild(opt);
+      var newOpt = document.createElement('option');
+      newOpt.value = savedType; newOpt.textContent = savedType; newOpt.selected = true;
+      typeEl.appendChild(newOpt);
     }
   }
   updateCustomTypeVis();
 
-  document.getElementById('f-brand').value    = l.brand || '';
-  document.getElementById('f-amount').value   = l.amount || '';
-  document.getElementById('f-water').value    = l.water || '';
-  document.getElementById('f-temp').value     = l.temp || '';
-  document.getElementById('f-waterType').value= l.waterType || '';
-  document.getElementById('f-steep').value    = l.steep || '';
-  document.getElementById('f-leafShape').value= l.leafShape || '';
-  document.getElementById('f-memo').value     = l.memo || '';
+  document.getElementById('f-brand').value     = l.brand     || '';
+  document.getElementById('f-amount').value    = l.amount    || '';
+  document.getElementById('f-water').value     = l.water     || '';
+  document.getElementById('f-temp').value      = l.temp      || '';
+  document.getElementById('f-waterType').value = l.waterType || '';
+  document.getElementById('f-steep').value     = l.steep     || '';
+  document.getElementById('f-leafShape').value = l.leafShape || '';
+  document.getElementById('f-memo').value      = l.memo      || '';
 
-  // 評価
-  var rval = String(l.rating || 3);
-  var rEl = document.querySelector('input[name="rating"][value="'+rval+'"]');
+  /* 評価 */
+  var rEl = document.querySelector('input[name="rating"][value="' + String(l.rating || 3) + '"]');
   if (rEl) rEl.checked = true;
 
-  // 水色
+  /* 水色 */
   selectedColor     = l.color     || TEA_COLORS[0].hex;
   selectedColorName = l.colorName || TEA_COLORS[0].name;
   renderColorPicker();
-  // カスタム色名・カラーコードフィールドをセット
-  var cnEl  = document.getElementById('f-color-name');
-  var chEl  = document.getElementById('f-color-hex');
+  var cnEl = document.getElementById('f-color-name');
+  var chEl = document.getElementById('f-color-hex');
   if (cnEl) cnEl.value = l.colorName || '';
   if (chEl) {
-    // savedColorがTEA_COLORSに存在するならhexフィールドは空のままでOK
-    // カスタムhexがある場合のみセット（TEA_COLORSにないhex）
-    var isPreset = TEA_COLORS.some(function(c){ return c.hex === (l.color||''); });
+    var isPreset = TEA_COLORS.some(function(c){ return c.hex === (l.color || ''); });
     chEl.value = (!isPreset && l.color) ? l.color : '';
     updateColorHexPreview();
   }
 
-  // 写真
+  /* 写真 */
   formPhotos = (l.photos || []).slice();
   renderPhotoPreviews();
 
-  // 効能
   updateEffects();
 
-  // バナー表示
   var title = l.brand || l.type || '無題の記録';
-  document.getElementById('editBannerText').textContent = '「'+title+'」を編集中';
+  document.getElementById('editBannerText').textContent = '「' + title + '」を編集中';
   document.getElementById('editBanner').classList.add('show');
-  document.getElementById('formCardTitle').textContent = '記録を編集する';
-  document.querySelector('.submit-btn').textContent = '💾 変更を保存する';
+  document.getElementById('formCardTitle').textContent  = '記録を編集する';
+  document.querySelector('.submit-btn').textContent     = '💾 変更を保存する';
 
-  // 記録タブへ移動してスクロール
   switchTab('record');
-  setTimeout(function(){ window.scrollTo({top:0, behavior:'smooth'}); }, 50);
+  setTimeout(function(){ window.scrollTo({ top:0, behavior:'smooth' }); }, 50);
 }
 
 function cancelEdit() {
@@ -1387,7 +1354,7 @@ function cancelEdit() {
   resetForm();
   document.getElementById('editBanner').classList.remove('show');
   document.getElementById('formCardTitle').textContent = '新しいお茶を記録する';
-  document.querySelector('.submit-btn').textContent = '☕ 記録を保存する';
+  document.querySelector('.submit-btn').textContent    = '☕ 記録を保存する';
 }
 
 function startEditFromModal() {
@@ -1402,14 +1369,14 @@ function resetForm() {
   formPhotos = [];
   document.getElementById('photoPreviews').innerHTML = '';
   document.getElementById('f-date').value = todayStr();
-  document.querySelector('input[name="rating"][value="3"]').checked = true;
+  var r3 = document.querySelector('input[name="rating"][value="3"]');
+  if (r3) r3.checked = true;
   resetTimer();
-  selectedColor = TEA_COLORS[0].hex;
+  selectedColor     = TEA_COLORS[0].hex;
   selectedColorName = TEA_COLORS[0].name;
   renderColorPicker();
-  // カスタムフィールドをリセット
-  var customTypeWrap = document.getElementById('customTypeWrap');
-  if (customTypeWrap) customTypeWrap.style.display = 'none';
+  var wrap = document.getElementById('customTypeWrap');
+  if (wrap) wrap.style.display = 'none';
   var ftc = document.getElementById('f-type-custom');
   if (ftc) ftc.value = '';
   var fcn = document.getElementById('f-color-name');
@@ -1420,35 +1387,37 @@ function resetForm() {
   updateEffects();
   document.getElementById('editBanner').classList.remove('show');
   document.getElementById('formCardTitle').textContent = '新しいお茶を記録する';
-  document.querySelector('.submit-btn').textContent = '☕ 記録を保存する';
+  document.querySelector('.submit-btn').textContent    = '☕ 記録を保存する';
 }
 
 function todayStr() {
   var d = new Date();
-  return d.getFullYear()+'-'+(d.getMonth()+1<10?'0':'')+(d.getMonth()+1)+'-'+(d.getDate()<10?'0':'')+d.getDate();
+  var m = d.getMonth() + 1;
+  var day = d.getDate();
+  return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;
 }
 
 /* ===== HISTORY ===== */
 function renderHistory() {
-  var search = (document.getElementById('searchInput').value||'').toLowerCase();
+  var search    = (document.getElementById('searchInput').value || '').toLowerCase();
   var filterCat = document.getElementById('filterCat').value;
-  var sort = document.getElementById('sortSelect').value;
+  var sort      = document.getElementById('sortSelect').value;
 
   var logs = teaLogs.slice();
   if (search) {
     logs = logs.filter(function(l){
-      return (l.brand||'').toLowerCase().indexOf(search) > -1
-          || (l.memo||'').toLowerCase().indexOf(search) > -1
-          || (l.type||'').toLowerCase().indexOf(search) > -1
-          || (l.category||'').toLowerCase().indexOf(search) > -1;
+      return (l.brand    || '').toLowerCase().indexOf(search) > -1
+          || (l.memo     || '').toLowerCase().indexOf(search) > -1
+          || (l.type     || '').toLowerCase().indexOf(search) > -1
+          || (l.category || '').toLowerCase().indexOf(search) > -1;
     });
   }
   if (filterCat) logs = logs.filter(function(l){ return l.category === filterCat; });
 
-  if (sort === 'oldest')       logs.sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+  if (sort === 'oldest')           logs.sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
   else if (sort === 'rating-high') logs.sort(function(a,b){ return (b.rating||0)-(a.rating||0); });
   else if (sort === 'rating-low')  logs.sort(function(a,b){ return (a.rating||0)-(b.rating||0); });
-  else logs.sort(function(a,b){ return (+b.id||0)-(+a.id||0); });
+  else                             logs.sort(function(a,b){ return (+b.id||0)-(+a.id||0); });
 
   var cont = document.getElementById('historyList');
   if (!logs.length) {
@@ -1459,24 +1428,22 @@ function renderHistory() {
 
   var html = '';
   logs.forEach(function(l){
-    var title = escHtml(l.brand||l.type||'無題の記録');
-    var r = l.rating||0;
-    var stars = '★'.repeat(r)+'☆'.repeat(5-r);
-    var catEmoji = (TEA_DATA[l.category]||{}).emoji||'🍵';
-    var isDk = isColorDark(l.color||'');
+    var title    = escHtml(l.brand || l.type || '無題の記録');
+    var r        = l.rating || 0;
+    var stars    = '★'.repeat(r) + '☆'.repeat(5 - r);
+    var catEmoji = (TEA_DATA[l.category] || {}).emoji || '🍵';
+    var isDk     = isColorDark(l.color || '');
 
     var bdg = '';
-    if (l.category) bdg += '<span class="badge">'+catEmoji+' '+escHtml(l.category)+'</span>';
-    if (l.temp)     bdg += '<span class="badge">🌡️ '+escHtml(l.temp)+'℃</span>';
-    if (l.steep)    bdg += '<span class="badge">⏱️ '+escHtml(l.steep)+'</span>';
-    if (l.amount)   bdg += '<span class="badge">⚖️ '+escHtml(l.amount)+'g</span>';
-    if (l.water)    bdg += '<span class="badge">💧 '+escHtml(l.water)+'ml</span>';
-    if (l.colorName) {
-      bdg += '<span class="badge" style="background:'+escHtml(l.color||'#eee')+';color:'+(isDk?'#fff':'#4a2c1a')+'">● '+escHtml(l.colorName)+'</span>';
-    }
+    if (l.category)  bdg += '<span class="badge">'+catEmoji+' '+escHtml(l.category)+'</span>';
+    if (l.temp)      bdg += '<span class="badge">🌡️ '+escHtml(l.temp)+'℃</span>';
+    if (l.steep)     bdg += '<span class="badge">⏱️ '+escHtml(l.steep)+'</span>';
+    if (l.amount)    bdg += '<span class="badge">⚖️ '+escHtml(l.amount)+'g</span>';
+    if (l.water)     bdg += '<span class="badge">💧 '+escHtml(l.water)+'ml</span>';
+    if (l.colorName) bdg += '<span class="badge" style="background:'+escHtml(l.color||'#eee')+';color:'+(isDk?'#fff':'#4a2c1a')+'">● '+escHtml(l.colorName)+'</span>';
 
     var memoH = l.memo
-      ? '<div class="log-memo">'+escHtml(l.memo.length>100?l.memo.slice(0,100)+'…':l.memo)+'</div>'
+      ? '<div class="log-memo">'+escHtml(l.memo.length > 100 ? l.memo.slice(0,100)+'…' : l.memo)+'</div>'
       : '';
     var thumbH = '';
     if (l.photos && l.photos.length) {
@@ -1485,13 +1452,14 @@ function renderHistory() {
       }).join('')+'</div>';
     }
 
+    /* ▼ ボタンには必ず type="button" をつける ▼ */
     html += '<div class="log-card" data-id="'+escHtml(l.id)+'">'
           + '<div class="log-card-header">'
           + '<div><h3>'+title+'</h3><div class="log-date">'+escHtml(l.date||'')+'</div></div>'
           + '<div style="display:flex;align-items:center;gap:.5rem">'
           + '<span class="log-stars">'+stars+'</span>'
-          + '<button class="edit-log-btn" data-id="'+escHtml(l.id)+'">✏️ 編集</button>'
-          + '<button class="del-log-btn" data-id="'+escHtml(l.id)+'">🗑️</button>'
+          + '<button type="button" class="edit-log-btn" data-id="'+escHtml(l.id)+'">✏️ 編集</button>'
+          + '<button type="button" class="del-log-btn"  data-id="'+escHtml(l.id)+'">🗑️</button>'
           + '</div></div>'
           + '<div class="badges">'+bdg+'</div>'
           + memoH + thumbH
@@ -1499,22 +1467,37 @@ function renderHistory() {
   });
   cont.innerHTML = html;
 
+  /* ▼ カードクリック → closest を使って確実に判定 ▼ */
   cont.querySelectorAll('.log-card').forEach(function(card){
     card.addEventListener('click', function(e){
-      if (e.target.classList.contains('del-log-btn')) return;
-      if (e.target.classList.contains('edit-log-btn')) return;
+      var tgt = e.target;
+      /* ボタン自身、またはボタンの子要素（絵文字など）をクリックした場合はスキップ */
+      if (tgt.closest && (tgt.closest('.edit-log-btn') || tgt.closest('.del-log-btn'))) return;
+      /* closest未対応ブラウザ向けフォールバック */
+      if (!tgt.closest) {
+        if (tgt.classList.contains('edit-log-btn') || tgt.classList.contains('del-log-btn')) return;
+        if (tgt.parentElement &&
+           (tgt.parentElement.classList.contains('edit-log-btn') ||
+            tgt.parentElement.classList.contains('del-log-btn'))) return;
+      }
       openDetailModal(card.dataset.id);
     });
   });
+
+  /* ▼ 編集ボタン ▼ */
   cont.querySelectorAll('.edit-log-btn').forEach(function(btn){
     btn.addEventListener('click', function(e){
       e.stopPropagation();
+      e.preventDefault();
       openEdit(btn.dataset.id);
     });
   });
+
+  /* ▼ 削除ボタン ▼ */
   cont.querySelectorAll('.del-log-btn').forEach(function(btn){
     btn.addEventListener('click', function(e){
       e.stopPropagation();
+      e.preventDefault();
       deleteLog(btn.dataset.id);
     });
   });
@@ -1524,23 +1507,13 @@ function renderHistory() {
 
 function deleteLog(id) {
   if (!confirm('この記録をゴミ箱に移動しますか？')) return;
-
   var target = teaLogs.find(function(l){ return l.id === id; });
   if (!target) return;
-
-  teaLogs = teaLogs.filter(function(l){ return l.id !== id; });
+  teaLogs   = teaLogs.filter(function(l){ return l.id !== id; });
   trashLogs.unshift(target);
-
   var ok1 = saveLogs();
   var ok2 = saveTrashLogs();
-
-  if (!ok1 || !ok2) {
-    loadLogs();
-    loadTrashLogs();
-    alert('移動に失敗しました。');
-    return;
-  }
-
+  if (!ok1 || !ok2) { loadLogs(); loadTrashLogs(); alert('移動に失敗しました。'); return; }
   renderHistory();
   showToast('🗑️ ゴミ箱に移動しました');
 }
@@ -1548,88 +1521,75 @@ function deleteLog(id) {
 function restoreLog(id) {
   var target = trashLogs.find(function(l){ return l.id === id; });
   if (!target) return;
-
   trashLogs = trashLogs.filter(function(l){ return l.id !== id; });
   teaLogs.unshift(target);
-
   var ok1 = saveLogs();
   var ok2 = saveTrashLogs();
-
-  if (!ok1 || !ok2) {
-    loadLogs();
-    loadTrashLogs();
-    alert('復元に失敗しました。');
-    return;
-  }
-
+  if (!ok1 || !ok2) { loadLogs(); loadTrashLogs(); alert('復元に失敗しました。'); return; }
   renderHistory();
   showToast('♻️ 復元しました');
 }
+
 function renderTrash() {
   var cont = document.getElementById('trashList');
   if (!cont) return;
-
   if (!trashLogs.length) {
     cont.innerHTML = '<div class="empty-state" style="padding:1rem;">ゴミ箱は空です</div>';
     return;
   }
-
   var html = '';
   trashLogs.forEach(function(l){
-    var title = escHtml(l.brand || l.type || '無題の記録');
-    var date = escHtml(l.date || '');
-
     html += '<div class="log-card" style="cursor:default;">'
           + '<div class="log-card-header">'
-          + '<div><h3>' + title + '</h3><div class="log-date">' + date + '</div></div>'
+          + '<div><h3>'+escHtml(l.brand||l.type||'無題の記録')+'</h3>'
+          + '<div class="log-date">'+escHtml(l.date||'')+'</div></div>'
           + '<div style="display:flex;align-items:center;gap:.5rem;">'
-          + '<button class="edit-log-btn restore-log-btn" data-id="' + escHtml(l.id) + '">♻️ 復元</button>'
-          + '</div>'
-          + '</div>'
+          + '<button type="button" class="edit-log-btn restore-log-btn" data-id="'+escHtml(l.id)+'">♻️ 復元</button>'
+          + '</div></div>'
           + '</div>';
   });
-
   cont.innerHTML = html;
-
   cont.querySelectorAll('.restore-log-btn').forEach(function(btn){
     btn.addEventListener('click', function(){
       restoreLog(btn.dataset.id);
     });
   });
 }
+
 /* ===== STATS ===== */
 function renderStats() {
-  var n = teaLogs.length;
-  var avg = n ? (teaLogs.reduce(function(s,l){ return s+(l.rating||0); },0)/n).toFixed(1) : '—';
+  var n    = teaLogs.length;
+  var avg  = n ? (teaLogs.reduce(function(s,l){ return s+(l.rating||0); },0)/n).toFixed(1) : '—';
   var cats = {};
-  teaLogs.forEach(function(l){ if (l.category) cats[l.category]=(cats[l.category]||0)+1; });
-  var topCat = Object.entries(cats).sort(function(a,b){ return b[1]-a[1]; })[0];
+  teaLogs.forEach(function(l){ if (l.category) cats[l.category] = (cats[l.category]||0)+1; });
+  var catKeys  = Object.keys(cats).sort(function(a,b){ return cats[b]-cats[a]; });
+  var topCat   = catKeys[0] || null;
 
   document.getElementById('statsBoxes').innerHTML =
     mkStatBox(String(n), '総記録数') +
     mkStatBox(String(avg), '平均評価 ⭐') +
-    mkStatBox(topCat ? topCat[0] : '—', '最多カテゴリ') +
-    mkStatBox(String(Object.keys(cats).length), '飲んだカテゴリ数');
+    mkStatBox(topCat || '—', '最多カテゴリ') +
+    mkStatBox(String(catKeys.length), '飲んだカテゴリ数');
 
   var types = {};
   teaLogs.forEach(function(l){
-    var k = l.brand||l.type;
-    if (k) types[k]=(types[k]||0)+1;
+    var k = l.brand || l.type;
+    if (k) types[k] = (types[k]||0)+1;
   });
-  var top5 = Object.entries(types).sort(function(a,b){ return b[1]-a[1]; }).slice(0,5);
-  var maxC = top5[0]?top5[0][1]:1;
-  var chart = document.getElementById('barChart');
-  if (!top5.length) {
+  var typeKeys = Object.keys(types).sort(function(a,b){ return types[b]-types[a]; }).slice(0,5);
+  var maxC     = typeKeys.length ? types[typeKeys[0]] : 1;
+  var chart    = document.getElementById('barChart');
+  if (!typeKeys.length) {
     chart.innerHTML = '<div style="color:#bbb;text-align:center;padding:1rem">データがありません</div>';
     return;
   }
-  chart.innerHTML = top5.map(function(item){
-    var pct = Math.round(item[1]/maxC*100);
+  chart.innerHTML = typeKeys.map(function(key){
+    var pct = Math.round(types[key] / maxC * 100);
     return '<div class="bar-row">'
-      +'<div class="bar-label" title="'+escHtml(item[0])+'">'+escHtml(item[0])+'</div>'
-      +'<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%"></div></div>'
-      +'<div class="bar-count">'+item[1]+'杯</div>'
-      +'</div>';
+      + '<div class="bar-label" title="'+escHtml(key)+'">'+escHtml(key)+'</div>'
+      + '<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%"></div></div>'
+      + '<div class="bar-count">'+types[key]+'杯</div>'
+      + '</div>';
   }).join('');
 }
 
@@ -1645,35 +1605,31 @@ function openDetailModal(id) {
   var l = teaLogs.find(function(x){ return x.id === id; });
   if (!l) return;
   currentDetailId = id;
+  var catEmoji = (TEA_DATA[l.category] || {}).emoji || '🍵';
+  var r        = l.rating || 0;
 
-  var catEmoji = (TEA_DATA[l.category]||{}).emoji||'🍵';
-  var r = l.rating||0;
+  document.getElementById('dmTitle').textContent = l.brand || l.type || '無題の記録';
+  document.getElementById('dmMeta').textContent  = [catEmoji+' '+(l.category||''), l.type, l.date].filter(Boolean).join(' · ');
+  document.getElementById('dmStars').textContent = '★'.repeat(r) + '☆'.repeat(5-r);
 
-  document.getElementById('dmTitle').textContent = (l.brand||l.type||'無題の記録');
-  document.getElementById('dmMeta').textContent = [catEmoji+' '+(l.category||''), l.type, l.date].filter(Boolean).join(' · ');
-  document.getElementById('dmStars').textContent = '★'.repeat(r)+'☆'.repeat(5-r);
-
-  // 基本情報
   var basicRows = [];
-  if (l.category)  basicRows.push(['カテゴリ',    catEmoji+' '+l.category]);
-  if (l.type)      basicRows.push(['茶葉の種類',   l.type]);
+  if (l.category)  basicRows.push(['カテゴリ',      catEmoji+' '+l.category]);
+  if (l.type)      basicRows.push(['茶葉の種類',     l.type]);
   if (l.brand)     basicRows.push(['銘柄・ブランド', l.brand]);
-  if (l.leafShape) basicRows.push(['茶葉の形状',   l.leafShape]);
+  if (l.leafShape) basicRows.push(['茶葉の形状',     l.leafShape]);
   renderDmRowsTo('dmBasicRows', basicRows);
   document.getElementById('dmBasicSec').style.display = basicRows.length ? '' : 'none';
 
-  // 抽出条件
   var brewRows = [];
-  if (l.amount)    brewRows.push(['茶葉の量',    l.amount+' g']);
-  if (l.water)     brewRows.push(['水の量',      l.water+' ml']);
-  if (l.temp)      brewRows.push(['お湯の温度',   l.temp+' ℃']);
-  if (l.waterType) brewRows.push(['水の種類',    l.waterType]);
-  if (l.steep)     brewRows.push(['蒸らし時間',   l.steep]);
-  if (l.colorName) brewRows.push(['水色',        l.colorName]);
+  if (l.amount)    brewRows.push(['茶葉の量',   l.amount+' g']);
+  if (l.water)     brewRows.push(['水の量',     l.water+' ml']);
+  if (l.temp)      brewRows.push(['お湯の温度', l.temp+' ℃']);
+  if (l.waterType) brewRows.push(['水の種類',   l.waterType]);
+  if (l.steep)     brewRows.push(['蒸らし時間', l.steep]);
+  if (l.colorName) brewRows.push(['水色',       l.colorName]);
   renderDmRowsTo('dmBrewRows', brewRows);
   document.getElementById('dmBrewSec').style.display = brewRows.length ? '' : 'none';
 
-  // メモ
   var memoSec = document.getElementById('dmMemoSec');
   if (l.memo) {
     document.getElementById('dmMemo').textContent = l.memo;
@@ -1682,9 +1638,8 @@ function openDetailModal(id) {
     memoSec.style.display = 'none';
   }
 
-  // 効能
   var effSec = document.getElementById('dmEffSec');
-  var effs = l.effects||[];
+  var effs   = l.effects || [];
   if (effs.length) {
     document.getElementById('dmEffTags').innerHTML = effs.map(function(ef){
       return '<span class="dm-eff-tag">'+escHtml(ef)+'</span>';
@@ -1694,9 +1649,8 @@ function openDetailModal(id) {
     effSec.style.display = 'none';
   }
 
-  // 写真
   var photoSec = document.getElementById('dmPhotoSec');
-  var photos = l.photos||[];
+  var photos   = l.photos || [];
   if (photos.length) {
     document.getElementById('dmPhotos').innerHTML = photos.map(function(p, i){
       return '<img src="'+p+'" alt="写真'+(i+1)+'" data-index="'+i+'">';
@@ -1723,87 +1677,67 @@ function renderDmRowsTo(containerId, rows) {
   }).join('');
 }
 
-function closeDetailModal() {
-  closeOverlay('detailOverlay');
-}
-
+function closeDetailModal() { closeOverlay('detailOverlay'); }
 document.getElementById('detailOverlay').addEventListener('click', function(e){
   if (e.target === this) closeDetailModal();
 });
 
 /* ===== IMAGE MODAL ===== */
 function openImageModal(photos, index) {
-  currentImageList = photos.slice();
-  currentImageIndex = Math.max(0, Math.min(index||0, photos.length-1));
+  currentImageList  = photos.slice();
+  currentImageIndex = Math.max(0, Math.min(index || 0, photos.length-1));
   showCurrentImage();
   document.getElementById('imageModal').classList.add('open');
 }
-
 function showCurrentImage() {
   document.getElementById('imageModalImg').src = currentImageList[currentImageIndex];
-  var multi = currentImageList.length > 1;
+  var multi   = currentImageList.length > 1;
   var counter = document.getElementById('imgCounter');
   counter.style.display = multi ? '' : 'none';
-  if (multi) counter.textContent = (currentImageIndex+1)+' / '+currentImageList.length;
+  if (multi) counter.textContent = (currentImageIndex+1) + ' / ' + currentImageList.length;
   document.getElementById('imgPrevBtn').style.display = multi ? '' : 'none';
   document.getElementById('imgNextBtn').style.display = multi ? '' : 'none';
 }
-
 function showPrevImage(e) {
   if (e) e.stopPropagation();
   if (!currentImageList.length) return;
-  currentImageIndex = (currentImageIndex-1+currentImageList.length)%currentImageList.length;
+  currentImageIndex = (currentImageIndex - 1 + currentImageList.length) % currentImageList.length;
   showCurrentImage();
 }
-
 function showNextImage(e) {
   if (e) e.stopPropagation();
   if (!currentImageList.length) return;
-  currentImageIndex = (currentImageIndex+1)%currentImageList.length;
+  currentImageIndex = (currentImageIndex + 1) % currentImageList.length;
   showCurrentImage();
 }
-
 function closeImageModal(e) {
   if (e) e.stopPropagation();
   document.getElementById('imageModal').classList.remove('open');
-  currentImageList = [];
-  currentImageIndex = 0;
+  currentImageList = []; currentImageIndex = 0;
 }
-
 function handleImgOverlayClick(e) {
   if (e.target === document.getElementById('imageModal')) closeImageModal();
 }
 
 /* ===== OVERLAY HELPERS ===== */
-function openOverlay(id) {
-  document.getElementById(id).classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeOverlay(id) {
-  document.getElementById(id).classList.remove('open');
-  document.body.style.overflow = '';
-}
+function openOverlay(id)  { document.getElementById(id).classList.add('open');    document.body.style.overflow = 'hidden'; }
+function closeOverlay(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
 
 /* ===== ESCAPE KEY ===== */
 document.addEventListener('keydown', function(e){
   if (e.key !== 'Escape') return;
-  if (document.getElementById('imageModal').classList.contains('open')) {
-    closeImageModal(); return;
-  }
-  if (document.getElementById('detailOverlay').classList.contains('open')) {
-    closeDetailModal(); return;
-  }
+  if (document.getElementById('imageModal').classList.contains('open'))    { closeImageModal();  return; }
+  if (document.getElementById('detailOverlay').classList.contains('open')) { closeDetailModal(); return; }
 });
 
 /* ===== UTIL ===== */
 function isColorDark(hex) {
   if (!hex || hex.length < 7) return false;
-  var r = parseInt(hex.slice(1,3),16);
-  var g = parseInt(hex.slice(3,5),16);
-  var b = parseInt(hex.slice(5,7),16);
-  return (r*299+g*587+b*114)/1000 < 128;
+  var r = parseInt(hex.slice(1,3), 16);
+  var g = parseInt(hex.slice(3,5), 16);
+  var b = parseInt(hex.slice(5,7), 16);
+  return (r*299 + g*587 + b*114) / 1000 < 128;
 }
-
 function showToast(msg) {
   var t = document.getElementById('toast');
   t.textContent = msg;
@@ -1819,15 +1753,16 @@ updateLeafOptions();
 renderColorPicker();
 updateEffects();
 document.getElementById('f-date').value = todayStr();
-
 document.getElementById('f-type').addEventListener('change', function(){
   updateCustomTypeVis();
   updateEffects();
 });
-
-document.getElementById('f-type-custom').addEventListener('input', updateEffects);
-document.getElementById('f-color-hex').addEventListener('input', updateColorHexPreview);
-
+document.getElementById('f-type-custom').addEventListener('input', function(){
+  updateEffects();
+});
+document.getElementById('f-color-hex').addEventListener('input', function(){
+  updateColorHexPreview();
+});
 updateColorHexPreview();
 renderTrash();
 </script>
