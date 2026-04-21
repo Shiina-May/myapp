@@ -1,0 +1,1902 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>🍵 Tea Diary</title>
+<style>
+:root {
+  --bg: #f7f0e8;
+  --br-dark: #4a2c1a;
+  --br-mid: #7b4a2d;
+  --br-lt: #c8955c;
+  --cream: #fdf6ec;
+  --cream-dk: #f5e8d4;
+  --gold: #c8a84b;
+  --text: #3b2415;
+  --muted: #7a5c48;
+  --border: #dcc0aa;
+  --card: rgba(255,255,255,0.88);
+  --shadow: rgba(74,44,26,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Hiragino Mincho ProN','Yu Mincho','Hiragino Kaku Gothic ProN',sans-serif;
+  background:var(--bg);
+  background-image:
+    radial-gradient(ellipse 700px 400px at 5% 10%, rgba(200,149,92,.18) 0%, transparent 65%),
+    radial-gradient(ellipse 600px 400px at 95% 80%, rgba(123,74,45,.12) 0%, transparent 65%);
+  background-attachment:scroll; /* fixed はiOS Safariで正しく動作しないため scroll に変更 */
+  color:var(--text);
+  min-height:100vh;
+}
+/* ===== HEADER ===== */
+header{
+  text-align:center;
+  padding:2.5rem 1rem 2rem;
+  background:linear-gradient(135deg,var(--br-dark) 0%,var(--br-mid) 60%,#a0622a 100%);
+  color:var(--cream);
+}
+header h1{font-size:clamp(1.8rem,5vw,2.6rem);letter-spacing:.15em;}
+header p{font-size:.85rem;opacity:.75;margin-top:.4rem;letter-spacing:.08em;}
+/* ===== NAV ===== */
+nav{
+  display:flex;
+  background:var(--br-dark);
+  position:sticky;top:0;z-index:100;
+}
+nav button{
+  flex:1;padding:.9rem .4rem;
+  border:none;background:transparent;
+  color:rgba(255,255,255,.6);
+  font-size:.88rem;cursor:pointer;
+  letter-spacing:.04em;
+  transition:all .2s;font-family:inherit;
+  white-space:nowrap;
+}
+nav button.active{
+  color:var(--cream);background:var(--br-mid);
+  border-bottom:3px solid var(--gold);
+}
+nav button:hover:not(.active){color:#fff;background:rgba(255,255,255,.08);}
+/* ===== MAIN ===== */
+main{max-width:880px;margin:0 auto;padding:1.5rem 1rem 4rem;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+/* ===== CARD ===== */
+.card{
+  background:var(--card);
+  border-radius:14px;
+  padding:1.8rem;
+  box-shadow:0 3px 18px var(--shadow);
+  margin-bottom:1.5rem;
+}
+.card-title{
+  font-size:1rem;color:var(--br-mid);
+  border-left:4px solid var(--gold);
+  padding-left:.75rem;margin-bottom:1.3rem;
+  font-weight:bold;letter-spacing:.03em;
+}
+/* ===== FORM ===== */
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1rem 1.2rem;
+}
+@media(max-width:560px){.form-grid{grid-template-columns:1fr;}}
+.fg{display:flex;flex-direction:column;gap:.4rem;}
+.fg.full{grid-column:1/-1;}
+.fl{
+  font-size:.76rem;font-weight:700;
+  color:var(--muted);letter-spacing:.07em;
+  text-transform:uppercase;
+}
+.fl .unit{font-weight:400;color:#bbb;margin-left:.3rem;text-transform:none;}
+.fl-sub{
+  font-size:.72rem;font-weight:700;
+  color:var(--muted);letter-spacing:.06em;
+  margin-bottom:.25rem;display:block;
+}
+.fi,.fs{
+  width:100%;padding:.65rem .9rem;
+  border:1.5px solid var(--border);
+  border-radius:9px;
+  background:rgba(255,255,255,.85);
+  font-size:.95rem;font-family:inherit;
+  color:var(--text);outline:none;
+  transition:border-color .2s,box-shadow .2s;
+  -webkit-appearance:none;appearance:none;
+}
+.fi:focus,.fs:focus{
+  border-color:var(--br-lt);
+  box-shadow:0 0 0 3px rgba(200,149,92,.18);
+  background:#fff;
+}
+textarea.fi{
+  min-height:120px;
+  resize:vertical;
+  line-height:1.6;
+}
+.fs{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a5c48' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right .8rem center;
+  padding-right:2.2rem;
+}
+/* ===== CATEGORY PILLS ===== */
+.cat-pills{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.15rem;}
+.cat-pill{
+  background:var(--cream-dk);border:1.5px solid var(--border);
+  border-radius:30px;padding:.35rem .85rem;
+  font-size:.82rem;cursor:pointer;font-family:inherit;
+  color:var(--muted);transition:all .15s;white-space:nowrap;
+}
+.cat-pill:hover{border-color:var(--br-lt);color:var(--br-mid);}
+.cat-pill.active{background:var(--br-mid);border-color:var(--br-mid);color:#fff;}
+/* ===== CUSTOM TYPE WRAP ===== */
+#customTypeWrap{margin-top:.6rem;display:none;}
+/* ===== EFFECTS BOX ===== */
+.effects-box{
+  background:rgba(200,149,92,.08);
+  border:1.5px solid rgba(200,149,92,.28);
+  border-radius:10px;
+  padding:.75rem 1rem;min-height:2.4rem;
+}
+.eff-tags{display:flex;gap:.4rem;flex-wrap:wrap;}
+.eff-tag{
+  background:rgba(200,130,90,.14);
+  color:var(--br-mid);font-size:.75rem;
+  padding:.2rem .65rem;border-radius:20px;
+  border:1px solid rgba(200,130,90,.28);
+}
+.effects-none{font-size:.82rem;color:#ccc;}
+/* ===== COLOR PICKER ===== */
+.color-row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;}
+.tea-color{
+  width:34px;height:34px;border-radius:50%;
+  border:3px solid transparent;cursor:pointer;
+  flex-shrink:0;
+  transition:transform .15s,border-color .15s,box-shadow .15s;
+}
+.tea-color:hover{transform:scale(1.18);}
+.tea-color.selected{
+  border-color:var(--br-dark);
+  box-shadow:0 0 0 2px #fff,0 0 0 4px var(--br-dark);
+}
+.color-name-lbl{font-size:.8rem;color:var(--muted);margin-left:.2rem;}
+/* ===== COLOR CUSTOM ROW ===== */
+.color-custom-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:.8rem;
+  margin-top:.8rem;
+}
+@media(max-width:560px){.color-custom-row{grid-template-columns:1fr;}}
+.hex-input-row{display:flex;gap:.5rem;align-items:center;}
+.hex-input-row .fi{flex:1;min-width:0;}
+#colorHexPreview{
+  width:32px;height:32px;flex-shrink:0;
+  border-radius:50%;border:2px solid var(--border);
+  background:#eee;transition:background .2s;
+}
+/* ===== TIMER ===== */
+.timer-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;}
+.timer-row .fi{flex:1;min-width:80px;}
+.timer-btn{
+  background:var(--br-mid);color:#fff;border:none;
+  border-radius:8px;padding:.6rem .9rem;
+  font-size:.85rem;cursor:pointer;
+  white-space:nowrap;font-family:inherit;
+  transition:background .15s;
+}
+.timer-btn:hover{background:var(--br-dark);}
+.timer-btn.reset{background:#999;}
+.timer-btn.reset:hover{background:#777;}
+#timerDisplay{
+  font-size:1.1rem;font-weight:bold;
+  color:var(--br-dark);min-width:50px;
+  text-align:center;letter-spacing:.05em;
+}
+/* ===== STAR RATING ===== */
+.star-row{display:flex;flex-direction:row-reverse;gap:.15rem;margin-top:.1rem;}
+.star-row input{display:none;}
+.star-row label{
+  font-size:1.9rem;color:#ddd;cursor:pointer;
+  line-height:1;transition:color .12s;
+  font-weight:normal;letter-spacing:0;
+}
+.star-row input:checked ~ label,
+.star-row label:hover,
+.star-row label:hover ~ label{color:var(--gold);}
+/* ===== PHOTO UPLOAD ===== */
+.photo-zone{
+  border:2px dashed var(--border);
+  border-radius:10px;padding:1.2rem;
+  text-align:center;cursor:pointer;
+  position:relative;
+  transition:border-color .2s,background .2s;
+}
+.photo-zone:hover{border-color:var(--br-lt);background:rgba(200,149,92,.04);}
+.photo-zone input{position:absolute;top:0;left:0;right:0;bottom:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.photo-zone p{font-size:.88rem;color:var(--muted);pointer-events:none;}
+.photo-previews{display:flex;gap:10px;flex-wrap:wrap;margin-top:.8rem;}
+.photo-thumb{display:flex;flex-direction:column;align-items:center;}
+.photo-thumb img{
+  width:72px;height:72px;object-fit:cover;
+  border-radius:9px;border:2px solid var(--border);display:block;
+}
+.photo-controls{display:flex;gap:3px;justify-content:center;margin-top:5px;}
+.photo-controls button{
+  border:1px solid var(--border);background:#fff;
+  border-radius:5px;padding:2px 7px;
+  font-size:11px;cursor:pointer;
+  font-family:inherit;color:var(--muted);
+  transition:background .12s,color .12s,border-color .12s;
+}
+.photo-controls button:hover{background:var(--cream-dk);color:var(--text);}
+.photo-controls button.del:hover{background:#fde8e8;border-color:#e07070;color:#c04040;}
+/* ===== SUBMIT BTN ===== */
+.submit-btn{
+  width:100%;padding:1rem;
+  background:linear-gradient(135deg,var(--br-mid),var(--br-dark));
+  color:#fff;border:none;border-radius:10px;
+  font-size:1rem;font-family:inherit;
+  cursor:pointer;letter-spacing:.08em;
+  margin-top:.8rem;
+  box-shadow:0 3px 12px rgba(74,44,26,.25);
+  transition:opacity .2s,transform .12s,box-shadow .2s;
+}
+.submit-btn:hover{opacity:.92;transform:translateY(-2px);box-shadow:0 6px 20px rgba(74,44,26,.3);}
+.submit-btn:active{transform:scale(.99);}
+/* ===== HISTORY FILTERS ===== */
+.filter-row{display:flex;gap:.7rem;flex-wrap:wrap;align-items:center;margin-bottom:1.2rem;}
+.filter-row input,.filter-row select{
+  padding:.55rem .8rem;
+  border:1.5px solid var(--border);
+  border-radius:8px;font-family:inherit;
+  font-size:.88rem;background:#fff;
+  color:var(--text);outline:none;
+  -webkit-appearance:none;appearance:none;
+  transition:border-color .2s;
+}
+.filter-row input{flex:1;min-width:150px;}
+.filter-row input:focus,.filter-row select:focus{border-color:var(--br-lt);}
+.filter-row select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a5c48' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right .7rem center;
+  padding-right:2rem;
+}
+/* ===== LOG CARDS ===== */
+.log-card{
+  background:var(--card);border-radius:12px;
+  padding:1.2rem 1.4rem;
+  box-shadow:0 2px 12px var(--shadow);
+  margin-bottom:1rem;cursor:pointer;
+  border-left:5px solid var(--br-lt);
+  transition:box-shadow .2s,transform .15s;
+}
+.log-card:hover{box-shadow:0 5px 22px var(--shadow);transform:translateY(-2px);}
+.log-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;}
+.log-card h3{font-size:1rem;color:var(--br-dark);line-height:1.3;}
+.log-date{font-size:.78rem;color:#aaa;margin-top:.15rem;}
+.log-stars{color:var(--gold);font-size:.92rem;white-space:nowrap;}
+.del-log-btn{
+  background:none;border:none;
+  color:#ccc;cursor:pointer;font-size:1rem;
+  padding:.15rem;flex-shrink:0;
+  transition:color .15s;
+}
+.del-log-btn:hover{color:#e74c3c;}
+.badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.55rem;}
+.badge{
+  background:var(--cream-dk);color:var(--br-mid);
+  font-size:.73rem;padding:.18rem .6rem;
+  border-radius:20px;white-space:nowrap;
+}
+.log-memo{font-size:.85rem;color:#666;margin-top:.55rem;line-height:1.5;}
+.log-thumbs{display:flex;gap:.4rem;margin-top:.65rem;flex-wrap:wrap;}
+.log-thumbs img{width:56px;height:56px;object-fit:cover;border-radius:6px;}
+.empty-state{text-align:center;padding:3rem;color:#bbb;font-size:1rem;}
+/* ===== STATS ===== */
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:1rem;margin-bottom:1.5rem;
+}
+.stat-box{
+  background:var(--card);border-radius:12px;
+  padding:1.2rem;text-align:center;
+  box-shadow:0 2px 10px var(--shadow);
+}
+.stat-number{font-size:1.9rem;font-weight:bold;color:var(--br-mid);line-height:1;}
+.stat-label{font-size:.76rem;color:var(--muted);margin-top:.3rem;}
+.chart-card{background:var(--card);border-radius:12px;padding:1.4rem;box-shadow:0 2px 10px var(--shadow);}
+.chart-title{font-size:.88rem;color:var(--br-mid);font-weight:bold;margin-bottom:1rem;}
+.bar-chart{display:flex;flex-direction:column;gap:.65rem;}
+.bar-row{display:flex;align-items:center;gap:.8rem;}
+.bar-label{font-size:.78rem;min-width:90px;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
+.bar-track{flex:1;background:var(--cream-dk);border-radius:4px;height:13px;}
+.bar-fill{background:linear-gradient(90deg,var(--br-lt),var(--br-mid));height:13px;border-radius:4px;transition:width .5s;}
+.bar-count{font-size:.78rem;color:var(--muted);min-width:28px;text-align:right;}
+/* ===== OVERLAY ===== */
+.overlay{
+  display:none;
+  position:fixed;top:0;left:0;right:0;bottom:0;z-index:1000;
+  background:rgba(61,42,30,.55);
+  -webkit-backdrop-filter:blur(4px);
+  backdrop-filter:blur(4px);
+  align-items:flex-start;justify-content:center;
+  padding:20px 16px;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.overlay.open{display:flex;}
+/* ===== DETAIL MODAL ===== */
+.detail-modal{
+  background:#fff9f4;border-radius:18px;
+  padding:2rem 1.8rem;
+  width:100%;max-width:620px;
+  box-shadow:0 20px 60px rgba(0,0,0,.2);
+  position:relative;margin:auto;
+}
+.modal-close{
+  position:absolute;top:1rem;right:1rem;
+  background:var(--cream-dk);border:none;
+  border-radius:50%;width:30px;height:30px;
+  font-size:13px;cursor:pointer;
+  color:var(--text);
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+.modal-close:hover{background:#fde8e8;color:#c04040;}
+.dm-bar{height:5px;border-radius:4px;background:var(--br-lt);margin-bottom:1.2rem;}
+.dm-title{font-size:1.45rem;color:var(--br-dark);margin-bottom:.3rem;font-weight:bold;line-height:1.3;word-break:break-word;}
+.dm-meta{font-size:.8rem;color:var(--muted);margin-bottom:.5rem;}
+.dm-stars{color:var(--gold);font-size:1.1rem;margin-bottom:1.3rem;}
+.dm-section{margin-bottom:1.4rem;}
+.dm-section-t{
+  font-size:.7rem;font-weight:700;
+  letter-spacing:.22em;text-transform:uppercase;
+  color:var(--br-mid);margin-bottom:.7rem;
+  padding-bottom:.35rem;
+  border-bottom:1px solid var(--cream-dk);
+}
+.dm-row{
+  display:flex;gap:.5rem;align-items:baseline;
+  padding:.42rem 0;
+  border-bottom:1px solid var(--cream-dk);
+  font-size:.9rem;
+}
+.dm-row:last-child{border-bottom:none;}
+.dm-row-lbl{color:var(--muted);font-size:.78rem;min-width:100px;flex-shrink:0;}
+.dm-row-val{color:var(--text);word-break:break-word;}
+.dm-memo-box{
+  background:rgba(200,149,92,.06);
+  border-left:3px solid var(--br-lt);
+  padding:.8rem 1rem;
+  border-radius:0 8px 8px 0;
+  font-size:.9rem;color:var(--text);
+  line-height:1.7;white-space:pre-wrap;
+  word-break:break-word;
+}
+.dm-eff-tags{display:flex;gap:.4rem;flex-wrap:wrap;}
+.dm-eff-tag{
+  background:rgba(200,130,90,.12);
+  color:var(--br-mid);font-size:.78rem;
+  padding:.25rem .7rem;border-radius:20px;
+  border:1px solid rgba(200,130,90,.28);
+}
+.dm-photos{display:flex;gap:8px;flex-wrap:wrap;}
+.dm-photos img{
+  width:80px;height:80px;
+  object-fit:cover;border-radius:8px;
+  cursor:pointer;
+  border:2px solid var(--border);
+  transition:opacity .15s,transform .15s;
+}
+.dm-photos img:hover{opacity:.85;transform:scale(1.05);}
+.dm-actions{
+  display:flex;gap:.8rem;justify-content:flex-end;
+  margin-top:1.4rem;padding-top:1rem;
+  border-top:1px solid var(--border);
+}
+.btn-close-modal{
+  background:var(--cream-dk);border:none;
+  border-radius:30px;padding:.65rem 1.2rem;
+  font-size:.88rem;font-weight:700;
+  cursor:pointer;font-family:inherit;
+  color:var(--muted);transition:background .15s;
+}
+.btn-close-modal:hover{background:#e0d0c0;}
+/* ===== IMAGE MODAL ===== */
+.image-modal{
+  display:none;
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,.82);
+  z-index:9999;
+  justify-content:center;align-items:center;
+  padding:20px;
+}
+.image-modal.open{display:flex;}
+.image-modal-img{
+  max-width:90vw;max-height:84vh;
+  border-radius:10px;
+  box-shadow:0 8px 40px rgba(0,0,0,.4);
+  display:block;object-fit:contain;
+}
+.img-nav-btn{
+  position:absolute;
+  background:rgba(255,255,255,.92);
+  border:none;border-radius:50%;
+  width:42px;height:42px;font-size:1.1rem;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  top:50%;transform:translateY(-50%);
+  transition:background .15s;z-index:10000;
+}
+.img-nav-btn:hover{background:#fff;}
+#imgPrevBtn{left:16px;}
+#imgNextBtn{right:16px;}
+#imgCloseBtn{
+  position:absolute;top:16px;right:16px;
+  background:rgba(255,255,255,.9);border:none;
+  border-radius:50%;width:38px;height:38px;
+  font-size:1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  z-index:10000;transition:background .15s;
+}
+#imgCloseBtn:hover{background:#fff;}
+.img-counter{
+  position:absolute;bottom:20px;left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,.5);color:#fff;
+  font-size:.82rem;padding:.3rem .8rem;
+  border-radius:20px;z-index:10000;
+  pointer-events:none;
+}
+/* ===== EDIT MODE BANNER ===== */
+.edit-banner{
+  background:rgba(200,149,92,.15);
+  border:1.5px solid var(--br-lt);
+  border-radius:9px;
+  padding:.65rem 1rem;
+  margin-bottom:1rem;
+  display:none;
+  align-items:center;
+  gap:.7rem;
+  font-size:.88rem;
+  color:var(--br-mid);
+}
+.edit-banner.show{display:flex;}
+.edit-banner-icon{font-size:1.1rem;}
+.edit-cancel-btn{
+  margin-left:auto;
+  background:none;border:1px solid var(--border);
+  border-radius:6px;padding:.25rem .65rem;
+  font-size:.78rem;cursor:pointer;
+  font-family:inherit;color:var(--muted);
+  transition:background .15s;
+}
+.edit-cancel-btn:hover{background:var(--cream-dk);}
+/* ===== EDIT LOG BTN ===== */
+.edit-log-btn{
+  background:none;border:1px solid var(--border);
+  border-radius:6px;padding:.2rem .55rem;
+  font-size:.75rem;cursor:pointer;
+  font-family:inherit;color:var(--muted);
+  transition:all .15s;white-space:nowrap;
+  /* ボタン内のクリックを確実に受け取る */
+  pointer-events:auto;
+}
+.edit-log-btn:hover{background:var(--cream-dk);border-color:var(--br-lt);color:var(--br-mid);}
+/* ===== BTN EDIT IN MODAL ===== */
+.btn-edit-modal{
+  background:var(--br-mid);color:#fff;
+  border:none;border-radius:30px;
+  padding:.65rem 1.2rem;
+  font-size:.88rem;font-weight:700;
+  cursor:pointer;font-family:inherit;
+  transition:background .15s;
+}
+.btn-edit-modal:hover{background:var(--br-dark);}
+/* ===== TOAST ===== */
+#toast{
+  position:fixed;bottom:2rem;left:50%;
+  transform:translateX(-50%);
+  background:var(--br-dark);color:#fff;
+  padding:.7rem 1.4rem;border-radius:30px;
+  font-size:.88rem;opacity:0;
+  transition:opacity .3s;
+  pointer-events:none;z-index:9998;
+  white-space:nowrap;
+}
+#toast.show{opacity:1;}
+/* ===== RESPONSIVE ===== */
+@media(max-width:480px){
+  nav button{font-size:.78rem;padding:.8rem .2rem;}
+  .card{padding:1.2rem;}
+  .detail-modal{padding:1.4rem 1.1rem;}
+  .dm-row-lbl{min-width:80px;}
+  .dm-photos img{width:64px;height:64px;}
+  .log-thumbs img{width:46px;height:46px;}
+  .stat-number{font-size:1.6rem;}
+  .bar-label{min-width:70px;max-width:90px;}
+  .img-nav-btn{width:34px;height:34px;font-size:.9rem;}
+  #imgPrevBtn{left:8px;}
+  #imgNextBtn{right:8px;}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>🍵 Tea Diary</h1>
+  <p>丁寧に淹れる、丁寧に記す</p>
+</header>
+<!-- ===== iOS Chrome 誘導バナー（SafariでiPhoneアクセス時のみ表示） ===== -->
+<div id="iOSChromeBanner" style="display:none;background:#1a73e8;color:#fff;text-align:center;padding:.7rem 1rem;font-size:.84rem;line-height:1.5;">
+  📱 iPhoneで写真を安定して保存するには<strong>Chrome</strong>での利用を推奨しています。
+  <a id="openInChromeBtn" href="#" style="display:inline-block;margin-left:.6rem;color:#fff;font-weight:bold;text-decoration:underline;white-space:nowrap;">Chromeで開く →</a>
+</div>
+<nav>
+  <button type="button" class="active" onclick="switchTab('record')">✏️ 記録</button>
+  <button type="button" onclick="switchTab('history')">📖 ログ</button>
+  <button type="button" onclick="switchTab('stats')">📊 統計</button>
+</nav>
+<div style="max-width:880px;margin:1rem auto 0;padding:0 1rem;display:flex;gap:.6rem;flex-wrap:wrap;">
+  <button type="button" id="exportJsonBtn" class="timer-btn">⬇ バックアップを書き出す</button>
+  <button type="button" id="importJsonBtn" class="timer-btn">⬆ バックアップを読み込む</button>
+  <input type="file" id="importJsonFile" accept=".json,application/json" style="display:none;">
+</div>
+<main>
+  <!-- ===== RECORD TAB ===== -->
+  <div id="tab-record" class="tab-content active">
+    <div class="card">
+      <div class="card-title" id="formCardTitle">新しいお茶を記録する</div>
+      <div class="edit-banner" id="editBanner">
+        <span class="edit-banner-icon">✏️</span>
+        <span id="editBannerText">記録を編集中です</span>
+        <button type="button" class="edit-cancel-btn" onclick="cancelEdit()">✕ キャンセル</button>
+      </div>
+      <form id="teaForm" onsubmit="saveTea(event)" autocomplete="off">
+        <div class="form-grid">
+          <div class="fg">
+            <label class="fl">📅 日付</label>
+            <input type="date" class="fi" id="f-date" required>
+          </div>
+          <div class="fg">
+            <label class="fl">☕ カテゴリ</label>
+            <div class="cat-pills" id="catPills"></div>
+          </div>
+          <div class="fg full">
+            <label class="fl">🌿 茶葉の種類</label>
+            <select class="fs" id="f-type">
+              <option value="">選択してください</option>
+            </select>
+            <div id="customTypeWrap">
+              <input type="text" class="fi" id="f-type-custom" placeholder="自由に入力してください（例: ほうじ茶ラテ、白桃烏龍…）">
+            </div>
+          </div>
+          <div class="fg full">
+            <label class="fl">🏷️ 銘柄・ブランド</label>
+            <input type="text" class="fi" id="f-brand" placeholder="例: マリアージュ フレール、フォートナム&amp;メイソン…">
+          </div>
+          <div class="fg">
+            <label class="fl">⚖️ 茶葉の量 <span class="unit">g</span></label>
+            <input type="number" class="fi" id="f-amount" min="0" step="0.1" placeholder="例: 3">
+          </div>
+          <div class="fg">
+            <label class="fl">💧 水の量 <span class="unit">ml</span></label>
+            <input type="number" class="fi" id="f-water" min="0" step="10" placeholder="例: 200">
+          </div>
+          <div class="fg">
+            <label class="fl">🌡️ お湯の温度 <span class="unit">℃</span></label>
+            <input type="number" class="fi" id="f-temp" min="40" max="100" placeholder="例: 95">
+          </div>
+          <div class="fg">
+            <label class="fl">🚰 水の種類</label>
+            <select class="fs" id="f-waterType">
+              <option value="">選択してください</option>
+              <option>軟水（ミネラルウォーター）</option>
+              <option>中硬水</option>
+              <option>硬水</option>
+              <option>浄水器の水</option>
+              <option>水道水</option>
+            </select>
+          </div>
+          <div class="fg full">
+            <label class="fl">⏱️ 蒸らし時間 <span class="unit">分:秒</span></label>
+            <div class="timer-row">
+              <input type="text" class="fi" id="f-steep" placeholder="例: 3:00">
+              <button type="button" class="timer-btn" id="timerStartBtn" onclick="toggleTimer()">▶ 開始</button>
+              <span id="timerDisplay">0:00</span>
+              <button type="button" class="timer-btn reset" onclick="resetTimer()">■ リセット</button>
+            </div>
+          </div>
+          <div class="fg full">
+            <label class="fl">🎨 水色（茶の色）</label>
+            <div class="color-row" id="colorPicker"></div>
+            <div class="color-custom-row">
+              <div class="fg">
+                <label class="fl-sub" for="f-color-name">色名（自由記述）</label>
+                <input type="text" class="fi" id="f-color-name" placeholder="例: 澄んだ琥珀色">
+              </div>
+              <div class="fg">
+                <label class="fl-sub" for="f-color-hex">カラーコード</label>
+                <div class="hex-input-row">
+                  <input type="text" class="fi" id="f-color-hex" placeholder="#c8955c" maxlength="7">
+                  <div id="colorHexPreview"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="fg">
+            <label class="fl">🍃 茶葉の形状</label>
+            <select class="fs" id="f-leafShape">
+              <option value="">選択してください</option>
+              <option>ホールリーフ（大きな葉）</option>
+              <option>ブロークン（中くらい）</option>
+              <option>ファニングス（細かい）</option>
+              <option>ダスト（粉末）</option>
+              <option>CTC</option>
+              <option>ティーバッグ</option>
+              <option>粉末・抹茶タイプ</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="fl">⭐ 評価</label>
+            <div class="star-row">
+              <input type="radio" name="rating" id="r5" value="5"><label for="r5">★</label>
+              <input type="radio" name="rating" id="r4" value="4"><label for="r4">★</label>
+              <input type="radio" name="rating" id="r3" value="3" checked><label for="r3">★</label>
+              <input type="radio" name="rating" id="r2" value="2"><label for="r2">★</label>
+              <input type="radio" name="rating" id="r1" value="1"><label for="r1">★</label>
+            </div>
+          </div>
+          <div class="fg full">
+            <label class="fl">💚 期待できる効能</label>
+            <div class="effects-box" id="effectsBox">
+              <span class="effects-none">茶葉の種類を選択すると表示されます</span>
+            </div>
+          </div>
+          <div class="fg full">
+            <label class="fl">📝 テイスティングメモ</label>
+            <textarea class="fi" id="f-memo" placeholder="香り、渋み、甘さ、余韻、色合いなど自由に…"></textarea>
+          </div>
+          <div class="fg full">
+            <label class="fl">📷 写真</label>
+            <div class="photo-zone" id="photoZone">
+              <input type="file" id="photoInput" accept="image/*" multiple>
+              <p>📷 クリックまたはドラッグ＆ドロップで写真を追加</p>
+            </div>
+            <div class="photo-previews" id="photoPreviews"></div>
+          </div>
+        </div>
+        <button type="submit" class="submit-btn">☕ 記録を保存する</button>
+      </form>
+    </div>
+  </div>
+  <!-- ===== HISTORY TAB ===== -->
+  <div id="tab-history" class="tab-content">
+    <div class="filter-row">
+      <input type="text" id="searchInput" placeholder="🔍 銘柄・メモで検索…" oninput="renderHistory()">
+      <select id="filterCat" onchange="renderHistory()">
+        <option value="">すべてのカテゴリ</option>
+        <option>紅茶</option>
+        <option>緑茶</option>
+        <option>烏龍茶</option>
+        <option>白茶</option>
+        <option>黒茶・プーアル</option>
+        <option>ハーブティー</option>
+        <option>その他</option>
+      </select>
+      <select id="sortSelect" onchange="renderHistory()">
+        <option value="newest">新しい順</option>
+        <option value="oldest">古い順</option>
+        <option value="rating-high">評価：高い順</option>
+        <option value="rating-low">評価：低い順</option>
+      </select>
+    </div>
+    <div id="historyList"></div>
+    <div class="card" style="margin-top:1rem;">
+      <div class="card-title">🗑️ ゴミ箱</div>
+      <div id="trashList"></div>
+    </div>
+  </div>
+  <!-- ===== STATS TAB ===== -->
+  <div id="tab-stats" class="tab-content">
+    <div class="stats-grid" id="statsBoxes"></div>
+    <div class="chart-card">
+      <div class="chart-title">☕ よく飲むお茶 TOP 5</div>
+      <div class="bar-chart" id="barChart"></div>
+    </div>
+  </div>
+</main>
+<!-- ===== DETAIL MODAL ===== -->
+<div class="overlay" id="detailOverlay">
+  <div class="detail-modal">
+    <button type="button" class="modal-close" onclick="closeDetailModal()">✕</button>
+    <div class="dm-bar"></div>
+    <div class="dm-title" id="dmTitle"></div>
+    <div class="dm-meta" id="dmMeta"></div>
+    <div class="dm-stars" id="dmStars"></div>
+    <div class="dm-section" id="dmBasicSec">
+      <div class="dm-section-t">🌿 基本情報</div>
+      <div id="dmBasicRows"></div>
+    </div>
+    <div class="dm-section" id="dmBrewSec">
+      <div class="dm-section-t">⚗️ 抽出条件</div>
+      <div id="dmBrewRows"></div>
+    </div>
+    <div class="dm-section" id="dmMemoSec">
+      <div class="dm-section-t">📝 テイスティングメモ</div>
+      <div class="dm-memo-box" id="dmMemo"></div>
+    </div>
+    <div class="dm-section" id="dmEffSec">
+      <div class="dm-section-t">💚 期待できる効能</div>
+      <div class="dm-eff-tags" id="dmEffTags"></div>
+    </div>
+    <div class="dm-section" id="dmPhotoSec">
+      <div class="dm-section-t">📷 写真</div>
+      <div class="dm-photos" id="dmPhotos"></div>
+    </div>
+    <div class="dm-actions">
+      <button type="button" class="btn-close-modal" onclick="closeDetailModal()">閉じる</button>
+      <button type="button" class="btn-edit-modal" id="dmEditBtn" onclick="startEditFromModal()">✏️ 編集する</button>
+    </div>
+  </div>
+</div>
+<!-- ===== IMAGE MODAL ===== -->
+<div class="image-modal" id="imageModal" onclick="handleImgOverlayClick(event)">
+  <button type="button" class="img-nav-btn" id="imgPrevBtn" onclick="showPrevImage(event)">←</button>
+  <img class="image-modal-img" id="imageModalImg" src="" alt="拡大画像">
+  <button type="button" class="img-nav-btn" id="imgNextBtn" onclick="showNextImage(event)">→</button>
+  <button type="button" id="imgCloseBtn" onclick="closeImageModal(event)">✕</button>
+  <div class="img-counter" id="imgCounter"></div>
+</div>
+<div id="toast"></div>
+<script>
+'use strict';
+/* ===== SAFARI POLYFILLS ===== */
+/* Element.matches (Safari < 9) */
+if (!Element.prototype.matches) {
+  Element.prototype.matches =
+    Element.prototype.msMatchesSelector ||
+    Element.prototype.webkitMatchesSelector;
+}
+/* Element.closest (Safari < 9) */
+if (!Element.prototype.closest) {
+  Element.prototype.closest = function(s) {
+    var el = this;
+    do {
+      if (el.matches && el.matches(s)) return el;
+      el = el.parentElement || el.parentNode;
+    } while (el !== null && el.nodeType === 1);
+    return null;
+  };
+}
+/* ===== TEA DATA ===== */
+var TEA_DATA = {
+  '紅茶':         { emoji:'🍵', leaves:['アッサム','ダージリン（ファースト）','ダージリン（セカンド）','ダージリン（オータムナル）','ウバ','ヌワラエリヤ','キャンディ','ディンブラ','アールグレイ','イングリッシュブレックファスト','アイリッシュブレックファスト','中国紅茶（キームン）','台湾紅茶','フレーバード紅茶','その他の紅茶'] },
+  '緑茶':         { emoji:'🍃', leaves:['煎茶','深蒸し煎茶','玉露','抹茶','ほうじ茶','玄米茶','かぶせ茶','新茶','その他の緑茶'] },
+  '烏龍茶':       { emoji:'🫖', leaves:['鉄観音','凍頂烏龍茶','武夷岩茶（大紅袍）','東方美人','水仙','高山烏龍','その他の烏龍茶'] },
+  '白茶':         { emoji:'🌸', leaves:['白毫銀針','白牡丹','寿眉','貢眉','その他の白茶'] },
+  '黒茶・プーアル':{ emoji:'🏺', leaves:['プーアル茶（生茶）','プーアル茶（熟茶）','六堡茶','雲南黒茶','その他の黒茶'] },
+  'ハーブティー':  { emoji:'🌿', leaves:['カモミール','ペパーミント','ローズヒップ','ハイビスカス','レモングラス','ラベンダー','エルダーフラワー','ルイボス','リコリス','ジンジャー','その他のハーブティー'] },
+  'その他':       { emoji:'☕', leaves:['ジャスミン茶','菊花茶','タンポポ茶','そば茶','むぎ茶','チコリ茶','その他'] }
+};
+var EFFECTS_DB = {
+  'アッサム':                ['カフェイン補給','集中力向上','抗酸化作用（カテキン）','消化促進'],
+  'ダージリン（ファースト）':  ['抗酸化作用','リラックス効果','ポリフェノール補給','気分転換'],
+  'ダージリン（セカンド）':    ['抗酸化作用','消化促進','集中力向上'],
+  'ダージリン（オータムナル）':['抗酸化作用','免疫サポート','リラックス効果'],
+  'ウバ':                    ['抗酸化作用','血行促進','疲労回復'],
+  'ヌワラエリヤ':             ['抗酸化作用','リフレッシュ','代謝サポート'],
+  'アールグレイ':             ['リラックス効果（ベルガモット）','抗酸化作用','気分転換'],
+  'イングリッシュブレックファスト':['エネルギー補給','集中力向上','抗酸化作用'],
+  'アイリッシュブレックファスト':['エネルギー補給','集中力向上','抗酸化作用'],
+  '中国紅茶（キームン）':     ['抗酸化作用','消化促進','リラックス効果'],
+  '台湾紅茶':                ['抗酸化作用','消化促進','血行促進'],
+  '煎茶':                   ['カテキン（抗菌・抗ウイルス）','カフェイン（集中）','ビタミンC補給','口腔ケア'],
+  '玉露':                   ['テアニン（リラックス・集中）','旨み成分補給','集中と落ち着き'],
+  '抹茶':                   ['カテキン（抗酸化）','テアニン','クロロフィル','エネルギー補給'],
+  'ほうじ茶':                ['低カフェイン','リラックス効果','ピラジン（血行促進）','消化促進'],
+  '玄米茶':                  ['低カフェイン','香ばしさでリラックス','ミネラル補給'],
+  'かぶせ茶':                ['テアニン豊富','リラックス効果','抗酸化作用'],
+  '鉄観音':                  ['抗酸化作用','代謝サポート','口臭予防','ポリフェノール補給'],
+  '凍頂烏龍茶':               ['抗酸化作用','脂肪分解サポート','リラックス効果'],
+  '東方美人':                 ['抗酸化作用','リラックス効果','美容サポート'],
+  '白毫銀針':                 ['高い抗酸化作用','抗炎症','美容サポート','低カフェイン'],
+  '白牡丹':                  ['抗酸化作用','免疫サポート','低カフェイン'],
+  'プーアル茶（生茶）':       ['消化促進','代謝サポート','デトックス','腸内環境改善'],
+  'プーアル茶（熟茶）':       ['消化促進','腸内環境改善','体を温める','コレステロール低減サポート'],
+  'カモミール':               ['リラックス・睡眠サポート','抗炎症','消化促進','ストレス軽減'],
+  'ペパーミント':             ['消化促進','リフレッシュ','頭痛緩和','口腔ケア'],
+  'ローズヒップ':             ['ビタミンC豊富','美容サポート','免疫向上','抗酸化作用'],
+  'ハイビスカス':             ['ビタミンC・クエン酸','疲労回復','血圧サポート','美容効果'],
+  'ルイボス':                ['抗酸化物質（SOD）','ノンカフェイン','ミネラル補給','アレルギーサポート'],
+  'ラベンダー':               ['リラックス効果','睡眠の質向上','ストレス軽減','抗菌作用'],
+  'レモングラス':             ['消化促進','リフレッシュ','デトックス','抗酸化作用'],
+  'ジンジャー':               ['体を温める','消化促進','免疫サポート','抗炎症'],
+  'エルダーフラワー':         ['免疫サポート','抗炎症','リラックス効果'],
+  'リコリス':                ['消化促進','抗炎症','甘みによるリラックス']
+};
+var CAT_EFFECTS = {
+  '紅茶':         ['抗酸化作用（ポリフェノール）','カフェイン（集中力）','消化促進'],
+  '緑茶':         ['カテキン（抗菌・抗酸化）','テアニン（リラックス）','ビタミンC'],
+  '烏龍茶':       ['脂肪分解サポート','抗酸化作用','ポリフェノール'],
+  '白茶':         ['高い抗酸化作用','低カフェイン','美容サポート'],
+  '黒茶・プーアル':['消化促進','腸内環境改善','代謝サポート'],
+  'ハーブティー':  ['ノンカフェイン','リラックス効果','自然由来の効能'],
+  'その他':       ['抗酸化作用','健康サポート']
+};
+var TEA_COLORS = [
+  { hex:'#f9e4b7', name:'ゴールデン' },
+  { hex:'#e8c97a', name:'イエローゴールド' },
+  { hex:'#e8b877', name:'アンバー' },
+  { hex:'#d4884c', name:'オレンジブラウン' },
+  { hex:'#8b4513', name:'ダークブラウン' },
+  { hex:'#4a1a0a', name:'ディープブラウン' },
+  { hex:'#c9a96e', name:'ミルクティー' },
+  { hex:'#a8c96e', name:'グリーン（緑茶）' }
+];
+/* ===== STATE ===== */
+var STORAGE_KEY = 'teaDiaryV3';
+var TRASH_KEY   = 'teaDiaryTrashV1';
+var teaLogs   = [];
+var trashLogs = [];
+var formPhotos = [];
+var selectedCategory  = '紅茶';
+var selectedColor     = TEA_COLORS[0].hex;
+var selectedColorName = TEA_COLORS[0].name;
+var timerInterval  = null;
+var timerSeconds   = 0;
+var timerRunning   = false;
+var currentImageList  = [];
+var currentImageIndex = 0;
+var editingId       = null;
+var currentDetailId = null;
+
+/* ===== STORAGE ===== */
+function loadLogs() {
+  try { teaLogs = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch(e) { teaLogs = []; }
+}
+function saveLogs() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(teaLogs));
+    return true;
+  } catch(e) {
+    alert('⚠️ 保存に失敗しました。\n写真のデータが大きすぎる可能性があります。\n写真を減らしてから再度お試しください。');
+    return false;
+  }
+}
+function loadTrashLogs() {
+  try { trashLogs = JSON.parse(localStorage.getItem(TRASH_KEY)) || []; }
+  catch(e) { trashLogs = []; }
+}
+function saveTrashLogs() {
+  try {
+    localStorage.setItem(TRASH_KEY, JSON.stringify(trashLogs));
+    return true;
+  } catch(e) {
+    alert('⚠️ ゴミ箱の保存に失敗しました。');
+    return false;
+  }
+}
+
+function exportJsonBackup() {
+  try {
+    var data = {
+      teaLogs: teaLogs,
+      trashLogs: trashLogs,
+      exportedAt: new Date().toISOString(),
+      appName: 'Tea Diary'
+    };
+
+    var json = JSON.stringify(data, null, 2);
+    var blob = new Blob([json], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'tea-diary-backup-' + todayStr() + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(url);
+    showToast('⬇️ バックアップを書き出しました');
+  } catch (e) {
+    console.error(e);
+    alert('⚠️ バックアップの書き出しに失敗しました。');
+  }
+}
+function importJsonBackup(file) {
+  if (!file) return;
+
+  var reader = new FileReader();
+
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+
+      if (!data || !Array.isArray(data.teaLogs)) {
+        alert('⚠️ このJSONファイルは読み込めません。');
+        return;
+      }
+
+      if (!confirm('今あるTea Diaryのデータを、読み込んだデータで上書きしますか？')) {
+        return;
+      }
+
+      teaLogs = data.teaLogs || [];
+      trashLogs = Array.isArray(data.trashLogs) ? data.trashLogs : [];
+
+      var ok1 = saveLogs();
+      var ok2 = saveTrashLogs();
+
+      if (!ok1 || !ok2) {
+        alert('⚠️ 読み込み後の保存に失敗しました。');
+        loadLogs();
+        loadTrashLogs();
+        return;
+      }
+
+      renderHistory();
+      renderStats();
+      switchTab('history');
+      showToast('⬆️ バックアップを読み込みました');
+    } catch (err) {
+      console.error(err);
+      alert('⚠️ JSONの読み込みに失敗しました。');
+    }
+  };
+
+  reader.onerror = function() {
+    alert('⚠️ ファイルの読み込みに失敗しました。');
+  };
+
+  reader.readAsText(file);
+}
+
+/* ===== ESCAPE HTML ===== */
+function escHtml(s) {
+  if (s === null || s === undefined) return '';
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#x27;');
+}
+
+/* ===== TABS ===== */
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(function(el){ el.classList.remove('active'); });
+  document.querySelectorAll('nav button').forEach(function(el){ el.classList.remove('active'); });
+  document.getElementById('tab-'+name).classList.add('active');
+  var idx = ['record','history','stats'].indexOf(name);
+  document.querySelectorAll('nav button')[idx].classList.add('active');
+  if (name === 'history') renderHistory();
+  if (name === 'stats')   renderStats();
+}
+
+/* ===== CATEGORY PILLS ===== */
+function renderCatPills() {
+  var c = document.getElementById('catPills');
+  var html = '';
+  Object.keys(TEA_DATA).forEach(function(cat) {
+    var active = cat === selectedCategory ? ' active' : '';
+    html += '<button type="button" class="cat-pill'+active+'" data-cat="'+escHtml(cat)+'">'
+          + TEA_DATA[cat].emoji+' '+escHtml(cat)+'</button>';
+  });
+  c.innerHTML = html;
+  c.querySelectorAll('.cat-pill').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      selectedCategory = btn.dataset.cat;
+      renderCatPills();
+      updateLeafOptions();
+      updateEffects();
+    });
+  });
+}
+
+/* ===== TEA TYPE HELPERS ===== */
+function isOtherType(val) {
+  return !!(val && val.indexOf('その他') > -1);
+}
+function updateCustomTypeVis() {
+  var val  = document.getElementById('f-type').value;
+  var wrap = document.getElementById('customTypeWrap');
+  if (!wrap) return;
+  if (isOtherType(val)) {
+    wrap.style.display = '';
+  } else {
+    wrap.style.display = 'none';
+    var cust = document.getElementById('f-type-custom');
+    if (cust) cust.value = '';
+  }
+}
+function getFinalTeaType() {
+  var sel = document.getElementById('f-type').value;
+  if (isOtherType(sel)) {
+    var custom = (document.getElementById('f-type-custom').value || '').trim();
+    if (custom) return custom;
+  }
+  return sel;
+}
+
+/* ===== LEAF OPTIONS ===== */
+function updateLeafOptions() {
+  var sel    = document.getElementById('f-type');
+  var cur    = sel.value;
+  var leaves = (TEA_DATA[selectedCategory] || {}).leaves || [];
+  sel.innerHTML = '<option value="">選択してください</option>';
+  leaves.forEach(function(lf){
+    var o = document.createElement('option');
+    o.value = lf; o.textContent = lf;
+    if (lf === cur) o.selected = true;
+    sel.appendChild(o);
+  });
+  updateCustomTypeVis();
+  updateEffects();
+}
+
+/* ===== EFFECTS ===== */
+function updateEffects() {
+  var type = getFinalTeaType();
+  var effs = EFFECTS_DB[type] || CAT_EFFECTS[selectedCategory] || [];
+  var box  = document.getElementById('effectsBox');
+  if (effs.length) {
+    box.innerHTML = '<div class="eff-tags">'+effs.map(function(e){
+      return '<span class="eff-tag">'+escHtml(e)+'</span>';
+    }).join('')+'</div>';
+  } else {
+    box.innerHTML = '<span class="effects-none">効能情報がありません</span>';
+  }
+}
+
+/* ===== COLOR HELPERS ===== */
+function normalizeHex(s) {
+  s = (s || '').trim();
+  if (!s) return '';
+  if (!/^#/.test(s)) s = '#' + s;
+  if (/^#[0-9a-fA-F]{6}$/.test(s)) return s.toLowerCase();
+  return '';
+}
+function updateColorHexPreview() {
+  var hexEl = document.getElementById('f-color-hex');
+  var prev  = document.getElementById('colorHexPreview');
+  if (!hexEl || !prev) return;
+  var hex = normalizeHex(hexEl.value);
+  prev.style.background  = hex || '#eee';
+  prev.style.borderColor = hex ? hex : 'var(--border)';
+}
+function getFinalColor() {
+  var hexEl = document.getElementById('f-color-hex');
+  var hex   = hexEl ? normalizeHex(hexEl.value) : '';
+  return hex || selectedColor;
+}
+function getFinalColorName() {
+  var nameEl = document.getElementById('f-color-name');
+  var hexEl  = document.getElementById('f-color-hex');
+  var name   = nameEl ? (nameEl.value || '').trim() : '';
+  if (name) return name;
+  var hex = hexEl ? normalizeHex(hexEl.value) : '';
+  if (hex) return hex;
+  return selectedColorName;
+}
+
+/* ===== COLOR PICKER ===== */
+function renderColorPicker() {
+  var c    = document.getElementById('colorPicker');
+  var html = '';
+  TEA_COLORS.forEach(function(col){
+    var sel = col.hex === selectedColor ? ' selected' : '';
+    html += '<div class="tea-color'+sel+'" data-hex="'+col.hex+'" data-name="'+escHtml(col.name)+'"'
+          + ' style="background:'+col.hex+'" title="'+escHtml(col.name)+'"></div>';
+  });
+  html += '<span class="color-name-lbl" id="colorNameLbl">'+escHtml(selectedColorName)+'</span>';
+  c.innerHTML = html;
+  c.querySelectorAll('.tea-color').forEach(function(el){
+    el.addEventListener('click', function(){
+      selectedColor     = el.dataset.hex;
+      selectedColorName = el.dataset.name;
+      c.querySelectorAll('.tea-color').forEach(function(e){ e.classList.remove('selected'); });
+      el.classList.add('selected');
+      var lbl = document.getElementById('colorNameLbl');
+      if (lbl) lbl.textContent = selectedColorName;
+      var nameEl = document.getElementById('f-color-name');
+      var hexEl  = document.getElementById('f-color-hex');
+      if (nameEl) nameEl.value = selectedColorName;
+      if (hexEl)  { hexEl.value = selectedColor; updateColorHexPreview(); }
+    });
+  });
+}
+
+/* ===== TIMER ===== */
+function toggleTimer() {
+  if (timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('timerStartBtn').textContent = '▶ 開始';
+  } else {
+    timerRunning = true;
+    document.getElementById('timerStartBtn').textContent = '⏸ 停止';
+    timerInterval = setInterval(function(){
+      timerSeconds++;
+      var m   = Math.floor(timerSeconds / 60);
+      var s   = timerSeconds % 60;
+      var txt = m + ':' + (s < 10 ? '0' : '') + s;
+      document.getElementById('timerDisplay').textContent = txt;
+      document.getElementById('f-steep').value = txt;
+    }, 1000);
+  }
+}
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false; timerSeconds = 0;
+  document.getElementById('timerStartBtn').textContent = '▶ 開始';
+  document.getElementById('timerDisplay').textContent  = '0:00';
+  document.getElementById('f-steep').value = '';
+}
+
+/* ===== EXIF ORIENTATION ===== */
+/*
+ * JPEGのArrayBufferからEXIF orientation値を同期的に取得します。
+ * iPhoneで縦向き撮影した写真は orientation=6（90°CW）が最多。
+ * orientation 値: 1=正常, 3=180°, 6=90°CW(iPhone縦撮り), 8=90°CCW
+ */
+function getOrientationFromBuffer(buffer) {
+  try {
+    var view   = new DataView(buffer);
+    if (view.getUint16(0, false) !== 0xFFD8) return 1; /* JPEG以外 */
+    var len    = view.byteLength;
+    var offset = 2;
+    while (offset < len) {
+      var marker = view.getUint16(offset, false);
+      offset += 2;
+      if (marker === 0xFFE1) { /* APP1 = EXIF セグメント */
+        if (view.getUint32(offset + 2, false) !== 0x45786966) return 1;
+        var tiff   = offset + 8; /* "Exif\0\0" の後がTIFFヘッダ */
+        var little = view.getUint16(tiff, false) === 0x4949;
+        var ifdOff = view.getUint32(tiff + 4, little);
+        var ifd    = tiff + ifdOff;
+        var tags   = view.getUint16(ifd, little);
+        for (var i = 0; i < tags; i++) {
+          var tagOff = ifd + 2 + i * 12;
+          if (view.getUint16(tagOff, little) === 0x0112) { /* Orientation tag */
+            return view.getUint16(tagOff + 8, little);
+          }
+        }
+        return 1;
+      } else if ((marker & 0xFF00) !== 0xFF00) {
+        break;
+      } else {
+        offset += view.getUint16(offset, false);
+      }
+    }
+  } catch(ex) {}
+  return 1;
+}
+
+/* ===== IMAGE COMPRESSION ===== */
+/*
+ * 【iOS Safari 対応】ファイルを ArrayBuffer で1回だけ読み込み、
+ * EXIF回転補正＋リサイズ圧縮してJPEG dataURLを返します。
+ *
+ * 旧実装では DataURL + ArrayBuffer を2回読み込んでいたため、
+ * iOSでファイルオブジェクトが無効化され写真が保存できない問題がありました。
+ *
+ * iOSでは localStorage の容量制限が厳しいため解像度を小さくしています:
+ *   iOS   : 最大800px / JPEG品質 0.65
+ *   その他: 最大1200px / JPEG品質 0.75
+ */
+function compressImage(file, callback) {
+  var isIOS   = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  var maxPx   = isIOS ? 800  : 1200;
+  var quality = isIOS ? 0.65 : 0.75;
+
+  var reader = new FileReader();
+  reader.onerror = function() { callback(null); };
+  reader.onload = function(ev) {
+    var buffer      = ev.target.result;
+    var orientation = getOrientationFromBuffer(buffer);
+
+    /* ArrayBuffer → Blob → ObjectURL で Image に読み込む（iOS でも安全） */
+    var blob      = new Blob([buffer], { type: file.type || 'image/jpeg' });
+    var objectUrl = URL.createObjectURL(blob);
+
+    var img = new Image();
+    img.onerror = function() {
+      URL.revokeObjectURL(objectUrl);
+      callback(null);
+    };
+    img.onload = function() {
+      URL.revokeObjectURL(objectUrl); /* 使い終わったらメモリ解放 */
+      try {
+        var srcW = img.width  || 1;
+        var srcH = img.height || 1;
+        /* orientation 5〜8 は90°/270°回転なので幅と高さが入れ替わる */
+        var swap = (orientation >= 5 && orientation <= 8);
+        var outW = swap ? srcH : srcW;
+        var outH = swap ? srcW : srcH;
+        if (outW > maxPx || outH > maxPx) {
+          if (outW >= outH) { outH = Math.round(outH * maxPx / outW); outW = maxPx; }
+          else              { outW = Math.round(outW * maxPx / outH); outH = maxPx; }
+        }
+        var cW = outW, cH = outH;
+        var canvas = document.createElement('canvas');
+        canvas.width  = cW;
+        canvas.height = cH;
+        var ctx = canvas.getContext('2d');
+        /* EXIF orientation に応じた変換行列 */
+        switch (orientation) {
+          case 2: ctx.transform(-1,  0,  0,  1, cW,  0); break; /* 水平反転 */
+          case 3: ctx.transform(-1,  0,  0, -1, cW, cH); break; /* 180° */
+          case 4: ctx.transform( 1,  0,  0, -1,  0, cH); break; /* 垂直反転 */
+          case 5: ctx.transform( 0,  1,  1,  0,  0,  0); break; /* 転置 */
+          case 6: ctx.transform( 0,  1, -1,  0, cH,  0); break; /* 90°CW（iPhoneで最多） */
+          case 7: ctx.transform( 0, -1, -1,  0, cH, cW); break; /* 横反転+90°CW */
+          case 8: ctx.transform( 0, -1,  1,  0,  0, cW); break; /* 90°CCW */
+          /* case 1: 変換不要 */
+        }
+        if (swap) { ctx.drawImage(img, 0, 0, cH, cW); }
+        else      { ctx.drawImage(img, 0, 0, cW, cH); }
+        callback(canvas.toDataURL('image/jpeg', quality));
+      } catch(e) { callback(null); }
+    };
+    img.src = objectUrl;
+  };
+  reader.readAsArrayBuffer(file); /* 1回だけ読む */
+}
+
+/* ===== PHOTOS ===== */
+document.getElementById('photoInput').addEventListener('change', function(e){
+  var files = Array.from(e.target.files || []);
+  if (!files.length) return;
+  var maxAdd = 5;
+  var remain = maxAdd - formPhotos.length;
+  if (remain <= 0) {
+    alert('写真は最大5枚までです。');
+    this.value = '';
+    return;
+  }
+  files = files.slice(0, remain);
+  var results = new Array(files.length);
+  var done    = 0;
+  files.forEach(function(file, index){
+    compressImage(file, function(dataUrl){
+      results[index] = dataUrl;
+      done++;
+      if (done === files.length) {
+        results.forEach(function(d){ if (d) formPhotos.push(d); });
+        renderPhotoPreviews();
+      }
+    });
+  });
+  this.value = '';
+});
+
+function renderPhotoPreviews() {
+  var wrap = document.getElementById('photoPreviews');
+  if (!formPhotos.length) { wrap.innerHTML = ''; return; }
+  var html = '';
+  formPhotos.forEach(function(src, i){
+    html += '<div class="photo-thumb">'
+          + '<img src="'+src+'" alt="写真'+(i+1)+'">'
+          + '<div class="photo-controls">'
+          + '<button type="button" class="mv-l" data-i="'+i+'">←</button>'
+          + '<button type="button" class="mv-r" data-i="'+i+'">→</button>'
+          + '<button type="button" class="del del-ph" data-i="'+i+'">×</button>'
+          + '</div></div>';
+  });
+  wrap.innerHTML = html;
+  wrap.querySelectorAll('.mv-l').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var i = +btn.dataset.i;
+      if (i <= 0) return;
+      var tmp = formPhotos[i]; formPhotos[i] = formPhotos[i-1]; formPhotos[i-1] = tmp;
+      renderPhotoPreviews();
+    });
+  });
+  wrap.querySelectorAll('.mv-r').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var i = +btn.dataset.i;
+      if (i >= formPhotos.length - 1) return;
+      var tmp = formPhotos[i]; formPhotos[i] = formPhotos[i+1]; formPhotos[i+1] = tmp;
+      renderPhotoPreviews();
+    });
+  });
+  wrap.querySelectorAll('.del-ph').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      formPhotos.splice(+btn.dataset.i, 1);
+      renderPhotoPreviews();
+    });
+  });
+}
+
+/* ===== SAVE ===== */
+function saveTea(e) {
+  e.preventDefault();
+  var rating         = parseInt((document.querySelector('input[name="rating"]:checked') || {}).value || '3', 10);
+  var type           = getFinalTeaType();
+  var finalColor     = getFinalColor();
+  var finalColorName = getFinalColorName();
+  var effects        = EFFECTS_DB[type] || CAT_EFFECTS[selectedCategory] || [];
+  var isEdit         = !!editingId;
+  var entryId        = isEdit ? editingId : String(Date.now());
+
+  var entry = {
+    id:        entryId,
+    date:      document.getElementById('f-date').value,
+    category:  selectedCategory,
+    type:      type,
+    brand:     document.getElementById('f-brand').value.trim(),
+    amount:    document.getElementById('f-amount').value,
+    water:     document.getElementById('f-water').value,
+    temp:      document.getElementById('f-temp').value,
+    waterType: document.getElementById('f-waterType').value,
+    steep:     document.getElementById('f-steep').value.trim(),
+    color:     finalColor,
+    colorName: finalColorName,
+    leafShape: document.getElementById('f-leafShape').value,
+    rating:    rating,
+    memo:      document.getElementById('f-memo').value.trim(),
+    effects:   effects,
+    photos:    formPhotos.slice()
+  };
+
+  var prevLogs = teaLogs.slice();
+  if (isEdit) {
+    teaLogs = teaLogs.map(function(l){ return l.id === editingId ? entry : l; });
+  } else {
+    teaLogs.unshift(entry);
+  }
+  var ok = saveLogs();
+  if (!ok) { teaLogs = prevLogs; return; }
+
+  showToast(isEdit ? '✅ 記録を更新しました！' : '✅ 記録を保存しました！');
+  resetForm();
+  openDetailModal(entryId);
+}
+
+/* ===== EDIT ===== */
+function openEdit(id) {
+  var l = teaLogs.find(function(x){ return x.id === id; });
+  if (!l) return;
+
+  editingId        = id;
+  selectedCategory = l.category || '紅茶';
+  renderCatPills();
+  updateLeafOptions();
+
+  document.getElementById('f-date').value = l.date || todayStr();
+
+  /* 茶葉の種類 */
+  var typeEl    = document.getElementById('f-type');
+  var savedType = l.type || '';
+  typeEl.value  = savedType;
+  if (!typeEl.value && savedType) {
+    /* リストにない値 → 「その他」系オプションを探す */
+    var otherOpt = null;
+    for (var oi = 0; oi < typeEl.options.length; oi++) {
+      if (isOtherType(typeEl.options[oi].value)) { otherOpt = typeEl.options[oi]; break; }
+    }
+    if (otherOpt) {
+      typeEl.value = otherOpt.value;
+      var customEl = document.getElementById('f-type-custom');
+      if (customEl) customEl.value = savedType;
+    } else {
+      var newOpt = document.createElement('option');
+      newOpt.value = savedType; newOpt.textContent = savedType; newOpt.selected = true;
+      typeEl.appendChild(newOpt);
+    }
+  }
+  updateCustomTypeVis();
+
+  document.getElementById('f-brand').value     = l.brand     || '';
+  document.getElementById('f-amount').value    = l.amount    || '';
+  document.getElementById('f-water').value     = l.water     || '';
+  document.getElementById('f-temp').value      = l.temp      || '';
+  document.getElementById('f-waterType').value = l.waterType || '';
+  document.getElementById('f-steep').value     = l.steep     || '';
+  document.getElementById('f-leafShape').value = l.leafShape || '';
+  document.getElementById('f-memo').value      = l.memo      || '';
+
+  /* 評価 */
+  var rEl = document.querySelector('input[name="rating"][value="' + String(l.rating || 3) + '"]');
+  if (rEl) rEl.checked = true;
+
+  /* 水色 */
+  selectedColor     = l.color     || TEA_COLORS[0].hex;
+  selectedColorName = l.colorName || TEA_COLORS[0].name;
+  renderColorPicker();
+  var cnEl = document.getElementById('f-color-name');
+  var chEl = document.getElementById('f-color-hex');
+  if (cnEl) cnEl.value = l.colorName || '';
+  if (chEl) {
+    var isPreset = TEA_COLORS.some(function(c){ return c.hex === (l.color || ''); });
+    chEl.value = (!isPreset && l.color) ? l.color : '';
+    updateColorHexPreview();
+  }
+
+  /* 写真 */
+  formPhotos = (l.photos || []).slice();
+  renderPhotoPreviews();
+
+  updateEffects();
+
+  var title = l.brand || l.type || '無題の記録';
+  document.getElementById('editBannerText').textContent = '「' + title + '」を編集中';
+  document.getElementById('editBanner').classList.add('show');
+  document.getElementById('formCardTitle').textContent  = '記録を編集する';
+  document.querySelector('.submit-btn').textContent     = '💾 変更を保存する';
+
+  switchTab('record');
+  setTimeout(function(){ window.scrollTo({ top:0, behavior:'smooth' }); }, 50);
+}
+
+function cancelEdit() {
+  editingId = null;
+  resetForm();
+  document.getElementById('editBanner').classList.remove('show');
+  document.getElementById('formCardTitle').textContent = '新しいお茶を記録する';
+  document.querySelector('.submit-btn').textContent    = '☕ 記録を保存する';
+}
+
+function startEditFromModal() {
+  var id = currentDetailId;
+  closeDetailModal();
+  openEdit(id);
+}
+
+function resetForm() {
+  editingId = null;
+  document.getElementById('teaForm').reset();
+  formPhotos = [];
+  document.getElementById('photoPreviews').innerHTML = '';
+  document.getElementById('f-date').value = todayStr();
+  var r3 = document.querySelector('input[name="rating"][value="3"]');
+  if (r3) r3.checked = true;
+  resetTimer();
+  selectedColor     = TEA_COLORS[0].hex;
+  selectedColorName = TEA_COLORS[0].name;
+  renderColorPicker();
+  var wrap = document.getElementById('customTypeWrap');
+  if (wrap) wrap.style.display = 'none';
+  var ftc = document.getElementById('f-type-custom');
+  if (ftc) ftc.value = '';
+  var fcn = document.getElementById('f-color-name');
+  if (fcn) fcn.value = '';
+  var fch = document.getElementById('f-color-hex');
+  if (fch) fch.value = '';
+  updateColorHexPreview();
+  updateEffects();
+  document.getElementById('editBanner').classList.remove('show');
+  document.getElementById('formCardTitle').textContent = '新しいお茶を記録する';
+  document.querySelector('.submit-btn').textContent    = '☕ 記録を保存する';
+}
+
+function todayStr() {
+  var d = new Date();
+  var m = d.getMonth() + 1;
+  var day = d.getDate();
+  return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;
+}
+
+/* ===== HISTORY ===== */
+function renderHistory() {
+  var search    = (document.getElementById('searchInput').value || '').toLowerCase();
+  var filterCat = document.getElementById('filterCat').value;
+  var sort      = document.getElementById('sortSelect').value;
+
+  var logs = teaLogs.slice();
+  if (search) {
+    logs = logs.filter(function(l){
+      return (l.brand    || '').toLowerCase().indexOf(search) > -1
+          || (l.memo     || '').toLowerCase().indexOf(search) > -1
+          || (l.type     || '').toLowerCase().indexOf(search) > -1
+          || (l.category || '').toLowerCase().indexOf(search) > -1;
+    });
+  }
+  if (filterCat) logs = logs.filter(function(l){ return l.category === filterCat; });
+
+  if (sort === 'oldest')           logs.sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+  else if (sort === 'rating-high') logs.sort(function(a,b){ return (b.rating||0)-(a.rating||0); });
+  else if (sort === 'rating-low')  logs.sort(function(a,b){ return (a.rating||0)-(b.rating||0); });
+  else                             logs.sort(function(a,b){ return (+b.id||0)-(+a.id||0); });
+
+  var cont = document.getElementById('historyList');
+  if (!logs.length) {
+    cont.innerHTML = '<div class="empty-state">🍵 まだ記録がありません</div>';
+    renderTrash();
+    return;
+  }
+
+  var html = '';
+  logs.forEach(function(l){
+    var title    = escHtml(l.brand || l.type || '無題の記録');
+    var r        = l.rating || 0;
+    var stars    = '★'.repeat(r) + '☆'.repeat(5 - r);
+    var catEmoji = (TEA_DATA[l.category] || {}).emoji || '🍵';
+    var isDk     = isColorDark(l.color || '');
+
+    var bdg = '';
+    if (l.category)  bdg += '<span class="badge">'+catEmoji+' '+escHtml(l.category)+'</span>';
+    if (l.temp)      bdg += '<span class="badge">🌡️ '+escHtml(l.temp)+'℃</span>';
+    if (l.steep)     bdg += '<span class="badge">⏱️ '+escHtml(l.steep)+'</span>';
+    if (l.amount)    bdg += '<span class="badge">⚖️ '+escHtml(l.amount)+'g</span>';
+    if (l.water)     bdg += '<span class="badge">💧 '+escHtml(l.water)+'ml</span>';
+    if (l.colorName) bdg += '<span class="badge" style="background:'+escHtml(l.color||'#eee')+';color:'+(isDk?'#fff':'#4a2c1a')+'">● '+escHtml(l.colorName)+'</span>';
+
+    var memoH = l.memo
+      ? '<div class="log-memo">'+escHtml(l.memo.length > 100 ? l.memo.slice(0,100)+'…' : l.memo)+'</div>'
+      : '';
+    var thumbH = '';
+    if (l.photos && l.photos.length) {
+      thumbH = '<div class="log-thumbs">'+l.photos.slice(0,3).map(function(p){
+        return '<img src="'+p+'" alt="">';
+      }).join('')+'</div>';
+    }
+
+    /* ▼ ボタンには必ず type="button" をつける ▼ */
+    html += '<div class="log-card" data-id="'+escHtml(l.id)+'">'
+          + '<div class="log-card-header">'
+          + '<div><h3>'+title+'</h3><div class="log-date">'+escHtml(l.date||'')+'</div></div>'
+          + '<div style="display:flex;align-items:center;gap:.5rem">'
+          + '<span class="log-stars">'+stars+'</span>'
+          + '<button type="button" class="edit-log-btn" data-id="'+escHtml(l.id)+'">✏️ 編集</button>'
+          + '<button type="button" class="del-log-btn"  data-id="'+escHtml(l.id)+'">🗑️</button>'
+          + '</div></div>'
+          + '<div class="badges">'+bdg+'</div>'
+          + memoH + thumbH
+          + '</div>';
+  });
+  cont.innerHTML = html;
+
+  /* ▼ カードクリック → closest を使って確実に判定 ▼ */
+  cont.querySelectorAll('.log-card').forEach(function(card){
+    card.addEventListener('click', function(e){
+      var tgt = e.target;
+      /* ボタン自身、またはボタンの子要素（絵文字など）をクリックした場合はスキップ */
+      if (tgt.closest && (tgt.closest('.edit-log-btn') || tgt.closest('.del-log-btn'))) return;
+      /* closest未対応ブラウザ向けフォールバック */
+      if (!tgt.closest) {
+        if (tgt.classList.contains('edit-log-btn') || tgt.classList.contains('del-log-btn')) return;
+        if (tgt.parentElement &&
+           (tgt.parentElement.classList.contains('edit-log-btn') ||
+            tgt.parentElement.classList.contains('del-log-btn'))) return;
+      }
+      openDetailModal(card.dataset.id);
+    });
+  });
+
+  /* ▼ 編集ボタン ▼ */
+  cont.querySelectorAll('.edit-log-btn').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      e.preventDefault();
+      openEdit(btn.dataset.id);
+    });
+  });
+
+  /* ▼ 削除ボタン ▼ */
+  cont.querySelectorAll('.del-log-btn').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      e.preventDefault();
+      deleteLog(btn.dataset.id);
+    });
+  });
+
+  renderTrash();
+}
+
+function deleteLog(id) {
+  if (!confirm('この記録をゴミ箱に移動しますか？')) return;
+  var target = teaLogs.find(function(l){ return l.id === id; });
+  if (!target) return;
+  teaLogs   = teaLogs.filter(function(l){ return l.id !== id; });
+  trashLogs.unshift(target);
+  var ok1 = saveLogs();
+  var ok2 = saveTrashLogs();
+  if (!ok1 || !ok2) { loadLogs(); loadTrashLogs(); alert('移動に失敗しました。'); return; }
+  renderHistory();
+  showToast('🗑️ ゴミ箱に移動しました');
+}
+
+function restoreLog(id) {
+  var target = trashLogs.find(function(l){ return l.id === id; });
+  if (!target) return;
+  trashLogs = trashLogs.filter(function(l){ return l.id !== id; });
+  teaLogs.unshift(target);
+  var ok1 = saveLogs();
+  var ok2 = saveTrashLogs();
+  if (!ok1 || !ok2) { loadLogs(); loadTrashLogs(); alert('復元に失敗しました。'); return; }
+  renderHistory();
+  showToast('♻️ 復元しました');
+}
+
+function renderTrash() {
+  var cont = document.getElementById('trashList');
+  if (!cont) return;
+  if (!trashLogs.length) {
+    cont.innerHTML = '<div class="empty-state" style="padding:1rem;">ゴミ箱は空です</div>';
+    return;
+  }
+  var html = '';
+  trashLogs.forEach(function(l){
+    html += '<div class="log-card" style="cursor:default;">'
+          + '<div class="log-card-header">'
+          + '<div><h3>'+escHtml(l.brand||l.type||'無題の記録')+'</h3>'
+          + '<div class="log-date">'+escHtml(l.date||'')+'</div></div>'
+          + '<div style="display:flex;align-items:center;gap:.5rem;">'
+          + '<button type="button" class="edit-log-btn restore-log-btn" data-id="'+escHtml(l.id)+'">♻️ 復元</button>'
+          + '</div></div>'
+          + '</div>';
+  });
+  cont.innerHTML = html;
+  cont.querySelectorAll('.restore-log-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      restoreLog(btn.dataset.id);
+    });
+  });
+}
+
+/* ===== STATS ===== */
+function renderStats() {
+  var n    = teaLogs.length;
+  var avg  = n ? (teaLogs.reduce(function(s,l){ return s+(l.rating||0); },0)/n).toFixed(1) : '—';
+  var cats = {};
+  teaLogs.forEach(function(l){ if (l.category) cats[l.category] = (cats[l.category]||0)+1; });
+  var catKeys  = Object.keys(cats).sort(function(a,b){ return cats[b]-cats[a]; });
+  var topCat   = catKeys[0] || null;
+
+  document.getElementById('statsBoxes').innerHTML =
+    mkStatBox(String(n), '総記録数') +
+    mkStatBox(String(avg), '平均評価 ⭐') +
+    mkStatBox(topCat || '—', '最多カテゴリ') +
+    mkStatBox(String(catKeys.length), '飲んだカテゴリ数');
+
+  var types = {};
+  teaLogs.forEach(function(l){
+    var k = l.brand || l.type;
+    if (k) types[k] = (types[k]||0)+1;
+  });
+  var typeKeys = Object.keys(types).sort(function(a,b){ return types[b]-types[a]; }).slice(0,5);
+  var maxC     = typeKeys.length ? types[typeKeys[0]] : 1;
+  var chart    = document.getElementById('barChart');
+  if (!typeKeys.length) {
+    chart.innerHTML = '<div style="color:#bbb;text-align:center;padding:1rem">データがありません</div>';
+    return;
+  }
+  chart.innerHTML = typeKeys.map(function(key){
+    var pct = Math.round(types[key] / maxC * 100);
+    return '<div class="bar-row">'
+      + '<div class="bar-label" title="'+escHtml(key)+'">'+escHtml(key)+'</div>'
+      + '<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%"></div></div>'
+      + '<div class="bar-count">'+types[key]+'杯</div>'
+      + '</div>';
+  }).join('');
+}
+
+function mkStatBox(val, label) {
+  return '<div class="stat-box">'
+       + '<div class="stat-number">'+escHtml(val)+'</div>'
+       + '<div class="stat-label">'+escHtml(label)+'</div>'
+       + '</div>';
+}
+
+/* ===== DETAIL MODAL ===== */
+function openDetailModal(id) {
+  var l = teaLogs.find(function(x){ return x.id === id; });
+  if (!l) return;
+  currentDetailId = id;
+  var catEmoji = (TEA_DATA[l.category] || {}).emoji || '🍵';
+  var r        = l.rating || 0;
+
+  document.getElementById('dmTitle').textContent = l.brand || l.type || '無題の記録';
+  document.getElementById('dmMeta').textContent  = [catEmoji+' '+(l.category||''), l.type, l.date].filter(Boolean).join(' · ');
+  document.getElementById('dmStars').textContent = '★'.repeat(r) + '☆'.repeat(5-r);
+
+  var basicRows = [];
+  if (l.category)  basicRows.push(['カテゴリ',      catEmoji+' '+l.category]);
+  if (l.type)      basicRows.push(['茶葉の種類',     l.type]);
+  if (l.brand)     basicRows.push(['銘柄・ブランド', l.brand]);
+  if (l.leafShape) basicRows.push(['茶葉の形状',     l.leafShape]);
+  renderDmRowsTo('dmBasicRows', basicRows);
+  document.getElementById('dmBasicSec').style.display = basicRows.length ? '' : 'none';
+
+  var brewRows = [];
+  if (l.amount)    brewRows.push(['茶葉の量',   l.amount+' g']);
+  if (l.water)     brewRows.push(['水の量',     l.water+' ml']);
+  if (l.temp)      brewRows.push(['お湯の温度', l.temp+' ℃']);
+  if (l.waterType) brewRows.push(['水の種類',   l.waterType]);
+  if (l.steep)     brewRows.push(['蒸らし時間', l.steep]);
+  if (l.colorName) brewRows.push(['水色',       l.colorName]);
+  renderDmRowsTo('dmBrewRows', brewRows);
+  document.getElementById('dmBrewSec').style.display = brewRows.length ? '' : 'none';
+
+  var memoSec = document.getElementById('dmMemoSec');
+  if (l.memo) {
+    document.getElementById('dmMemo').textContent = l.memo;
+    memoSec.style.display = '';
+  } else {
+    memoSec.style.display = 'none';
+  }
+
+  var effSec = document.getElementById('dmEffSec');
+  var effs   = l.effects || [];
+  if (effs.length) {
+    document.getElementById('dmEffTags').innerHTML = effs.map(function(ef){
+      return '<span class="dm-eff-tag">'+escHtml(ef)+'</span>';
+    }).join('');
+    effSec.style.display = '';
+  } else {
+    effSec.style.display = 'none';
+  }
+
+  var photoSec = document.getElementById('dmPhotoSec');
+  var photos   = l.photos || [];
+  if (photos.length) {
+    document.getElementById('dmPhotos').innerHTML = photos.map(function(p, i){
+      return '<img src="'+p+'" alt="写真'+(i+1)+'" data-index="'+i+'">';
+    }).join('');
+    document.querySelectorAll('#dmPhotos img').forEach(function(img){
+      img.addEventListener('click', function(){
+        openImageModal(photos, +img.dataset.index);
+      });
+    });
+    photoSec.style.display = '';
+  } else {
+    photoSec.style.display = 'none';
+  }
+
+  openOverlay('detailOverlay');
+}
+
+function renderDmRowsTo(containerId, rows) {
+  document.getElementById(containerId).innerHTML = rows.map(function(r){
+    return '<div class="dm-row">'
+         + '<span class="dm-row-lbl">'+escHtml(r[0])+'</span>'
+         + '<span class="dm-row-val">'+escHtml(r[1])+'</span>'
+         + '</div>';
+  }).join('');
+}
+
+function closeDetailModal() { closeOverlay('detailOverlay'); }
+document.getElementById('detailOverlay').addEventListener('click', function(e){
+  if (e.target === this) closeDetailModal();
+});
+
+/* ===== IMAGE MODAL ===== */
+function openImageModal(photos, index) {
+  currentImageList  = photos.slice();
+  currentImageIndex = Math.max(0, Math.min(index || 0, photos.length-1));
+  showCurrentImage();
+  document.getElementById('imageModal').classList.add('open');
+}
+function showCurrentImage() {
+  document.getElementById('imageModalImg').src = currentImageList[currentImageIndex];
+  var multi   = currentImageList.length > 1;
+  var counter = document.getElementById('imgCounter');
+  counter.style.display = multi ? '' : 'none';
+  if (multi) counter.textContent = (currentImageIndex+1) + ' / ' + currentImageList.length;
+  document.getElementById('imgPrevBtn').style.display = multi ? '' : 'none';
+  document.getElementById('imgNextBtn').style.display = multi ? '' : 'none';
+}
+function showPrevImage(e) {
+  if (e) e.stopPropagation();
+  if (!currentImageList.length) return;
+  currentImageIndex = (currentImageIndex - 1 + currentImageList.length) % currentImageList.length;
+  showCurrentImage();
+}
+function showNextImage(e) {
+  if (e) e.stopPropagation();
+  if (!currentImageList.length) return;
+  currentImageIndex = (currentImageIndex + 1) % currentImageList.length;
+  showCurrentImage();
+}
+function closeImageModal(e) {
+  if (e) e.stopPropagation();
+  document.getElementById('imageModal').classList.remove('open');
+  currentImageList = []; currentImageIndex = 0;
+}
+function handleImgOverlayClick(e) {
+  if (e.target === document.getElementById('imageModal')) closeImageModal();
+}
+
+/* ===== OVERLAY HELPERS ===== */
+function openOverlay(id)  { document.getElementById(id).classList.add('open');    document.body.style.overflow = 'hidden'; }
+function closeOverlay(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+
+/* ===== ESCAPE KEY ===== */
+document.addEventListener('keydown', function(e){
+  if (e.key !== 'Escape') return;
+  if (document.getElementById('imageModal').classList.contains('open'))    { closeImageModal();  return; }
+  if (document.getElementById('detailOverlay').classList.contains('open')) { closeDetailModal(); return; }
+});
+
+/* ===== UTIL ===== */
+function isColorDark(hex) {
+  if (!hex || hex.length < 7) return false;
+  var r = parseInt(hex.slice(1,3), 16);
+  var g = parseInt(hex.slice(3,5), 16);
+  var b = parseInt(hex.slice(5,7), 16);
+  return (r*299 + g*587 + b*114) / 1000 < 128;
+}
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2800);
+}
+
+/* ===== iOS Chrome 誘導バナー ===== */
+/*
+ * iPhoneのSafariでアクセスした場合にバナーを表示します。
+ * Chromeは iOS では "CriOS" という UserAgent を持ちます。
+ * バナーの「Chromeで開く」ボタンは googlechromes:// スキームで
+ * 同じURLをChromeアプリで開きます（Chromeがインストール済みの場合のみ機能）。
+ */
+(function() {
+  var ua       = navigator.userAgent;
+  var isIOS    = /iPhone|iPad|iPod/.test(ua);
+  var isChrome = /CriOS/.test(ua);   /* iOS上のChromeはCriOSを含む */
+  if (isIOS && !isChrome) {
+    var banner = document.getElementById('iOSChromeBanner');
+    if (banner) banner.style.display = '';
+    var btn = document.getElementById('openInChromeBtn');
+    if (btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        /* https:// → googlechromes://, http:// → googlechrome:// に変換 */
+        var url = window.location.href;
+        var chromeUrl = url.replace(/^https:\/\//, 'googlechromes://')
+                           .replace(/^http:\/\//, 'googlechrome://');
+        window.location.href = chromeUrl;
+      });
+    }
+  }
+})();
+
+/* ===== INIT ===== */
+loadLogs();
+loadTrashLogs();
+renderCatPills();
+updateLeafOptions();
+renderColorPicker();
+updateEffects();
+document.getElementById('f-date').value = todayStr();
+document.getElementById('f-type').addEventListener('change', function(){
+  updateCustomTypeVis();
+  updateEffects();
+});
+document.getElementById('f-type-custom').addEventListener('input', function(){
+  updateEffects();
+});
+document.getElementById('f-color-hex').addEventListener('input', function(){
+  updateColorHexPreview();
+});
+updateColorHexPreview();
+renderTrash();
+
+document.getElementById('exportJsonBtn').addEventListener('click', function() {
+  exportJsonBackup();
+});
+
+document.getElementById('importJsonBtn').addEventListener('click', function() {
+  document.getElementById('importJsonFile').click();
+});
+
+document.getElementById('importJsonFile').addEventListener('change', function(e) {
+  var file = e.target.files && e.target.files[0];
+  importJsonBackup(file);
+  this.value = '';
+});
+</script>
+</body>
+</html>
