@@ -165,21 +165,6 @@ textarea.fi{
   box-shadow:0 0 0 2px #fff,0 0 0 4px var(--br-dark);
 }
 .color-name-lbl{font-size:.8rem;color:var(--muted);margin-left:.2rem;}
-/* ===== COLOR CUSTOM ROW ===== */
-.color-custom-row{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:.8rem;
-  margin-top:.8rem;
-}
-@media(max-width:560px){.color-custom-row{grid-template-columns:1fr;}}
-.hex-input-row{display:flex;gap:.5rem;align-items:center;}
-.hex-input-row .fi{flex:1;min-width:0;}
-#colorHexPreview{
-  width:32px;height:32px;flex-shrink:0;
-  border-radius:50%;border:2px solid var(--border);
-  background:#eee;transition:background .2s;
-}
 /* ===== TIMER ===== */
 .timer-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;}
 .timer-row .fi{flex:1;min-width:80px;}
@@ -526,6 +511,36 @@ textarea.fi{
   .img-nav-btn{width:34px;height:34px;font-size:.9rem;}
   #imgPrevBtn{left:8px;}
   #imgNextBtn{right:8px;}
+}
+/* ===== TASTING MAP ===== */
+.tasting-map-wrap{
+  background:rgba(255,255,255,.7);
+  border:1.5px solid var(--border);
+  border-radius:12px;
+  padding:1rem;
+}
+.tasting-map-canvas{
+  display:block;
+  width:100%;
+  max-width:340px;
+  aspect-ratio:1 / 1;
+  margin:0 auto;
+  background:#fffdf9;
+  border-radius:10px;
+}
+.tasting-subgrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1rem 1.2rem;
+}
+@media(max-width:560px){
+  .tasting-subgrid{grid-template-columns:1fr;}
+}
+.score-help{
+  font-size:.74rem;
+  color:var(--muted);
+  margin-top:.2rem;
+  line-height:1.5;
 }
 </style>
 </head>
