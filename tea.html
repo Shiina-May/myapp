@@ -676,63 +676,86 @@ textarea.fi{
             </div>
           </div>
           <!-- 14. 香り -->
-          <div class="fg full">
-            <label class="fl">🌸 香り</label>
-            <div class="tasting-subgrid" style="margin-top:.4rem;">
-              <div class="fg">
-                <label class="fl-sub">香りの方向性</label>
-                <select class="fs" id="f-aroma-axis">
-                  <option value="-2">芳醇寄り</option>
-                  <option value="-1">やや芳醇寄り</option>
-                  <option value="0" selected>中間</option>
-                  <option value="1">ややフルーティー寄り</option>
-                  <option value="2">フルーティー寄り</option>
-                </select>
-              </div>
-              <div class="fg">
-                <label class="fl-sub">香りのメモ</label>
-                <input type="text" class="fi" id="f-aroma-note" placeholder="例: ベルガモット、花香、マスカット、蜜…">
-              </div>
-            </div>
-          </div>
-          <!-- 15. 味 -->
-          <div class="fg full">
-            <label class="fl">🫖 味</label>
-            <div class="section-wrap">
-              <div class="fg">
-                <label class="fl-sub">味わいの方向性</label>
-                <select class="fs" id="f-taste-axis">
-                  <option value="-2">コク寄り</option>
-                  <option value="-1">ややコク寄り</option>
-                  <option value="0" selected>中間</option>
-                  <option value="1">やや穏やか寄り</option>
-                  <option value="2">穏やか寄り</option>
-                </select>
-              </div>
-              <div class="tasting-subgrid">
-                <div class="fg">
-                  <label class="fl-sub">酸味</label>
-                  <select class="fs" id="f-acidity">
-                    <option value="1">1：かなり弱い</option>
-                    <option value="2">2：弱い</option>
-                    <option value="3" selected>3：中間</option>
-                    <option value="4">4：やや強い</option>
-                    <option value="5">5：強い</option>
-                  </select>
-                </div>
-                <div class="fg">
-                  <label class="fl-sub">渋み</label>
-                  <select class="fs" id="f-astringency">
-                    <option value="1">1：かなり弱い</option>
-                    <option value="2">2：弱い</option>
-                    <option value="3" selected>3：中間</option>
-                    <option value="4">4：やや強い</option>
-                    <option value="5">5：強い</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
+<div class="fg full">
+  <label class="fl">🌸 香り</label>
+  <div class="tasting-subgrid" style="margin-top:.4rem;">
+    <div class="fg">
+      <label class="fl-sub">香りの方向性</label>
+      <select class="fs" id="f-aroma-type">
+        <option value="1">フローラル系（花の香り）</option>
+        <option value="2">フルーティー系（果実の香り）</option>
+        <option value="3">ハーバル・植物系（草や木の香り）</option>
+        <option value="4">スパイス・香ばしい系</option>
+        <option value="5">スイート</option>
+        <option value="6">その他</option>
+      </select>
+    </div>
+    <div class="fg" id="aromaOtherWrap" style="display:none;">
+      <label class="fl-sub">その他の香り</label>
+      <input type="text" class="fi" id="f-aroma-other" placeholder="例: 煙、ナッツ、薬草っぽい香り…">
+    </div>
+    <div class="fg full">
+      <label class="fl-sub">香りのメモ</label>
+      <input type="text" class="fi" id="f-aroma-note" placeholder="例: ベルガモット、花香、マスカット、蜜…">
+    </div>
+  </div>
+</div>
+<!-- 15. 味 -->
+<div class="fg full">
+  <label class="fl">🫖 味</label>
+  <div class="tasting-subgrid" style="margin-top:.4rem;">
+    <div class="fg">
+      <label class="fl-sub">甘み</label>
+      <select class="fs taste-score" id="f-sweetness">
+        <option value="1">1：かなり弱い</option>
+        <option value="2">2：弱い</option>
+        <option value="3" selected>3：中間</option>
+        <option value="4">4：やや強い</option>
+        <option value="5">5：強い</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fl-sub">渋み</label>
+      <select class="fs taste-score" id="f-astringency">
+        <option value="1">1：かなり弱い</option>
+        <option value="2">2：弱い</option>
+        <option value="3" selected>3：中間</option>
+        <option value="4">4：やや強い</option>
+        <option value="5">5：強い</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fl-sub">コク</label>
+      <select class="fs taste-score" id="f-body">
+        <option value="1">1：かなり弱い</option>
+        <option value="2">2：弱い</option>
+        <option value="3" selected>3：中間</option>
+        <option value="4">4：やや強い</option>
+        <option value="5">5：強い</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fl-sub">酸味</label>
+      <select class="fs taste-score" id="f-acidity">
+        <option value="1">1：かなり弱い</option>
+        <option value="2">2：弱い</option>
+        <option value="3" selected>3：中間</option>
+        <option value="4">4：やや強い</option>
+        <option value="5">5：強い</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fl-sub">余韻（飲んだ後のキレ）</label>
+      <select class="fs taste-score" id="f-aftertaste">
+        <option value="1">1：短い・キレが早い</option>
+        <option value="2">2：やや短い</option>
+        <option value="3" selected>3：中間</option>
+        <option value="4">4：やや長い</option>
+        <option value="5">5：長い</option>
+      </select>
+    </div>
+  </div>
+</div>
           <!-- 16. テースティングマップ -->
           <div class="fg full">
             <label class="fl">🗺️ テースティングマップ</label>
@@ -930,20 +953,15 @@ var TEA_COLORS = [
   { hex:'#a8c96e', name:'グリーン（緑茶）' }
 ];
 /* ===== テースティングマップ用ラベル ===== */
-var AROMA_AXIS_LABELS = {
-  '-2': '芳醇寄り',
-  '-1': 'やや芳醇寄り',
-   '0': '中間',
-   '1': 'ややフルーティー寄り',
-   '2': 'フルーティー寄り'
+var AROMA_TYPE_LABELS = {
+  '1': 'フローラル系（花の香り）',
+  '2': 'フルーティー系（果実の香り）',
+  '3': 'ハーバル・植物系（草や木の香り）',
+  '4': 'スパイス・香ばしい系',
+  '5': 'スイート',
+  '6': 'その他'
 };
-var TASTE_AXIS_LABELS = {
-  '-2': 'コク寄り',
-  '-1': 'ややコク寄り',
-   '0': '中間',
-   '1': 'やや穏やか寄り',
-   '2': '穏やか寄り'
-};
+
 var SCALE_LABELS = {
   '1': 'かなり弱い',
   '2': '弱い',
@@ -1341,128 +1359,107 @@ function renderPhotoPreviews() {
   });
 }
 /* ===== TASTING MAP CANVAS ===== */
-function drawTastingMap(canvas, aromaAxis, tasteAxis) {
+function drawTastingMap(canvas, aromaType, acidity, astringency) {
   if (!canvas) return;
-  var W   = canvas.width;
-  var H   = canvas.height;
+
+  var W = canvas.width;
+  var H = canvas.height;
   var ctx = canvas.getContext('2d');
-  var pl = 50, pr = 14, pt = 28, pb = 28;
-  var cw  = W - pl - pr;
-  var ch  = H - pt - pb;
-  var cx  = pl + cw / 2;
-  var cy  = pt + ch / 2;
 
   ctx.clearRect(0, 0, W, H);
 
-  /* 背景 */
+  var cx = W / 2;
+  var cy = H / 2;
+  var radius = 105;
+
   ctx.fillStyle = '#fffdf9';
   ctx.fillRect(0, 0, W, H);
 
-  /* 4象限の淡色背景 */
-  ctx.fillStyle = 'rgba(255,220,170,0.13)'; ctx.fillRect(cx, pt, cw/2, ch/2);   /* FR + mild */
-  ctx.fillStyle = 'rgba(180,220,180,0.13)'; ctx.fillRect(pl, pt, cw/2, ch/2);   /* rich + mild */
-  ctx.fillStyle = 'rgba(150,100,60,0.07)';  ctx.fillRect(pl, cy, cw/2, ch/2);   /* rich + bold */
-  ctx.fillStyle = 'rgba(255,180,80,0.09)';  ctx.fillRect(cx, cy, cw/2, ch/2);   /* FR + bold */
-
-  /* 中心破線 */
-  ctx.strokeStyle = 'rgba(180,140,100,0.3)';
-  ctx.lineWidth   = 1;
-  ctx.setLineDash([5, 5]);
-  ctx.beginPath(); ctx.moveTo(cx, pt); ctx.lineTo(cx, pt+ch); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(pl, cy); ctx.lineTo(pl+cw, cy); ctx.stroke();
-  ctx.setLineDash([]);
-
-  /* 主軸 */
-  ctx.strokeStyle = '#8b6040';
-  ctx.lineWidth   = 1.8;
-  ctx.beginPath(); ctx.moveTo(pl, cy); ctx.lineTo(pl+cw, cy); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(cx, pt); ctx.lineTo(cx, pt+ch); ctx.stroke();
-
-  /* 矢印 */
-  var as = 5;
-  ctx.fillStyle = '#8b6040';
-  /* → right */
-  ctx.beginPath(); ctx.moveTo(pl+cw, cy); ctx.lineTo(pl+cw-as*2, cy-as); ctx.lineTo(pl+cw-as*2, cy+as); ctx.closePath(); ctx.fill();
-  /* ← left */
-  ctx.beginPath(); ctx.moveTo(pl, cy); ctx.lineTo(pl+as*2, cy-as); ctx.lineTo(pl+as*2, cy+as); ctx.closePath(); ctx.fill();
-  /* ↑ up */
-  ctx.beginPath(); ctx.moveTo(cx, pt); ctx.lineTo(cx-as, pt+as*2); ctx.lineTo(cx+as, pt+as*2); ctx.closePath(); ctx.fill();
-  /* ↓ down */
-  ctx.beginPath(); ctx.moveTo(cx, pt+ch); ctx.lineTo(cx-as, pt+ch-as*2); ctx.lineTo(cx+as, pt+ch-as*2); ctx.closePath(); ctx.fill();
-
-  /* 目盛り */
-  ctx.strokeStyle = 'rgba(139,96,64,0.35)';
+  ctx.strokeStyle = 'rgba(123,74,45,.25)';
   ctx.lineWidth = 1;
-  [-2,-1,1,2].forEach(function(v){
-    var tx = cx + (v/2) * (cw/2);
-    var ty = cy - (v/2) * (ch/2);
-    ctx.beginPath(); ctx.moveTo(tx, cy-4); ctx.lineTo(tx, cy+4); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx-4, ty); ctx.lineTo(cx+4, ty); ctx.stroke();
+
+  for (var i = 1; i <= 5; i++) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius * i / 5, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  var axes = [
+    { key:'aroma', label:'香り', angle:-90, value: aromaType },
+    { key:'acidity', label:'酸味', angle:30, value: acidity },
+    { key:'astringency', label:'渋み', angle:150, value: astringency }
+  ];
+
+  ctx.font = 'bold 13px sans-serif';
+  ctx.fillStyle = '#7b4a2d';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  axes.forEach(function(axis) {
+    var rad = axis.angle * Math.PI / 180;
+    var x = cx + Math.cos(rad) * radius;
+    var y = cy + Math.sin(rad) * radius;
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+
+    var lx = cx + Math.cos(rad) * (radius + 24);
+    var ly = cy + Math.sin(rad) * (radius + 24);
+    ctx.fillText(axis.label, lx, ly);
   });
 
-  /* ラベル */
-  var fs = Math.max(10, Math.round(W * 0.038));
-  ctx.font      = 'bold ' + fs + 'px sans-serif';
-  ctx.fillStyle = '#7b4a2d';
+  var points = axes.map(function(axis) {
+    var value = Math.max(1, Math.min(5, axis.value || 3));
+    var rad = axis.angle * Math.PI / 180;
+    var r = radius * value / 5;
+    return {
+      x: cx + Math.cos(rad) * r,
+      y: cy + Math.sin(rad) * r
+    };
+  });
 
-  ctx.textAlign    = 'left';
-  ctx.textBaseline = 'bottom';
-  ctx.fillText('芳醇', pl + 6, cy - 5);
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  ctx.lineTo(points[1].x, points[1].y);
+  ctx.lineTo(points[2].x, points[2].y);
+  ctx.closePath();
 
-  ctx.textAlign    = 'right';
-  ctx.textBaseline = 'bottom';
-  ctx.fillText('フルーティー', pl + cw - 6, cy - 5);
-
-  ctx.textAlign    = 'center';
-  ctx.textBaseline = 'top';
-  ctx.fillText('穏やか', cx, pt + 4);
-
-  ctx.textAlign    = 'center';
-  ctx.textBaseline = 'bottom';
-  ctx.fillText('コク', cx, pt + ch - 4);
-
-  /* プロット点の座標 */
-  var aVal = (typeof aromaAxis === 'number') ? aromaAxis : 0;
-  var tVal = (typeof tasteAxis === 'number') ? tasteAxis : 0;
-  var px = cx + (aVal / 2) * (cw / 2);
-  var py = cy - (tVal / 2) * (ch / 2);
-
-  /* 位置への誘導線（薄い） */
-  ctx.strokeStyle = 'rgba(200,149,92,0.35)';
-  ctx.lineWidth   = 1;
-  ctx.setLineDash([3, 4]);
-  ctx.beginPath(); ctx.moveTo(px, pt); ctx.lineTo(px, pt+ch); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(pl, py); ctx.lineTo(pl+cw, py); ctx.stroke();
-  ctx.setLineDash([]);
-
-  /* グロー */
-  var grd = ctx.createRadialGradient(px, py, 0, px, py, 16);
-  grd.addColorStop(0, 'rgba(200,149,92,0.45)');
-  grd.addColorStop(1, 'rgba(200,149,92,0)');
-  ctx.fillStyle = grd;
-  ctx.beginPath(); ctx.arc(px, py, 16, 0, Math.PI * 2); ctx.fill();
-
-  /* 外円 */
-  ctx.beginPath(); ctx.arc(px, py, 9, 0, Math.PI * 2);
-  ctx.fillStyle   = '#c8955c';
+  ctx.fillStyle = 'rgba(200,149,92,.28)';
   ctx.fill();
-  ctx.strokeStyle = '#7b4a2d';
-  ctx.lineWidth   = 2;
+
+  ctx.strokeStyle = '#c8955c';
+  ctx.lineWidth = 2;
   ctx.stroke();
 
-  /* 中心点 */
-  ctx.beginPath(); ctx.arc(px, py, 3, 0, Math.PI * 2);
-  ctx.fillStyle = '#4a2c1a';
-  ctx.fill();
+  points.forEach(function(p) {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = '#c8955c';
+    ctx.fill();
+    ctx.strokeStyle = '#7b4a2d';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  });
+
+  ctx.font = '11px sans-serif';
+  ctx.fillStyle = '#9b7a62';
+  ctx.textAlign = 'center';
+
+  for (var n = 1; n <= 5; n++) {
+    ctx.fillText(String(n), cx + 6, cy - radius * n / 5);
+  }
 }
 function updateTastingMapPreview() {
   var canvas = document.getElementById('formTastingMapCanvas');
   if (!canvas) return;
-  var aromaAxis = parseInt(document.getElementById('f-aroma-axis').value, 10);
-  var tasteAxis = parseInt(document.getElementById('f-taste-axis').value, 10);
-  if (isNaN(aromaAxis)) aromaAxis = 0;
-  if (isNaN(tasteAxis)) tasteAxis = 0;
-  drawTastingMap(canvas, aromaAxis, tasteAxis);
+
+  var aromaType = parseInt(document.getElementById('f-aroma-type').value, 10) || 1;
+  var acidity = parseInt(document.getElementById('f-acidity').value, 10) || 3;
+  var astringency = parseInt(document.getElementById('f-astringency').value, 10) || 3;
+
+  drawTastingMap(canvas, aromaType, acidity, astringency);
 }
 /* ===== SAVE ===== */
 function saveTea(e) {
@@ -1489,11 +1486,14 @@ function saveTea(e) {
     color:       finalColor,
     colorName:   finalColorName,
     rating:      rating,
-    aromaAxis:   parseInt(document.getElementById('f-aroma-axis').value, 10) || 0,
-    aromaNote:   document.getElementById('f-aroma-note').value.trim(),
-    tasteAxis:   parseInt(document.getElementById('f-taste-axis').value, 10) || 0,
-    acidity:     parseInt(document.getElementById('f-acidity').value, 10) || 3,
-    astringency: parseInt(document.getElementById('f-astringency').value, 10) || 3,
+aromaType:   parseInt(document.getElementById('f-aroma-type').value, 10) || 1,
+aromaOther:  document.getElementById('f-aroma-other').value.trim(),
+aromaNote:   document.getElementById('f-aroma-note').value.trim(),
+sweetness:   parseInt(document.getElementById('f-sweetness').value, 10) || 3,
+astringency: parseInt(document.getElementById('f-astringency').value, 10) || 3,
+body:        parseInt(document.getElementById('f-body').value, 10) || 3,
+acidity:     parseInt(document.getElementById('f-acidity').value, 10) || 3,
+aftertaste:  parseInt(document.getElementById('f-aftertaste').value, 10) || 3,
     memo:        document.getElementById('f-memo').value.trim(),
     effects:     effects,
     photos:      formPhotos.slice()
@@ -1562,12 +1562,17 @@ function openEdit(id) {
   var cnEl = document.getElementById('f-color-name');
   if (cnEl) cnEl.value = l.colorName || '';
 
-  /* 香り・味 */
-  document.getElementById('f-aroma-axis').value   = String(l.aromaAxis   !== undefined ? l.aromaAxis   : 0);
-  document.getElementById('f-aroma-note').value   = l.aromaNote || '';
-  document.getElementById('f-taste-axis').value   = String(l.tasteAxis   !== undefined ? l.tasteAxis   : 0);
-  document.getElementById('f-acidity').value      = String(l.acidity     !== undefined ? l.acidity     : 3);
-  document.getElementById('f-astringency').value  = String(l.astringency !== undefined ? l.astringency : 3);
+/* 香り */
+document.getElementById('f-aroma-type').value = String(l.aromaType || 1);
+document.getElementById('f-aroma-other').value = l.aromaOther || '';
+document.getElementById('f-aroma-note').value = l.aromaNote || '';
+
+/* 味 */
+document.getElementById('f-sweetness').value   = String(l.sweetness || 3);
+document.getElementById('f-astringency').value = String(l.astringency || 3);
+document.getElementById('f-body').value        = String(l.body || 3);
+document.getElementById('f-acidity').value     = String(l.acidity || 3);
+document.getElementById('f-aftertaste').value  = String(l.aftertaste || 3);
 
   /* 写真 */
   formPhotos = (l.photos || []).slice();
@@ -1620,11 +1625,17 @@ function resetForm() {
   if (fcn) fcn.value = '';
 
   /* 香り・味 デフォルト値 */
-  document.getElementById('f-aroma-axis').value  = '0';
-  document.getElementById('f-aroma-note').value  = '';
-  document.getElementById('f-taste-axis').value  = '0';
-  document.getElementById('f-acidity').value     = '3';
-  document.getElementById('f-astringency').value = '3';
+document.getElementById('f-aroma-type').value = '1';
+document.getElementById('f-aroma-other').value = '';
+document.getElementById('f-aroma-note').value = '';
+
+document.getElementById('f-sweetness').value = '3';
+document.getElementById('f-astringency').value = '3';
+document.getElementById('f-body').value = '3';
+document.getElementById('f-acidity').value = '3';
+document.getElementById('f-aftertaste').value = '3';
+
+document.getElementById('aromaOtherWrap').style.display = 'none';
 
   updateEffects();
   updateTastingMapPreview();
@@ -1878,17 +1889,16 @@ function openDetailModal(id) {
     var acidityVal     = l.acidity     !== undefined ? +l.acidity     : 3;
     var astringencyVal = l.astringency !== undefined ? +l.astringency : 3;
     var sensoryRows = [];
-    sensoryRows.push(['香りの方向性',   AROMA_AXIS_LABELS[String(aromaAxisVal)] || '—']);
+    sensoryRows.push(['香りの方向性',   AROMA_TYPE_LABELS[String(l.aromaType || 1)] || '—']);
     if (l.aromaNote)   sensoryRows.push(['香りのメモ',     l.aromaNote]);
-    sensoryRows.push(['味わいの方向性', TASTE_AXIS_LABELS[String(tasteAxisVal)] || '—']);
     sensoryRows.push(['酸味',          (SCALE_LABELS[String(acidityVal)]     || '—') + '　(' + acidityVal + ')']);
     sensoryRows.push(['渋み',          (SCALE_LABELS[String(astringencyVal)] || '—') + '　(' + astringencyVal + ')']);
     renderDmRowsTo('dmSensoryRows', sensoryRows);
     /* テースティングマップ描画（openOverlay後に描画されるよう setTimeout で待つ） */
     var dmCanvas = document.getElementById('dmTastingMapCanvas');
-    setTimeout(function(){
-      drawTastingMap(dmCanvas, aromaAxisVal, tasteAxisVal);
-    }, 30);
+setTimeout(function(){
+  drawTastingMap(dmCanvas, l.aromaType || 1, acidityVal, astringencyVal);
+}, 30);
     sensorySec.style.display = '';
   } else {
     sensorySec.style.display = 'none';
@@ -2021,10 +2031,10 @@ document.getElementById('f-type').addEventListener('change', function(){
 document.getElementById('f-type-custom').addEventListener('input', function(){
   updateEffects();
 });
-/* 香り・味 変更時にマップ更新 */
-document.getElementById('f-aroma-axis').addEventListener('change', updateTastingMapPreview);
-document.getElementById('f-taste-axis').addEventListener('change', updateTastingMapPreview);
-
+document.getElementById('f-aroma-type').addEventListener('change', updateTastingMapPreview);
+document.getElementById('f-acidity').addEventListener('change', updateTastingMapPreview);
+document.getElementById('f-astringency').addEventListener('change', updateTastingMapPreview);
+  
 /* バックアップボタン */
 document.getElementById('exportJsonBtn').addEventListener('click', function(){ exportJsonBackup(); });
 document.getElementById('importJsonBtn').addEventListener('click', function(){ document.getElementById('importJsonFile').click(); });
