@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex, nofollow, noarchive">
 <title>🍵 Tea Diary</title>
 <style>
 :root {
@@ -27,7 +26,7 @@ body{
   background-image:
     radial-gradient(ellipse 700px 400px at 5% 10%, rgba(200,149,92,.18) 0%, transparent 65%),
     radial-gradient(ellipse 600px 400px at 95% 80%, rgba(123,74,45,.12) 0%, transparent 65%);
-  background-attachment:scroll;
+  background-attachment:scroll; /* fixed はiOS Safariで正しく動作しないため scroll に変更 */
   color:var(--text);
   min-height:100vh;
 }
@@ -165,6 +164,21 @@ textarea.fi{
   box-shadow:0 0 0 2px #fff,0 0 0 4px var(--br-dark);
 }
 .color-name-lbl{font-size:.8rem;color:var(--muted);margin-left:.2rem;}
+/* ===== COLOR CUSTOM ROW ===== */
+.color-custom-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:.8rem;
+  margin-top:.8rem;
+}
+@media(max-width:560px){.color-custom-row{grid-template-columns:1fr;}}
+.hex-input-row{display:flex;gap:.5rem;align-items:center;}
+.hex-input-row .fi{flex:1;min-width:0;}
+#colorHexPreview{
+  width:32px;height:32px;flex-shrink:0;
+  border-radius:50%;border:2px solid var(--border);
+  background:#eee;transition:background .2s;
+}
 /* ===== TIMER ===== */
 .timer-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;}
 .timer-row .fi{flex:1;min-width:80px;}
@@ -355,7 +369,7 @@ textarea.fi{
   font-size:.9rem;
 }
 .dm-row:last-child{border-bottom:none;}
-.dm-row-lbl{color:var(--muted);font-size:.78rem;min-width:110px;flex-shrink:0;}
+.dm-row-lbl{color:var(--muted);font-size:.78rem;min-width:100px;flex-shrink:0;}
 .dm-row-val{color:var(--text);word-break:break-word;}
 .dm-memo-box{
   background:rgba(200,149,92,.06);
@@ -472,6 +486,7 @@ textarea.fi{
   font-size:.75rem;cursor:pointer;
   font-family:inherit;color:var(--muted);
   transition:all .15s;white-space:nowrap;
+  /* ボタン内のクリックを確実に受け取る */
   pointer-events:auto;
 }
 .edit-log-btn:hover{background:var(--cream-dk);border-color:var(--br-lt);color:var(--br-mid);}
@@ -511,37 +526,6 @@ textarea.fi{
   #imgPrevBtn{left:8px;}
   #imgNextBtn{right:8px;}
 }
-/* ===== TASTING MAP ===== */
-.tasting-map-wrap{
-  background:rgba(255,255,255,.7);
-  border:1.5px solid var(--border);
-  border-radius:12px;
-  padding:1rem;
-}
-.tasting-map-canvas{
-  display:block;
-  width:100%;
-  max-width:340px;
-  aspect-ratio:1 / 1;
-  margin:0 auto;
-  background:#fffdf9;
-  border-radius:10px;
-}
-.tasting-subgrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:1rem 1.2rem;
-}
-@media(max-width:560px){
-  .tasting-subgrid{grid-template-columns:1fr;}
-}
-/* ===== SECTION WRAP (香り・味) ===== */
-.section-wrap{
-  display:flex;
-  flex-direction:column;
-  gap:.7rem;
-  margin-top:.4rem;
-}
 </style>
 </head>
 <body>
@@ -549,7 +533,7 @@ textarea.fi{
   <h1>🍵 Tea Diary</h1>
   <p>丁寧に淹れる、丁寧に記す</p>
 </header>
-<!-- ===== iOS Chrome 誘導バナー ===== -->
+<!-- ===== iOS Chrome 誘導バナー（SafariでiPhoneアクセス時のみ表示） ===== -->
 <div id="iOSChromeBanner" style="display:none;background:#1a73e8;color:#fff;text-align:center;padding:.7rem 1rem;font-size:.84rem;line-height:1.5;">
   📱 iPhoneで写真を安定して保存するには<strong>Chrome</strong>での利用を推奨しています。
   <a id="openInChromeBtn" href="#" style="display:inline-block;margin-left:.6rem;color:#fff;font-weight:bold;text-decoration:underline;white-space:nowrap;">Chromeで開く →</a>
@@ -559,11 +543,6 @@ textarea.fi{
   <button type="button" onclick="switchTab('history')">📖 ログ</button>
   <button type="button" onclick="switchTab('stats')">📊 統計</button>
 </nav>
-<div style="max-width:880px;margin:1rem auto 0;padding:0 1rem;display:flex;gap:.6rem;flex-wrap:wrap;">
-  <button type="button" id="exportJsonBtn" class="timer-btn">⬇ バックアップを書き出す</button>
-  <button type="button" id="importJsonBtn" class="timer-btn">⬆ バックアップを読み込む</button>
-  <input type="file" id="importJsonFile" accept=".json,application/json" style="display:none;">
-</div>
 <main>
   <!-- ===== RECORD TAB ===== -->
   <div id="tab-record" class="tab-content active">
@@ -576,7 +555,6 @@ textarea.fi{
       </div>
       <form id="teaForm" onsubmit="saveTea(event)" autocomplete="off">
         <div class="form-grid">
-          <!-- 1. 日付 / 2. カテゴリ -->
           <div class="fg">
             <label class="fl">📅 日付</label>
             <input type="date" class="fi" id="f-date" required>
@@ -585,7 +563,6 @@ textarea.fi{
             <label class="fl">☕ カテゴリ</label>
             <div class="cat-pills" id="catPills"></div>
           </div>
-          <!-- 3. 茶葉の種類 -->
           <div class="fg full">
             <label class="fl">🌿 茶葉の種類</label>
             <select class="fs" id="f-type">
@@ -595,42 +572,14 @@ textarea.fi{
               <input type="text" class="fi" id="f-type-custom" placeholder="自由に入力してください（例: ほうじ茶ラテ、白桃烏龍…）">
             </div>
           </div>
-          <!-- 4. 銘柄・ブランド -->
           <div class="fg full">
             <label class="fl">🏷️ 銘柄・ブランド</label>
             <input type="text" class="fi" id="f-brand" placeholder="例: マリアージュ フレール、フォートナム&amp;メイソン…">
-          </div>
-          <!-- 5. 茶葉の形状 / 6. 茶葉の量 -->
-          <div class="fg">
-            <label class="fl">🍃 茶葉の形状</label>
-            <select class="fs" id="f-leafShape">
-              <option value="">選択してください</option>
-              <option>FOP：芯芽多い・高級</option>
-              <option>OP：細長い若葉</option>
-              <option>P：短く太い葉</option>
-              <option>PS：さらに硬く短い</option>
-              <option>S：大きく硬い葉</option>
-              <option>BPS：やや大きめカット</option>
-              <option>BP：中サイズカット</option>
-              <option>BOP：細かめ＋芯芽あり</option>
-              <option>BOPF：細かい（ティーバッグ向き）</option>
-              <option>F：かなり細かい</option>
-              <option>D：粉末</option>
-              <option>CTC：粒状（機械加工）</option>
-            </select>
           </div>
           <div class="fg">
             <label class="fl">⚖️ 茶葉の量 <span class="unit">g</span></label>
             <input type="number" class="fi" id="f-amount" min="0" step="0.1" placeholder="例: 3">
           </div>
-          <!-- 7. 期待できる効能 -->
-          <div class="fg full">
-            <label class="fl">💚 期待できる効能</label>
-            <div class="effects-box" id="effectsBox">
-              <span class="effects-none">茶葉の種類を選択すると表示されます</span>
-            </div>
-          </div>
-          <!-- 8. 水の量 / 9. お湯の温度 -->
           <div class="fg">
             <label class="fl">💧 水の量 <span class="unit">ml</span></label>
             <input type="number" class="fi" id="f-water" min="0" step="10" placeholder="例: 200">
@@ -639,7 +588,6 @@ textarea.fi{
             <label class="fl">🌡️ お湯の温度 <span class="unit">℃</span></label>
             <input type="number" class="fi" id="f-temp" min="40" max="100" placeholder="例: 95">
           </div>
-          <!-- 10. 水の種類 / 11. 評価 -->
           <div class="fg">
             <label class="fl">🚰 水の種類</label>
             <select class="fs" id="f-waterType">
@@ -649,6 +597,45 @@ textarea.fi{
               <option>硬水</option>
               <option>浄水器の水</option>
               <option>水道水</option>
+            </select>
+          </div>
+          <div class="fg full">
+            <label class="fl">⏱️ 蒸らし時間 <span class="unit">分:秒</span></label>
+            <div class="timer-row">
+              <input type="text" class="fi" id="f-steep" placeholder="例: 3:00">
+              <button type="button" class="timer-btn" id="timerStartBtn" onclick="toggleTimer()">▶ 開始</button>
+              <span id="timerDisplay">0:00</span>
+              <button type="button" class="timer-btn reset" onclick="resetTimer()">■ リセット</button>
+            </div>
+          </div>
+          <div class="fg full">
+            <label class="fl">🎨 水色（茶の色）</label>
+            <div class="color-row" id="colorPicker"></div>
+            <div class="color-custom-row">
+              <div class="fg">
+                <label class="fl-sub" for="f-color-name">色名（自由記述）</label>
+                <input type="text" class="fi" id="f-color-name" placeholder="例: 澄んだ琥珀色">
+              </div>
+              <div class="fg">
+                <label class="fl-sub" for="f-color-hex">カラーコード</label>
+                <div class="hex-input-row">
+                  <input type="text" class="fi" id="f-color-hex" placeholder="#c8955c" maxlength="7">
+                  <div id="colorHexPreview"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="fg">
+            <label class="fl">🍃 茶葉の形状</label>
+            <select class="fs" id="f-leafShape">
+              <option value="">選択してください</option>
+              <option>ホールリーフ（大きな葉）</option>
+              <option>ブロークン（中くらい）</option>
+              <option>ファニングス（細かい）</option>
+              <option>ダスト（粉末）</option>
+              <option>CTC</option>
+              <option>ティーバッグ</option>
+              <option>粉末・抹茶タイプ</option>
             </select>
           </div>
           <div class="fg">
@@ -661,120 +648,16 @@ textarea.fi{
               <input type="radio" name="rating" id="r1" value="1"><label for="r1">★</label>
             </div>
           </div>
-          <!-- 12. 蒸らし時間 -->
           <div class="fg full">
-            <label class="fl">⏱️ 蒸らし時間 <span class="unit">分:秒</span></label>
-            <div class="timer-row">
-              <input type="text" class="fi" id="f-steep" placeholder="例: 3:00">
-              <button type="button" class="timer-btn" id="timerStartBtn" onclick="toggleTimer()">▶ 開始</button>
-              <span id="timerDisplay">0:00</span>
-              <button type="button" class="timer-btn reset" onclick="resetTimer()">■ リセット</button>
+            <label class="fl">💚 期待できる効能</label>
+            <div class="effects-box" id="effectsBox">
+              <span class="effects-none">茶葉の種類を選択すると表示されます</span>
             </div>
           </div>
-          <!-- 13. 水色（カラーコードなし） -->
-          <div class="fg full">
-            <label class="fl">🎨 水色（茶の色）</label>
-            <div class="color-row" id="colorPicker"></div>
-            <div style="margin-top:.5rem;">
-              <label class="fl-sub" for="f-color-name">色名（自由記述）</label>
-              <input type="text" class="fi" id="f-color-name" placeholder="例: 澄んだ琥珀色">
-            </div>
-          </div>
-          <!-- 14. 香り -->
-<div class="fg full">
-  <label class="fl">🌸 香り</label>
-  <div class="tasting-subgrid" style="margin-top:.4rem;">
-    <div class="fg">
-      <label class="fl-sub">香りの方向性</label>
-      <select class="fs" id="f-aroma-type">
-        <option value="1">フローラル系（花の香り）</option>
-        <option value="2">フルーティー系（果実の香り）</option>
-        <option value="3">ハーバル・植物系（草や木の香り）</option>
-        <option value="4">スパイス・香ばしい系</option>
-        <option value="5">スイート</option>
-        <option value="6">その他</option>
-      </select>
-    </div>
-    <div class="fg" id="aromaOtherWrap" style="display:none;">
-      <label class="fl-sub">その他の香り</label>
-      <input type="text" class="fi" id="f-aroma-other" placeholder="例: 煙、ナッツ、薬草っぽい香り…">
-    </div>
-    <div class="fg full">
-      <label class="fl-sub">香りのメモ</label>
-     <input type="text" class="fi" id="f-aroma-note" list="aromaNoteList" placeholder="例: Rose、Jasmine、Orchid、Geranium…">
-<datalist id="aromaNoteList"></datalist>
-    </div>
-  </div>
-</div>
-<!-- 15. 味 -->
-<div class="fg full">
-  <label class="fl">🫖 味</label>
-  <div class="tasting-subgrid" style="margin-top:.4rem;">
-    <div class="fg">
-      <label class="fl-sub">甘み</label>
-      <select class="fs taste-score" id="f-sweetness">
-        <option value="1">1：かなり弱い</option>
-        <option value="2">2：弱い</option>
-        <option value="3" selected>3：中間</option>
-        <option value="4">4：やや強い</option>
-        <option value="5">5：強い</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label class="fl-sub">渋み</label>
-      <select class="fs taste-score" id="f-astringency">
-        <option value="1">1：かなり弱い</option>
-        <option value="2">2：弱い</option>
-        <option value="3" selected>3：中間</option>
-        <option value="4">4：やや強い</option>
-        <option value="5">5：強い</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label class="fl-sub">コク</label>
-      <select class="fs taste-score" id="f-body">
-        <option value="1">1：かなり弱い</option>
-        <option value="2">2：弱い</option>
-        <option value="3" selected>3：中間</option>
-        <option value="4">4：やや強い</option>
-        <option value="5">5：強い</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label class="fl-sub">酸味</label>
-      <select class="fs taste-score" id="f-acidity">
-        <option value="1">1：かなり弱い</option>
-        <option value="2">2：弱い</option>
-        <option value="3" selected>3：中間</option>
-        <option value="4">4：やや強い</option>
-        <option value="5">5：強い</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label class="fl-sub">余韻（飲んだ後のキレ）</label>
-      <select class="fs taste-score" id="f-aftertaste">
-        <option value="1">1：短い・キレが早い</option>
-        <option value="2">2：やや短い</option>
-        <option value="3" selected>3：中間</option>
-        <option value="4">4：やや長い</option>
-        <option value="5">5：長い</option>
-      </select>
-    </div>
-  </div>
-</div>
-          <!-- 16. テースティングマップ -->
-          <div class="fg full">
-            <label class="fl">🗺️ テースティングマップ</label>
-            <div class="tasting-map-wrap">
-              <canvas id="formTastingMapCanvas" class="tasting-map-canvas" width="300" height="300"></canvas>
-            </div>
-          </div>
-          <!-- 17. テイスティングメモ -->
           <div class="fg full">
             <label class="fl">📝 テイスティングメモ</label>
             <textarea class="fi" id="f-memo" placeholder="香り、渋み、甘さ、余韻、色合いなど自由に…"></textarea>
           </div>
-          <!-- 18. 写真 -->
           <div class="fg full">
             <label class="fl">📷 写真</label>
             <div class="photo-zone" id="photoZone">
@@ -848,14 +731,6 @@ textarea.fi{
       <div class="dm-section-t">💚 期待できる効能</div>
       <div class="dm-eff-tags" id="dmEffTags"></div>
     </div>
-    <!-- 香り・味セクション -->
-    <div class="dm-section" id="dmSensorySec">
-      <div class="dm-section-t">🌸 香り・味</div>
-      <div id="dmSensoryRows"></div>
-      <div style="margin-top:.9rem;">
-        <canvas id="dmTastingMapCanvas" class="tasting-map-canvas" width="300" height="300"></canvas>
-      </div>
-    </div>
     <div class="dm-section" id="dmPhotoSec">
       <div class="dm-section-t">📷 写真</div>
       <div class="dm-photos" id="dmPhotos"></div>
@@ -878,11 +753,13 @@ textarea.fi{
 <script>
 'use strict';
 /* ===== SAFARI POLYFILLS ===== */
+/* Element.matches (Safari < 9) */
 if (!Element.prototype.matches) {
   Element.prototype.matches =
     Element.prototype.msMatchesSelector ||
     Element.prototype.webkitMatchesSelector;
 }
+/* Element.closest (Safari < 9) */
 if (!Element.prototype.closest) {
   Element.prototype.closest = function(s) {
     var el = this;
@@ -958,23 +835,6 @@ var TEA_COLORS = [
   { hex:'#c9a96e', name:'ミルクティー' },
   { hex:'#a8c96e', name:'グリーン（緑茶）' }
 ];
-/* ===== テースティングマップ用ラベル ===== */
-var AROMA_TYPE_LABELS = {
-  '1': 'フローラル系（花の香り）',
-  '2': 'フルーティー系（果実の香り）',
-  '3': 'ハーバル・植物系（草や木の香り）',
-  '4': 'スパイス・香ばしい系',
-  '5': 'スイート',
-  '6': 'その他'
-};
-
-var SCALE_LABELS = {
-  '1': 'かなり弱い',
-  '2': '弱い',
-  '3': '中間',
-  '4': 'やや強い',
-  '5': '強い'
-};
 /* ===== STATE ===== */
 var STORAGE_KEY = 'teaDiaryV3';
 var TRASH_KEY   = 'teaDiaryTrashV1';
@@ -991,6 +851,7 @@ var currentImageList  = [];
 var currentImageIndex = 0;
 var editingId       = null;
 var currentDetailId = null;
+
 /* ===== STORAGE ===== */
 function loadLogs() {
   try { teaLogs = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
@@ -1018,61 +879,7 @@ function saveTrashLogs() {
     return false;
   }
 }
-/* ===== BACKUP / RESTORE ===== */
-function exportJsonBackup() {
-  try {
-    var data = {
-      teaLogs: teaLogs,
-      trashLogs: trashLogs,
-      exportedAt: new Date().toISOString(),
-      appName: 'Tea Diary'
-    };
-    var json = JSON.stringify(data, null, 2);
-    var blob = new Blob([json], { type: 'application/json' });
-    var url  = URL.createObjectURL(blob);
-    var a    = document.createElement('a');
-    a.href   = url;
-    a.download = 'tea-diary-backup-' + todayStr() + '.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast('⬇️ バックアップを書き出しました');
-  } catch(e) {
-    alert('⚠️ バックアップの書き出しに失敗しました。');
-  }
-}
-function importJsonBackup(file) {
-  if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      var data = JSON.parse(e.target.result);
-      if (!data || !Array.isArray(data.teaLogs)) {
-        alert('⚠️ このJSONファイルは読み込めません。');
-        return;
-      }
-      if (!confirm('今あるTea Diaryのデータを、読み込んだデータで上書きしますか？')) return;
-      teaLogs   = data.teaLogs || [];
-      trashLogs = Array.isArray(data.trashLogs) ? data.trashLogs : [];
-      var ok1 = saveLogs();
-      var ok2 = saveTrashLogs();
-      if (!ok1 || !ok2) {
-        alert('⚠️ 読み込み後の保存に失敗しました。');
-        loadLogs(); loadTrashLogs();
-        return;
-      }
-      renderHistory();
-      renderStats();
-      switchTab('history');
-      showToast('⬆️ バックアップを読み込みました');
-    } catch(err) {
-      alert('⚠️ JSONの読み込みに失敗しました。');
-    }
-  };
-  reader.onerror = function() { alert('⚠️ ファイルの読み込みに失敗しました。'); };
-  reader.readAsText(file);
-}
+
 /* ===== ESCAPE HTML ===== */
 function escHtml(s) {
   if (s === null || s === undefined) return '';
@@ -1083,6 +890,7 @@ function escHtml(s) {
     .replace(/"/g,'&quot;')
     .replace(/'/g,'&#x27;');
 }
+
 /* ===== TABS ===== */
 function switchTab(name) {
   document.querySelectorAll('.tab-content').forEach(function(el){ el.classList.remove('active'); });
@@ -1093,9 +901,10 @@ function switchTab(name) {
   if (name === 'history') renderHistory();
   if (name === 'stats')   renderStats();
 }
+
 /* ===== CATEGORY PILLS ===== */
 function renderCatPills() {
-  var c    = document.getElementById('catPills');
+  var c = document.getElementById('catPills');
   var html = '';
   Object.keys(TEA_DATA).forEach(function(cat) {
     var active = cat === selectedCategory ? ' active' : '';
@@ -1112,6 +921,7 @@ function renderCatPills() {
     });
   });
 }
+
 /* ===== TEA TYPE HELPERS ===== */
 function isOtherType(val) {
   return !!(val && val.indexOf('その他') > -1);
@@ -1136,6 +946,7 @@ function getFinalTeaType() {
   }
   return sel;
 }
+
 /* ===== LEAF OPTIONS ===== */
 function updateLeafOptions() {
   var sel    = document.getElementById('f-type');
@@ -1151,6 +962,7 @@ function updateLeafOptions() {
   updateCustomTypeVis();
   updateEffects();
 }
+
 /* ===== EFFECTS ===== */
 function updateEffects() {
   var type = getFinalTeaType();
@@ -1164,15 +976,38 @@ function updateEffects() {
     box.innerHTML = '<span class="effects-none">効能情報がありません</span>';
   }
 }
+
 /* ===== COLOR HELPERS ===== */
+function normalizeHex(s) {
+  s = (s || '').trim();
+  if (!s) return '';
+  if (!/^#/.test(s)) s = '#' + s;
+  if (/^#[0-9a-fA-F]{6}$/.test(s)) return s.toLowerCase();
+  return '';
+}
+function updateColorHexPreview() {
+  var hexEl = document.getElementById('f-color-hex');
+  var prev  = document.getElementById('colorHexPreview');
+  if (!hexEl || !prev) return;
+  var hex = normalizeHex(hexEl.value);
+  prev.style.background  = hex || '#eee';
+  prev.style.borderColor = hex ? hex : 'var(--border)';
+}
 function getFinalColor() {
-  return selectedColor;
+  var hexEl = document.getElementById('f-color-hex');
+  var hex   = hexEl ? normalizeHex(hexEl.value) : '';
+  return hex || selectedColor;
 }
 function getFinalColorName() {
   var nameEl = document.getElementById('f-color-name');
+  var hexEl  = document.getElementById('f-color-hex');
   var name   = nameEl ? (nameEl.value || '').trim() : '';
-  return name || selectedColorName;
+  if (name) return name;
+  var hex = hexEl ? normalizeHex(hexEl.value) : '';
+  if (hex) return hex;
+  return selectedColorName;
 }
+
 /* ===== COLOR PICKER ===== */
 function renderColorPicker() {
   var c    = document.getElementById('colorPicker');
@@ -1193,10 +1028,13 @@ function renderColorPicker() {
       var lbl = document.getElementById('colorNameLbl');
       if (lbl) lbl.textContent = selectedColorName;
       var nameEl = document.getElementById('f-color-name');
+      var hexEl  = document.getElementById('f-color-hex');
       if (nameEl) nameEl.value = selectedColorName;
+      if (hexEl)  { hexEl.value = selectedColor; updateColorHexPreview(); }
     });
   });
 }
+
 /* ===== TIMER ===== */
 function toggleTimer() {
   if (timerRunning) {
@@ -1223,26 +1061,32 @@ function resetTimer() {
   document.getElementById('timerDisplay').textContent  = '0:00';
   document.getElementById('f-steep').value = '';
 }
+
 /* ===== EXIF ORIENTATION ===== */
+/*
+ * JPEGのArrayBufferからEXIF orientation値を同期的に取得します。
+ * iPhoneで縦向き撮影した写真は orientation=6（90°CW）が最多。
+ * orientation 値: 1=正常, 3=180°, 6=90°CW(iPhone縦撮り), 8=90°CCW
+ */
 function getOrientationFromBuffer(buffer) {
   try {
     var view   = new DataView(buffer);
-    if (view.getUint16(0, false) !== 0xFFD8) return 1;
+    if (view.getUint16(0, false) !== 0xFFD8) return 1; /* JPEG以外 */
     var len    = view.byteLength;
     var offset = 2;
     while (offset < len) {
       var marker = view.getUint16(offset, false);
       offset += 2;
-      if (marker === 0xFFE1) {
+      if (marker === 0xFFE1) { /* APP1 = EXIF セグメント */
         if (view.getUint32(offset + 2, false) !== 0x45786966) return 1;
-        var tiff   = offset + 8;
+        var tiff   = offset + 8; /* "Exif\0\0" の後がTIFFヘッダ */
         var little = view.getUint16(tiff, false) === 0x4949;
         var ifdOff = view.getUint32(tiff + 4, little);
         var ifd    = tiff + ifdOff;
         var tags   = view.getUint16(ifd, little);
         for (var i = 0; i < tags; i++) {
           var tagOff = ifd + 2 + i * 12;
-          if (view.getUint16(tagOff, little) === 0x0112) {
+          if (view.getUint16(tagOff, little) === 0x0112) { /* Orientation tag */
             return view.getUint16(tagOff + 8, little);
           }
         }
@@ -1256,25 +1100,45 @@ function getOrientationFromBuffer(buffer) {
   } catch(ex) {}
   return 1;
 }
-/* ===== IMAGE COMPRESSION (iOS対応・単一読み込み) ===== */
+
+/* ===== IMAGE COMPRESSION ===== */
+/*
+ * 【iOS Safari 対応】ファイルを ArrayBuffer で1回だけ読み込み、
+ * EXIF回転補正＋リサイズ圧縮してJPEG dataURLを返します。
+ *
+ * 旧実装では DataURL + ArrayBuffer を2回読み込んでいたため、
+ * iOSでファイルオブジェクトが無効化され写真が保存できない問題がありました。
+ *
+ * iOSでは localStorage の容量制限が厳しいため解像度を小さくしています:
+ *   iOS   : 最大800px / JPEG品質 0.65
+ *   その他: 最大1200px / JPEG品質 0.75
+ */
 function compressImage(file, callback) {
   var isIOS   = /iPhone|iPad|iPod/.test(navigator.userAgent);
   var maxPx   = isIOS ? 800  : 1200;
   var quality = isIOS ? 0.65 : 0.75;
-  var reader  = new FileReader();
+
+  var reader = new FileReader();
   reader.onerror = function() { callback(null); };
-  reader.onload  = function(ev) {
+  reader.onload = function(ev) {
     var buffer      = ev.target.result;
     var orientation = getOrientationFromBuffer(buffer);
+
+    /* ArrayBuffer → Blob → ObjectURL で Image に読み込む（iOS でも安全） */
     var blob      = new Blob([buffer], { type: file.type || 'image/jpeg' });
     var objectUrl = URL.createObjectURL(blob);
+
     var img = new Image();
-    img.onerror = function() { URL.revokeObjectURL(objectUrl); callback(null); };
-    img.onload  = function() {
+    img.onerror = function() {
       URL.revokeObjectURL(objectUrl);
+      callback(null);
+    };
+    img.onload = function() {
+      URL.revokeObjectURL(objectUrl); /* 使い終わったらメモリ解放 */
       try {
         var srcW = img.width  || 1;
         var srcH = img.height || 1;
+        /* orientation 5〜8 は90°/270°回転なので幅と高さが入れ替わる */
         var swap = (orientation >= 5 && orientation <= 8);
         var outW = swap ? srcH : srcW;
         var outH = swap ? srcW : srcH;
@@ -1287,14 +1151,16 @@ function compressImage(file, callback) {
         canvas.width  = cW;
         canvas.height = cH;
         var ctx = canvas.getContext('2d');
+        /* EXIF orientation に応じた変換行列 */
         switch (orientation) {
-          case 2: ctx.transform(-1, 0,  0,  1, cW,  0); break;
-          case 3: ctx.transform(-1, 0,  0, -1, cW, cH); break;
-          case 4: ctx.transform( 1, 0,  0, -1,  0, cH); break;
-          case 5: ctx.transform( 0, 1,  1,  0,  0,  0); break;
-          case 6: ctx.transform( 0, 1, -1,  0, cH,  0); break;
-          case 7: ctx.transform( 0,-1, -1,  0, cH, cW); break;
-          case 8: ctx.transform( 0,-1,  1,  0,  0, cW); break;
+          case 2: ctx.transform(-1,  0,  0,  1, cW,  0); break; /* 水平反転 */
+          case 3: ctx.transform(-1,  0,  0, -1, cW, cH); break; /* 180° */
+          case 4: ctx.transform( 1,  0,  0, -1,  0, cH); break; /* 垂直反転 */
+          case 5: ctx.transform( 0,  1,  1,  0,  0,  0); break; /* 転置 */
+          case 6: ctx.transform( 0,  1, -1,  0, cH,  0); break; /* 90°CW（iPhoneで最多） */
+          case 7: ctx.transform( 0, -1, -1,  0, cH, cW); break; /* 横反転+90°CW */
+          case 8: ctx.transform( 0, -1,  1,  0,  0, cW); break; /* 90°CCW */
+          /* case 1: 変換不要 */
         }
         if (swap) { ctx.drawImage(img, 0, 0, cH, cW); }
         else      { ctx.drawImage(img, 0, 0, cW, cH); }
@@ -1303,15 +1169,20 @@ function compressImage(file, callback) {
     };
     img.src = objectUrl;
   };
-  reader.readAsArrayBuffer(file);
+  reader.readAsArrayBuffer(file); /* 1回だけ読む */
 }
+
 /* ===== PHOTOS ===== */
 document.getElementById('photoInput').addEventListener('change', function(e){
   var files = Array.from(e.target.files || []);
   if (!files.length) return;
   var maxAdd = 5;
   var remain = maxAdd - formPhotos.length;
-  if (remain <= 0) { alert('写真は最大5枚までです。'); this.value = ''; return; }
+  if (remain <= 0) {
+    alert('写真は最大5枚までです。');
+    this.value = '';
+    return;
+  }
   files = files.slice(0, remain);
   var results = new Array(files.length);
   var done    = 0;
@@ -1327,6 +1198,7 @@ document.getElementById('photoInput').addEventListener('change', function(e){
   });
   this.value = '';
 });
+
 function renderPhotoPreviews() {
   var wrap = document.getElementById('photoPreviews');
   if (!formPhotos.length) { wrap.innerHTML = ''; return; }
@@ -1364,109 +1236,7 @@ function renderPhotoPreviews() {
     });
   });
 }
-/* ===== TASTING MAP CANVAS ===== */
-function drawTastingMap(canvas, aromaType, acidity, astringency) {
-  if (!canvas) return;
 
-  var W = canvas.width;
-  var H = canvas.height;
-  var ctx = canvas.getContext('2d');
-
-  ctx.clearRect(0, 0, W, H);
-
-  var cx = W / 2;
-  var cy = H / 2;
-  var radius = 105;
-
-  ctx.fillStyle = '#fffdf9';
-  ctx.fillRect(0, 0, W, H);
-
-  ctx.strokeStyle = 'rgba(123,74,45,.25)';
-  ctx.lineWidth = 1;
-
-  for (var i = 1; i <= 5; i++) {
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius * i / 5, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-
-  var axes = [
-    { key:'aroma', label:'香り', angle:-90, value: aromaType },
-    { key:'acidity', label:'酸味', angle:30, value: acidity },
-    { key:'astringency', label:'渋み', angle:150, value: astringency }
-  ];
-
-  ctx.font = 'bold 13px sans-serif';
-  ctx.fillStyle = '#7b4a2d';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-
-  axes.forEach(function(axis) {
-    var rad = axis.angle * Math.PI / 180;
-    var x = cx + Math.cos(rad) * radius;
-    var y = cy + Math.sin(rad) * radius;
-
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.lineTo(x, y);
-    ctx.stroke();
-
-    var lx = cx + Math.cos(rad) * (radius + 24);
-    var ly = cy + Math.sin(rad) * (radius + 24);
-    ctx.fillText(axis.label, lx, ly);
-  });
-
-  var points = axes.map(function(axis) {
-    var value = Math.max(1, Math.min(5, axis.value || 3));
-    var rad = axis.angle * Math.PI / 180;
-    var r = radius * value / 5;
-    return {
-      x: cx + Math.cos(rad) * r,
-      y: cy + Math.sin(rad) * r
-    };
-  });
-
-  ctx.beginPath();
-  ctx.moveTo(points[0].x, points[0].y);
-  ctx.lineTo(points[1].x, points[1].y);
-  ctx.lineTo(points[2].x, points[2].y);
-  ctx.closePath();
-
-  ctx.fillStyle = 'rgba(200,149,92,.28)';
-  ctx.fill();
-
-  ctx.strokeStyle = '#c8955c';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
-  points.forEach(function(p) {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
-    ctx.fillStyle = '#c8955c';
-    ctx.fill();
-    ctx.strokeStyle = '#7b4a2d';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-  });
-
-  ctx.font = '11px sans-serif';
-  ctx.fillStyle = '#9b7a62';
-  ctx.textAlign = 'center';
-
-  for (var n = 1; n <= 5; n++) {
-    ctx.fillText(String(n), cx + 6, cy - radius * n / 5);
-  }
-}
-function updateTastingMapPreview() {
-  var canvas = document.getElementById('formTastingMapCanvas');
-  if (!canvas) return;
-
-  var aromaType = parseInt(document.getElementById('f-aroma-type').value, 10) || 1;
-  var acidity = parseInt(document.getElementById('f-acidity').value, 10) || 3;
-  var astringency = parseInt(document.getElementById('f-astringency').value, 10) || 3;
-
-  drawTastingMap(canvas, aromaType, acidity, astringency);
-}
 /* ===== SAVE ===== */
 function saveTea(e) {
   e.preventDefault();
@@ -1477,33 +1247,27 @@ function saveTea(e) {
   var effects        = EFFECTS_DB[type] || CAT_EFFECTS[selectedCategory] || [];
   var isEdit         = !!editingId;
   var entryId        = isEdit ? editingId : String(Date.now());
+
   var entry = {
-    id:          entryId,
-    date:        document.getElementById('f-date').value,
-    category:    selectedCategory,
-    type:        type,
-    brand:       document.getElementById('f-brand').value.trim(),
-    leafShape:   document.getElementById('f-leafShape').value,
-    amount:      document.getElementById('f-amount').value,
-    water:       document.getElementById('f-water').value,
-    temp:        document.getElementById('f-temp').value,
-    waterType:   document.getElementById('f-waterType').value,
-    steep:       document.getElementById('f-steep').value.trim(),
-    color:       finalColor,
-    colorName:   finalColorName,
-    rating:      rating,
-aromaType:   parseInt(document.getElementById('f-aroma-type').value, 10) || 1,
-aromaOther:  document.getElementById('f-aroma-other').value.trim(),
-aromaNote:   document.getElementById('f-aroma-note').value.trim(),
-sweetness:   parseInt(document.getElementById('f-sweetness').value, 10) || 3,
-astringency: parseInt(document.getElementById('f-astringency').value, 10) || 3,
-body:        parseInt(document.getElementById('f-body').value, 10) || 3,
-acidity:     parseInt(document.getElementById('f-acidity').value, 10) || 3,
-aftertaste:  parseInt(document.getElementById('f-aftertaste').value, 10) || 3,
-    memo:        document.getElementById('f-memo').value.trim(),
-    effects:     effects,
-    photos:      formPhotos.slice()
+    id:        entryId,
+    date:      document.getElementById('f-date').value,
+    category:  selectedCategory,
+    type:      type,
+    brand:     document.getElementById('f-brand').value.trim(),
+    amount:    document.getElementById('f-amount').value,
+    water:     document.getElementById('f-water').value,
+    temp:      document.getElementById('f-temp').value,
+    waterType: document.getElementById('f-waterType').value,
+    steep:     document.getElementById('f-steep').value.trim(),
+    color:     finalColor,
+    colorName: finalColorName,
+    leafShape: document.getElementById('f-leafShape').value,
+    rating:    rating,
+    memo:      document.getElementById('f-memo').value.trim(),
+    effects:   effects,
+    photos:    formPhotos.slice()
   };
+
   var prevLogs = teaLogs.slice();
   if (isEdit) {
     teaLogs = teaLogs.map(function(l){ return l.id === editingId ? entry : l; });
@@ -1512,14 +1276,17 @@ aftertaste:  parseInt(document.getElementById('f-aftertaste').value, 10) || 3,
   }
   var ok = saveLogs();
   if (!ok) { teaLogs = prevLogs; return; }
+
   showToast(isEdit ? '✅ 記録を更新しました！' : '✅ 記録を保存しました！');
   resetForm();
   openDetailModal(entryId);
 }
+
 /* ===== EDIT ===== */
 function openEdit(id) {
   var l = teaLogs.find(function(x){ return x.id === id; });
   if (!l) return;
+
   editingId        = id;
   selectedCategory = l.category || '紅茶';
   renderCatPills();
@@ -1532,6 +1299,7 @@ function openEdit(id) {
   var savedType = l.type || '';
   typeEl.value  = savedType;
   if (!typeEl.value && savedType) {
+    /* リストにない値 → 「その他」系オプションを探す */
     var otherOpt = null;
     for (var oi = 0; oi < typeEl.options.length; oi++) {
       if (isOtherType(typeEl.options[oi].value)) { otherOpt = typeEl.options[oi]; break; }
@@ -1548,17 +1316,17 @@ function openEdit(id) {
   }
   updateCustomTypeVis();
 
-  document.getElementById('f-brand').value        = l.brand     || '';
-  document.getElementById('f-leafShape').value    = l.leafShape || '';
-  document.getElementById('f-amount').value       = l.amount    || '';
-  document.getElementById('f-water').value        = l.water     || '';
-  document.getElementById('f-temp').value         = l.temp      || '';
-  document.getElementById('f-waterType').value    = l.waterType || '';
-  document.getElementById('f-steep').value        = l.steep     || '';
-  document.getElementById('f-memo').value         = l.memo      || '';
+  document.getElementById('f-brand').value     = l.brand     || '';
+  document.getElementById('f-amount').value    = l.amount    || '';
+  document.getElementById('f-water').value     = l.water     || '';
+  document.getElementById('f-temp').value      = l.temp      || '';
+  document.getElementById('f-waterType').value = l.waterType || '';
+  document.getElementById('f-steep').value     = l.steep     || '';
+  document.getElementById('f-leafShape').value = l.leafShape || '';
+  document.getElementById('f-memo').value      = l.memo      || '';
 
   /* 評価 */
-  var rEl = document.querySelector('input[name="rating"][value="'+String(l.rating || 3)+'"]');
+  var rEl = document.querySelector('input[name="rating"][value="' + String(l.rating || 3) + '"]');
   if (rEl) rEl.checked = true;
 
   /* 水色 */
@@ -1566,35 +1334,30 @@ function openEdit(id) {
   selectedColorName = l.colorName || TEA_COLORS[0].name;
   renderColorPicker();
   var cnEl = document.getElementById('f-color-name');
+  var chEl = document.getElementById('f-color-hex');
   if (cnEl) cnEl.value = l.colorName || '';
-
-/* 香り */
-document.getElementById('f-aroma-type').value = String(l.aromaType || 1);
-document.getElementById('f-aroma-other').value = l.aromaOther || '';
-document.getElementById('f-aroma-note').value = l.aromaNote || '';
-
-/* 味 */
-document.getElementById('f-sweetness').value   = String(l.sweetness || 3);
-document.getElementById('f-astringency').value = String(l.astringency || 3);
-document.getElementById('f-body').value        = String(l.body || 3);
-document.getElementById('f-acidity').value     = String(l.acidity || 3);
-document.getElementById('f-aftertaste').value  = String(l.aftertaste || 3);
+  if (chEl) {
+    var isPreset = TEA_COLORS.some(function(c){ return c.hex === (l.color || ''); });
+    chEl.value = (!isPreset && l.color) ? l.color : '';
+    updateColorHexPreview();
+  }
 
   /* 写真 */
   formPhotos = (l.photos || []).slice();
   renderPhotoPreviews();
 
   updateEffects();
-  updateTastingMapPreview();
 
   var title = l.brand || l.type || '無題の記録';
   document.getElementById('editBannerText').textContent = '「' + title + '」を編集中';
   document.getElementById('editBanner').classList.add('show');
   document.getElementById('formCardTitle').textContent  = '記録を編集する';
   document.querySelector('.submit-btn').textContent     = '💾 変更を保存する';
+
   switchTab('record');
   setTimeout(function(){ window.scrollTo({ top:0, behavior:'smooth' }); }, 50);
 }
+
 function cancelEdit() {
   editingId = null;
   resetForm();
@@ -1602,67 +1365,54 @@ function cancelEdit() {
   document.getElementById('formCardTitle').textContent = '新しいお茶を記録する';
   document.querySelector('.submit-btn').textContent    = '☕ 記録を保存する';
 }
+
 function startEditFromModal() {
   var id = currentDetailId;
   closeDetailModal();
   openEdit(id);
 }
+
 function resetForm() {
   editingId = null;
   document.getElementById('teaForm').reset();
   formPhotos = [];
   document.getElementById('photoPreviews').innerHTML = '';
   document.getElementById('f-date').value = todayStr();
-
   var r3 = document.querySelector('input[name="rating"][value="3"]');
   if (r3) r3.checked = true;
-
   resetTimer();
-
   selectedColor     = TEA_COLORS[0].hex;
   selectedColorName = TEA_COLORS[0].name;
   renderColorPicker();
-
   var wrap = document.getElementById('customTypeWrap');
   if (wrap) wrap.style.display = 'none';
   var ftc = document.getElementById('f-type-custom');
   if (ftc) ftc.value = '';
   var fcn = document.getElementById('f-color-name');
   if (fcn) fcn.value = '';
-
-  /* 香り・味 デフォルト値 */
-document.getElementById('f-aroma-type').value = '1';
-document.getElementById('f-aroma-other').value = '';
-document.getElementById('f-aroma-note').value = '';
-
-document.getElementById('f-sweetness').value = '3';
-document.getElementById('f-astringency').value = '3';
-document.getElementById('f-body').value = '3';
-document.getElementById('f-acidity').value = '3';
-document.getElementById('f-aftertaste').value = '3';
-
-document.getElementById('aromaOtherWrap').style.display = 'none';
-
+  var fch = document.getElementById('f-color-hex');
+  if (fch) fch.value = '';
+  updateColorHexPreview();
   updateEffects();
-  updateTastingMapPreview();
-
   document.getElementById('editBanner').classList.remove('show');
   document.getElementById('formCardTitle').textContent = '新しいお茶を記録する';
   document.querySelector('.submit-btn').textContent    = '☕ 記録を保存する';
 }
+
 function todayStr() {
-  var d   = new Date();
-  var m   = d.getMonth() + 1;
+  var d = new Date();
+  var m = d.getMonth() + 1;
   var day = d.getDate();
-  return d.getFullYear() + '-' + (m   < 10 ? '0' : '') + m
-                         + '-' + (day < 10 ? '0' : '') + day;
+  return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;
 }
+
 /* ===== HISTORY ===== */
 function renderHistory() {
   var search    = (document.getElementById('searchInput').value || '').toLowerCase();
   var filterCat = document.getElementById('filterCat').value;
   var sort      = document.getElementById('sortSelect').value;
-  var logs      = teaLogs.slice();
+
+  var logs = teaLogs.slice();
   if (search) {
     logs = logs.filter(function(l){
       return (l.brand    || '').toLowerCase().indexOf(search) > -1
@@ -1672,7 +1422,8 @@ function renderHistory() {
     });
   }
   if (filterCat) logs = logs.filter(function(l){ return l.category === filterCat; });
-  if      (sort === 'oldest')      logs.sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+
+  if (sort === 'oldest')           logs.sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
   else if (sort === 'rating-high') logs.sort(function(a,b){ return (b.rating||0)-(a.rating||0); });
   else if (sort === 'rating-low')  logs.sort(function(a,b){ return (a.rating||0)-(b.rating||0); });
   else                             logs.sort(function(a,b){ return (+b.id||0)-(+a.id||0); });
@@ -1683,6 +1434,7 @@ function renderHistory() {
     renderTrash();
     return;
   }
+
   var html = '';
   logs.forEach(function(l){
     var title    = escHtml(l.brand || l.type || '無題の記録');
@@ -1690,6 +1442,7 @@ function renderHistory() {
     var stars    = '★'.repeat(r) + '☆'.repeat(5 - r);
     var catEmoji = (TEA_DATA[l.category] || {}).emoji || '🍵';
     var isDk     = isColorDark(l.color || '');
+
     var bdg = '';
     if (l.category)  bdg += '<span class="badge">'+catEmoji+' '+escHtml(l.category)+'</span>';
     if (l.temp)      bdg += '<span class="badge">🌡️ '+escHtml(l.temp)+'℃</span>';
@@ -1697,6 +1450,7 @@ function renderHistory() {
     if (l.amount)    bdg += '<span class="badge">⚖️ '+escHtml(l.amount)+'g</span>';
     if (l.water)     bdg += '<span class="badge">💧 '+escHtml(l.water)+'ml</span>';
     if (l.colorName) bdg += '<span class="badge" style="background:'+escHtml(l.color||'#eee')+';color:'+(isDk?'#fff':'#4a2c1a')+'">● '+escHtml(l.colorName)+'</span>';
+
     var memoH = l.memo
       ? '<div class="log-memo">'+escHtml(l.memo.length > 100 ? l.memo.slice(0,100)+'…' : l.memo)+'</div>'
       : '';
@@ -1706,6 +1460,8 @@ function renderHistory() {
         return '<img src="'+p+'" alt="">';
       }).join('')+'</div>';
     }
+
+    /* ▼ ボタンには必ず type="button" をつける ▼ */
     html += '<div class="log-card" data-id="'+escHtml(l.id)+'">'
           + '<div class="log-card-header">'
           + '<div><h3>'+title+'</h3><div class="log-date">'+escHtml(l.date||'')+'</div></div>'
@@ -1720,10 +1476,13 @@ function renderHistory() {
   });
   cont.innerHTML = html;
 
+  /* ▼ カードクリック → closest を使って確実に判定 ▼ */
   cont.querySelectorAll('.log-card').forEach(function(card){
     card.addEventListener('click', function(e){
       var tgt = e.target;
+      /* ボタン自身、またはボタンの子要素（絵文字など）をクリックした場合はスキップ */
       if (tgt.closest && (tgt.closest('.edit-log-btn') || tgt.closest('.del-log-btn'))) return;
+      /* closest未対応ブラウザ向けフォールバック */
       if (!tgt.closest) {
         if (tgt.classList.contains('edit-log-btn') || tgt.classList.contains('del-log-btn')) return;
         if (tgt.parentElement &&
@@ -1733,20 +1492,28 @@ function renderHistory() {
       openDetailModal(card.dataset.id);
     });
   });
+
+  /* ▼ 編集ボタン ▼ */
   cont.querySelectorAll('.edit-log-btn').forEach(function(btn){
     btn.addEventListener('click', function(e){
-      e.stopPropagation(); e.preventDefault();
+      e.stopPropagation();
+      e.preventDefault();
       openEdit(btn.dataset.id);
     });
   });
+
+  /* ▼ 削除ボタン ▼ */
   cont.querySelectorAll('.del-log-btn').forEach(function(btn){
     btn.addEventListener('click', function(e){
-      e.stopPropagation(); e.preventDefault();
+      e.stopPropagation();
+      e.preventDefault();
       deleteLog(btn.dataset.id);
     });
   });
+
   renderTrash();
 }
+
 function deleteLog(id) {
   if (!confirm('この記録をゴミ箱に移動しますか？')) return;
   var target = teaLogs.find(function(l){ return l.id === id; });
@@ -1759,6 +1526,7 @@ function deleteLog(id) {
   renderHistory();
   showToast('🗑️ ゴミ箱に移動しました');
 }
+
 function restoreLog(id) {
   var target = trashLogs.find(function(l){ return l.id === id; });
   if (!target) return;
@@ -1770,6 +1538,7 @@ function restoreLog(id) {
   renderHistory();
   showToast('♻️ 復元しました');
 }
+
 function renderTrash() {
   var cont = document.getElementById('trashList');
   if (!cont) return;
@@ -1790,23 +1559,28 @@ function renderTrash() {
   });
   cont.innerHTML = html;
   cont.querySelectorAll('.restore-log-btn').forEach(function(btn){
-    btn.addEventListener('click', function(){ restoreLog(btn.dataset.id); });
+    btn.addEventListener('click', function(){
+      restoreLog(btn.dataset.id);
+    });
   });
 }
+
 /* ===== STATS ===== */
 function renderStats() {
-  var n   = teaLogs.length;
-  var avg = n ? (teaLogs.reduce(function(s,l){ return s+(l.rating||0); },0)/n).toFixed(1) : '—';
-  var cats    = {};
+  var n    = teaLogs.length;
+  var avg  = n ? (teaLogs.reduce(function(s,l){ return s+(l.rating||0); },0)/n).toFixed(1) : '—';
+  var cats = {};
   teaLogs.forEach(function(l){ if (l.category) cats[l.category] = (cats[l.category]||0)+1; });
-  var catKeys = Object.keys(cats).sort(function(a,b){ return cats[b]-cats[a]; });
-  var topCat  = catKeys[0] || null;
+  var catKeys  = Object.keys(cats).sort(function(a,b){ return cats[b]-cats[a]; });
+  var topCat   = catKeys[0] || null;
+
   document.getElementById('statsBoxes').innerHTML =
     mkStatBox(String(n), '総記録数') +
     mkStatBox(String(avg), '平均評価 ⭐') +
     mkStatBox(topCat || '—', '最多カテゴリ') +
     mkStatBox(String(catKeys.length), '飲んだカテゴリ数');
-  var types    = {};
+
+  var types = {};
   teaLogs.forEach(function(l){
     var k = l.brand || l.type;
     if (k) types[k] = (types[k]||0)+1;
@@ -1827,12 +1601,14 @@ function renderStats() {
       + '</div>';
   }).join('');
 }
+
 function mkStatBox(val, label) {
   return '<div class="stat-box">'
        + '<div class="stat-number">'+escHtml(val)+'</div>'
        + '<div class="stat-label">'+escHtml(label)+'</div>'
        + '</div>';
 }
+
 /* ===== DETAIL MODAL ===== */
 function openDetailModal(id) {
   var l = teaLogs.find(function(x){ return x.id === id; });
@@ -1840,11 +1616,11 @@ function openDetailModal(id) {
   currentDetailId = id;
   var catEmoji = (TEA_DATA[l.category] || {}).emoji || '🍵';
   var r        = l.rating || 0;
+
   document.getElementById('dmTitle').textContent = l.brand || l.type || '無題の記録';
   document.getElementById('dmMeta').textContent  = [catEmoji+' '+(l.category||''), l.type, l.date].filter(Boolean).join(' · ');
   document.getElementById('dmStars').textContent = '★'.repeat(r) + '☆'.repeat(5-r);
 
-  /* 基本情報 */
   var basicRows = [];
   if (l.category)  basicRows.push(['カテゴリ',      catEmoji+' '+l.category]);
   if (l.type)      basicRows.push(['茶葉の種類',     l.type]);
@@ -1853,7 +1629,6 @@ function openDetailModal(id) {
   renderDmRowsTo('dmBasicRows', basicRows);
   document.getElementById('dmBasicSec').style.display = basicRows.length ? '' : 'none';
 
-  /* 抽出条件 */
   var brewRows = [];
   if (l.amount)    brewRows.push(['茶葉の量',   l.amount+' g']);
   if (l.water)     brewRows.push(['水の量',     l.water+' ml']);
@@ -1864,7 +1639,6 @@ function openDetailModal(id) {
   renderDmRowsTo('dmBrewRows', brewRows);
   document.getElementById('dmBrewSec').style.display = brewRows.length ? '' : 'none';
 
-  /* メモ */
   var memoSec = document.getElementById('dmMemoSec');
   if (l.memo) {
     document.getElementById('dmMemo').textContent = l.memo;
@@ -1873,7 +1647,6 @@ function openDetailModal(id) {
     memoSec.style.display = 'none';
   }
 
-  /* 効能 */
   var effSec = document.getElementById('dmEffSec');
   var effs   = l.effects || [];
   if (effs.length) {
@@ -1885,32 +1658,6 @@ function openDetailModal(id) {
     effSec.style.display = 'none';
   }
 
-  /* 香り・味（新項目） */
-  var hasSensory = (l.aromaAxis !== undefined) || (l.tasteAxis !== undefined)
-                || (l.acidity   !== undefined) || (l.astringency !== undefined);
-  var sensorySec = document.getElementById('dmSensorySec');
-  if (hasSensory) {
-    var aromaAxisVal   = l.aromaAxis   !== undefined ? +l.aromaAxis   : 0;
-    var tasteAxisVal   = l.tasteAxis   !== undefined ? +l.tasteAxis   : 0;
-    var acidityVal     = l.acidity     !== undefined ? +l.acidity     : 3;
-    var astringencyVal = l.astringency !== undefined ? +l.astringency : 3;
-    var sensoryRows = [];
-    sensoryRows.push(['香りの方向性',   AROMA_TYPE_LABELS[String(l.aromaType || 1)] || '—']);
-    if (l.aromaNote)   sensoryRows.push(['香りのメモ',     l.aromaNote]);
-    sensoryRows.push(['酸味',          (SCALE_LABELS[String(acidityVal)]     || '—') + '　(' + acidityVal + ')']);
-    sensoryRows.push(['渋み',          (SCALE_LABELS[String(astringencyVal)] || '—') + '　(' + astringencyVal + ')']);
-    renderDmRowsTo('dmSensoryRows', sensoryRows);
-    /* テースティングマップ描画（openOverlay後に描画されるよう setTimeout で待つ） */
-    var dmCanvas = document.getElementById('dmTastingMapCanvas');
-setTimeout(function(){
-  drawTastingMap(dmCanvas, l.aromaType || 1, acidityVal, astringencyVal);
-}, 30);
-    sensorySec.style.display = '';
-  } else {
-    sensorySec.style.display = 'none';
-  }
-
-  /* 写真 */
   var photoSec = document.getElementById('dmPhotoSec');
   var photos   = l.photos || [];
   if (photos.length) {
@@ -1929,6 +1676,7 @@ setTimeout(function(){
 
   openOverlay('detailOverlay');
 }
+
 function renderDmRowsTo(containerId, rows) {
   document.getElementById(containerId).innerHTML = rows.map(function(r){
     return '<div class="dm-row">'
@@ -1937,10 +1685,12 @@ function renderDmRowsTo(containerId, rows) {
          + '</div>';
   }).join('');
 }
+
 function closeDetailModal() { closeOverlay('detailOverlay'); }
 document.getElementById('detailOverlay').addEventListener('click', function(e){
   if (e.target === this) closeDetailModal();
 });
+
 /* ===== IMAGE MODAL ===== */
 function openImageModal(photos, index) {
   currentImageList  = photos.slice();
@@ -1977,15 +1727,18 @@ function closeImageModal(e) {
 function handleImgOverlayClick(e) {
   if (e.target === document.getElementById('imageModal')) closeImageModal();
 }
+
 /* ===== OVERLAY HELPERS ===== */
 function openOverlay(id)  { document.getElementById(id).classList.add('open');    document.body.style.overflow = 'hidden'; }
 function closeOverlay(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+
 /* ===== ESCAPE KEY ===== */
 document.addEventListener('keydown', function(e){
   if (e.key !== 'Escape') return;
   if (document.getElementById('imageModal').classList.contains('open'))    { closeImageModal();  return; }
   if (document.getElementById('detailOverlay').classList.contains('open')) { closeDetailModal(); return; }
 });
+
 /* ===== UTIL ===== */
 function isColorDark(hex) {
   if (!hex || hex.length < 7) return false;
@@ -2000,11 +1753,18 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(function(){ t.classList.remove('show'); }, 2800);
 }
+
 /* ===== iOS Chrome 誘導バナー ===== */
+/*
+ * iPhoneのSafariでアクセスした場合にバナーを表示します。
+ * Chromeは iOS では "CriOS" という UserAgent を持ちます。
+ * バナーの「Chromeで開く」ボタンは googlechromes:// スキームで
+ * 同じURLをChromeアプリで開きます（Chromeがインストール済みの場合のみ機能）。
+ */
 (function() {
   var ua       = navigator.userAgent;
   var isIOS    = /iPhone|iPad|iPod/.test(ua);
-  var isChrome = /CriOS/.test(ua);
+  var isChrome = /CriOS/.test(ua);   /* iOS上のChromeはCriOSを含む */
   if (isIOS && !isChrome) {
     var banner = document.getElementById('iOSChromeBanner');
     if (banner) banner.style.display = '';
@@ -2012,7 +1772,8 @@ function showToast(msg) {
     if (btn) {
       btn.addEventListener('click', function(e) {
         e.preventDefault();
-        var url       = window.location.href;
+        /* https:// → googlechromes://, http:// → googlechrome:// に変換 */
+        var url = window.location.href;
         var chromeUrl = url.replace(/^https:\/\//, 'googlechromes://')
                            .replace(/^http:\/\//, 'googlechrome://');
         window.location.href = chromeUrl;
@@ -2020,6 +1781,7 @@ function showToast(msg) {
     }
   }
 })();
+
 /* ===== INIT ===== */
 loadLogs();
 loadTrashLogs();
@@ -2028,8 +1790,6 @@ updateLeafOptions();
 renderColorPicker();
 updateEffects();
 document.getElementById('f-date').value = todayStr();
-
-/* イベントリスナー登録 */
 document.getElementById('f-type').addEventListener('change', function(){
   updateCustomTypeVis();
   updateEffects();
@@ -2037,24 +1797,11 @@ document.getElementById('f-type').addEventListener('change', function(){
 document.getElementById('f-type-custom').addEventListener('input', function(){
   updateEffects();
 });
-document.getElementById('f-aroma-type').addEventListener('change', updateTastingMapPreview);
-document.getElementById('f-acidity').addEventListener('change', updateTastingMapPreview);
-document.getElementById('f-astringency').addEventListener('change', updateTastingMapPreview);
-  
-/* バックアップボタン */
-document.getElementById('exportJsonBtn').addEventListener('click', function(){ exportJsonBackup(); });
-document.getElementById('importJsonBtn').addEventListener('click', function(){ document.getElementById('importJsonFile').click(); });
-document.getElementById('importJsonFile').addEventListener('change', function(e){
-  var file = e.target.files && e.target.files[0];
-  importJsonBackup(file);
-  this.value = '';
+document.getElementById('f-color-hex').addEventListener('input', function(){
+  updateColorHexPreview();
 });
-
-/* ゴミ箱初期描画 */
+updateColorHexPreview();
 renderTrash();
-
-/* テースティングマップ初期描画 */
-updateTastingMapPreview();
 </script>
 </body>
 </html>
