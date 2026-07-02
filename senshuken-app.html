@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏆 勝手に選手権 記録帳</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Caveat:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink:    #f2c4ce;
+    --pink2:   #e8a0b0;
+    --blue:    #c4daf2;
+    --mint:    #c4f2e0;
+    --lavender:#d8c4f2;
+    --yellow:  #f2eac4;
+    --peach:   #f2d9c4;
+    --bg:      #fdf6f0;
+    --paper:   #fffcf8;
+    --text:    #5a3e4b;
+    --text2:   #8a6a7a;
+    --shadow:  rgba(180,130,150,0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Serif JP', serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── 水彩背景ブロブ ── */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+    opacity: 0.28;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::before {
+    width: 480px; height: 480px;
+    background: radial-gradient(circle, var(--pink) 0%, transparent 70%);
+    top: -100px; left: -120px;
+  }
+  body::after {
+    width: 520px; height: 520px;
+    background: radial-gradient(circle, var(--blue) 0%, transparent 70%);
+    bottom: -150px; right: -120px;
+  }
+
+  #app { position: relative; z-index: 1; }
+
+  /* ────────────────── HEADER ────────────────── */
+  header {
+    text-align: center;
+    padding: 36px 20px 20px;
+  }
+  header h1 {
+    font-family: 'Caveat', cursive;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 2px;
+    line-height: 1.2;
+  }
+  header p {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: var(--text2);
+    font-weight: 300;
+  }
+  .header-blob {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--pink) 0%, var(--lavender) 100%);
+    border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+    padding: 10px 28px 14px;
+    margin-bottom: 6px;
+  }
+
+  /* ────────────────── NAV TABS ────────────────── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ────────────────── HOME ────────────────── */
+  .home-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    padding: 20px 28px 40px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .contest-card {
+    background: var(--paper);
+    border-radius: 24px;
+    padding: 28px 24px 24px;
+    cursor: pointer;
+    transition: transform 0.22s, box-shadow 0.22s;
+    box-shadow: 0 4px 18px var(--shadow);
+    position: relative;
+    overflow: hidden;
+    border: 1.5px solid rgba(255,255,255,0.8);
+  }
+  .contest-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    opacity: 0.35;
+  }
+  .contest-card:nth-child(1)::before { background: var(--pink); }
+  .contest-card:nth-child(2)::before { background: var(--yellow); }
+  .contest-card:nth-child(3)::before { background: var(--mint); }
+  .contest-card:hover { transform: translateY(-5px); box-shadow: 0 10px 32px var(--shadow); }
+
+  .card-emoji { font-size: 3rem; margin-bottom: 12px; display: block; }
+  .card-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; }
+  .card-desc { font-size: 0.82rem; color: var(--text2); line-height: 1.7; font-weight: 300; }
+  .card-badge {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 400;
+  }
+  .contest-card:nth-child(1) .card-badge { background: var(--pink); }
+  .contest-card:nth-child(2) .card-badge { background: var(--yellow); }
+  .contest-card:nth-child(3) .card-badge { background: var(--mint); }
+
+  /* ────────────────── CONTEST PAGE ────────────────── */
+  .contest-page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  .back-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text2);
+    font-family: 'Noto Serif JP', serif;
+    font-size: 0.88rem;
+    padding: 10px 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .back-btn:hover { color: var(--text); }
+
+  .contest-header {
+    text-align: center;
+    padding: 20px 20px 28px;
+  }
+  .contest-header .emoji-big { font-size: 4rem; display: block; margin-bottom: 8px; }
+  .contest-header h2 { font-size: 1.8rem; font-weight: 600; margin-bottom: 6px; }
+  .contest-header p { font-size: 0.85rem; color: var(--text2); font-weight: 300; }
+
+  /* ── タブ ── */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 16px;
+    padding: 6px;
+    backdrop-filter: blur(4px);
+  }
+  .tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 0.85rem;
+    color: var(--text2);
+    transition: background 0.18s, color 0.18s;
+  }
+  .tab-btn.active {
+    background: var(--paper);
+    color: var(--text);
+    box-shadow: 0 2px 8px var(--shadow);
+    font-weight: 600;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ────────────────── ルールブック ────────────────── */
+  .rulebook {
+    background: var(--paper);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 4px 18px var(--shadow);
+    border: 1.5px solid rgba(255,255,255,0.9);
+  }
+  .rule-section { margin-bottom: 24px; }
+  .rule-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--text2);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .rule-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--pink2), transparent);
+  }
+  .rule-item {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    font-size: 0.88rem;
+    line-height: 1.8;
+    font-weight: 300;
+  }
+  .rule-num {
+    min-width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, var(--pink) 0%, var(--lavender) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+  .sample-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .sample-chip {
+    background: linear-gradient(135deg, var(--lavender) 0%, var(--pink) 100%);
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-size: 0.82rem;
+    text-align: center;
+    font-weight: 400;
+  }
+  .sample-chip .sample-label {
+    font-family: 'Caveat', cursive;
+    font-size: 1.3rem;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .tip-box {
+    background: linear-gradient(135deg, rgba(242,196,206,0.3) 0%, rgba(216,196,242,0.3) 100%);
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 0.84rem;
+    line-height: 1.8;
+    border-left: 3px solid var(--pink2);
+    font-weight: 300;
+  }
+
+  /* ────────────────── 判定シート ────────────────── */
+  .judge-sheet {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .participants-box {
+    background: var(--paper);
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+  .section-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text);
+  }
+  .add-participant-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .add-participant-row input {
+    flex: 1;
+    border: 1.5px solid var(--pink);
+    border-radius: 12px;
+    padding: 9px 14px;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 0.88rem;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.18s;
+  }
+  .add-participant-row input:focus { border-color: var(--pink2); }
+  .btn-add {
+    background: linear-gradient(135deg, var(--pink) 0%, var(--lavender) 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 9px 18px;
+    cursor: pointer;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 0.88rem;
+    color: var(--text);
+    font-weight: 600;
+    transition: opacity 0.18s;
+  }
+  .btn-add:hover { opacity: 0.85; }
+
+  .participants-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .p-chip {
+    background: var(--mint);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .p-chip button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.75rem;
+    color: var(--text2);
+    padding: 0;
+    line-height: 1;
+  }
+
+  /* スコアカード（利き系） */
+  .score-cards { display: flex; flex-direction: column; gap: 16px; }
+  .score-card {
+    background: var(--paper);
+    border-radius: 20px;
+    padding: 20px 22px;
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+  .score-card-name {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .score-card-name .avatar {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--pink) 0%, var(--lavender) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .guess-grid {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 8px 12px;
+    align-items: center;
+    font-size: 0.84rem;
+  }
+  .guess-label {
+    font-family: 'Caveat', cursive;
+    font-size: 1.2rem;
+    font-weight: 700;
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--yellow) 0%, var(--peach) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .guess-select {
+    border: 1.5px solid var(--pink);
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 0.82rem;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    cursor: pointer;
+  }
+  .guess-result {
+    font-size: 1.1rem;
+    text-align: center;
+    width: 28px;
+  }
+
+  .score-total {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--pink);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.88rem;
+  }
+  .score-number {
+    font-family: 'Caveat', cursive;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--pink2);
+  }
+
+  /* コンビニフルコース 採点表 */
+  .course-judge-card {
+    background: var(--paper);
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+  .course-judge-card h4 {
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .course-rows { display: flex; flex-direction: column; gap: 12px; }
+  .course-row { display: flex; flex-direction: column; gap: 6px; }
+  .course-row-label {
+    font-size: 0.82rem;
+    font-weight: 400;
+    color: var(--text2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .category-scores {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .cat-input-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .cat-label {
+    font-size: 0.75rem;
+    color: var(--text2);
+    font-weight: 300;
+  }
+  .cat-score {
+    border: 1.5px solid var(--lavender);
+    border-radius: 10px;
+    padding: 7px 10px;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 0.9rem;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    text-align: center;
+    width: 100%;
+  }
+  .cat-score:focus { border-color: var(--pink2); }
+
+  .grand-total {
+    background: linear-gradient(135deg, var(--pink) 0%, var(--lavender) 100%);
+    border-radius: 14px;
+    padding: 12px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .grand-score {
+    font-family: 'Caveat', cursive;
+    font-size: 2rem;
+    font-weight: 700;
+  }
+
+  /* ────────────────── 結果パネル ────────────────── */
+  .results-panel {
+    background: var(--paper);
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: 0 4px 18px var(--shadow);
+    margin-top: 0;
+  }
+  .podium {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 12px;
+    margin: 16px 0 20px;
+  }
+  .podium-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .podium-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-align: center;
+    max-width: 80px;
+    word-break: break-all;
+  }
+  .podium-score {
+    font-family: 'Caveat', cursive;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--pink2);
+  }
+  .podium-block {
+    border-radius: 8px 8px 0 0;
+    width: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: white;
+  }
+  .podium-block.gold   { background: linear-gradient(to top, #e4b44a, #f5d87a); height: 100px; }
+  .podium-block.silver { background: linear-gradient(to top, #8da0ad, #b8ccda); height: 75px; }
+  .podium-block.bronze { background: linear-gradient(to top, #b87333, #d4956a); height: 55px; }
+
+  .rank-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .rank-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--bg);
+    border-radius: 12px;
+    font-size: 0.86rem;
+  }
+  .rank-pos {
+    font-family: 'Caveat', cursive;
+    font-size: 1.2rem;
+    font-weight: 700;
+    width: 28px;
+    text-align: center;
+    color: var(--text2);
+  }
+  .rank-name { flex: 1; font-weight: 400; }
+  .rank-score { font-family: 'Caveat', cursive; font-size: 1.3rem; font-weight: 700; color: var(--pink2); }
+
+  /* ────────────────── フォトアルバム ────────────────── */
+  .photo-panel { display: flex; flex-direction: column; gap: 16px; }
+
+  .photo-upload-area {
+    background: var(--paper);
+    border-radius: 20px;
+    padding: 28px;
+    text-align: center;
+    border: 2px dashed var(--pink);
+    cursor: pointer;
+    transition: background 0.18s;
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+  .photo-upload-area:hover { background: rgba(242,196,206,0.1); }
+  .photo-upload-area input { display: none; }
+  .upload-icon { font-size: 2.5rem; margin-bottom: 10px; display: block; }
+  .upload-text { font-size: 0.88rem; color: var(--text2); font-weight: 300; }
+
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+  }
+  .photo-item {
+    background: var(--paper);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 14px var(--shadow);
+    transition: transform 0.18s;
+  }
+  .photo-item:hover { transform: translateY(-3px); }
+  .photo-item img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    display: block;
+  }
+  .photo-meta {
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .photo-caption-input {
+    border: none;
+    background: transparent;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 0.8rem;
+    color: var(--text);
+    width: 100%;
+    outline: none;
+    font-weight: 300;
+    border-bottom: 1px solid var(--pink);
+    padding-bottom: 3px;
+  }
+  .photo-time { font-size: 0.72rem; color: var(--text2); }
+  .photo-delete {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.75rem;
+    color: #c08090;
+    align-self: flex-end;
+    padding: 0;
+  }
+
+  /* ────────────────── エクスポート ────────────────── */
+  .export-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 20px 0 0;
+  }
+  .btn-export {
+    background: linear-gradient(135deg, var(--mint) 0%, var(--blue) 100%);
+    border: none;
+    border-radius: 14px;
+    padding: 11px 22px;
+    cursor: pointer;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 0.86rem;
+    color: var(--text);
+    font-weight: 600;
+    transition: opacity 0.18s, transform 0.18s;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+  .btn-export:hover { opacity: 0.88; transform: translateY(-2px); }
+
+  /* ────────────────── PRINT ────────────────── */
+  @media print {
+    body::before, body::after { display: none; }
+    .back-btn, .tabs, .add-participant-row, .btn-export, .export-bar,
+    .photo-upload-area, .photo-delete { display: none !important; }
+    .tab-panel { display: block !important; }
+    .page { display: block !important; }
+    #home-page { display: none !important; }
+  }
+
+  /* ────────────────── MISC ────────────────── */
+  .watercolor-divider {
+    text-align: center;
+    margin: 8px 0 20px;
+    font-size: 1.2rem;
+    opacity: 0.5;
+    letter-spacing: 8px;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 30px;
+    color: var(--text2);
+    font-size: 0.85rem;
+    font-weight: 300;
+  }
+  .date-display {
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--text2);
+    margin-bottom: 10px;
+    font-weight: 300;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ═══════════════ HOME ═══════════════ -->
+<div id="home-page" class="page active">
+  <header>
+    <div class="header-blob">
+      <h1>🏆 勝手に選手権</h1>
+    </div>
+    <p>大人の本気の遊び・記録帳</p>
+  </header>
+  <div class="watercolor-divider">✦ ✦ ✦</div>
+  <div class="home-grid">
+    <div class="contest-card" onclick="openContest('cola')">
+      <span class="card-emoji">🥤</span>
+      <div class="card-title">利きコーラ選手権</div>
+      <div class="card-desc">5種のコーラをブラインドテスト。温度を統一した究極の舌戦。真のコーラ通は誰だ？</div>
+      <span class="card-badge">全5種・利き当て方式</span>
+    </div>
+    <div class="contest-card" onclick="openContest('chips')">
+      <span class="card-emoji">🥔</span>
+      <div class="card-title">利きポテチ選手権</div>
+      <div class="card-desc">うすしお縛りで5銘柄対決。チップスターは砕いて提供。食感と味だけで勝負！</div>
+      <span class="card-badge">全5種・粉砕提供ルール</span>
+    </div>
+    <div class="contest-card" onclick="openContest('fullcourse')">
+      <span class="card-emoji">🍽️</span>
+      <div class="card-title">コンビニフルコース選手権</div>
+      <div class="card-desc">コンビニ食材だけで本格フレンチ。予算2,500〜3,000円でフルコースを競え！</div>
+      <span class="card-badge">40点満点・4項目採点</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ CONTEST PAGE ═══════════════ -->
+<div id="contest-page" class="page">
+  <div class="contest-page">
+    <button class="back-btn" onclick="goHome()">← もどる</button>
+    <div class="contest-header" id="contest-header"></div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('rules')">📋 ルールブック</button>
+      <button class="tab-btn" onclick="switchTab('judge')">⚖️ 判定シート</button>
+      <button class="tab-btn" onclick="switchTab('results')">🏅 結果</button>
+      <button class="tab-btn" onclick="switchTab('photos')">📷 フォト</button>
+    </div>
+
+    <div id="tab-rules" class="tab-panel active"></div>
+    <div id="tab-judge" class="tab-panel"></div>
+    <div id="tab-results" class="tab-panel"></div>
+    <div id="tab-photos" class="tab-panel"></div>
+
+    <div class="export-bar">
+      <button class="btn-export" onclick="window.print()">🖨️ 印刷する</button>
+      <button class="btn-export" onclick="exportHTML()">💾 HTMLで保存</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- #app -->
+
+<script>
+// ══════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════
+const CONTESTS = {
+  cola: {
+    id: 'cola',
+    name: '利きコーラ選手権',
+    emoji: '🥤',
+    desc: '5種のコーラをブラインドテスト。温度を統一した究極の舌戦！',
+    samples: [
+      { id: 'A', name: 'コカ・コーラ（オリジナル）' },
+      { id: 'B', name: 'ペプシ（BIG生）' },
+      { id: 'C', name: 'コカ・コーラ ゼロ' },
+      { id: 'D', name: 'PBコーラ（トップバリュ等）' },
+      { id: 'E', name: 'クラフトコーラ' },
+    ],
+    rules: [
+      'サンプルはA〜Eのカップに分け、参加者には中身を教えない。',
+      'すべて同じ温度（常温 または キンキン冷え）に統一すること。',
+      '各自、A〜Eがどのコーラかを回答用紙に記入する。',
+      '全員が回答し終えてから、正解を一斉発表する。',
+      '正解数＝得点（5点満点）。同点の場合は「最も自信のなかったサンプル」を正解した人が勝利。',
+    ],
+    tips: '🌡️ 氷なしの缶を同じ時間冷やして温度を揃えるのがベスト。提供直前まで参加者に見せないこと！クラフトコーラは色や香りが特徴的なので、出順にも工夫を。',
+    type: 'tasting',
+  },
+  chips: {
+    id: 'chips',
+    name: '利きポテチ選手権',
+    emoji: '🥔',
+    desc: 'うすしお縛り5銘柄対決。砕いて提供で見た目の手がかりをゼロに！',
+    samples: [
+      { id: 'A', name: 'カルビー（うすしお）' },
+      { id: 'B', name: '湖池屋（じゃがいもと塩）' },
+      { id: 'C', name: '堅あげポテト（うすしお）' },
+      { id: 'D', name: 'チップスター（うすしお）' },
+      { id: 'E', name: 'プレミアム系（プライドポテト等）' },
+    ],
+    rules: [
+      '全種を「原型をとどめない程度」にザクザクと砕き、小さなカップに入れて提供する。',
+      'ラベルや袋は参加者に見せない。提供は同サイズの紙コップが最適。',
+      'A〜Eの順番はランダムにし、ホストだけが正解を知る。',
+      '各自、A〜Eがどの銘柄かを回答用紙に記入する。',
+      '正解数が得点（5点満点）。',
+    ],
+    tips: '🍟 堅あげとチップスター（成型ポテチ）は砕くことで形状バレを防止！食感の違いは残るのでそこが勝負の鍵。口直し用の水も用意しておくと親切。',
+    type: 'tasting',
+  },
+  fullcourse: {
+    id: 'fullcourse',
+    name: 'コンビニフルコース選手権',
+    emoji: '🍽️',
+    desc: 'コンビニ食材のみで本格フルコースを競う！予算は1人2,500〜3,000円以内。',
+    courses: [
+      { id: 'amuse',   name: 'アミューズ', fr: 'Amuse-Bouche', emoji: '✨' },
+      { id: 'entree',  name: 'オードブル', fr: 'Entrée',        emoji: '🥗' },
+      { id: 'fish',    name: 'ポアソン',   fr: 'Poisson',       emoji: '🐟' },
+      { id: 'meat',    name: 'ヴィアンド', fr: 'Viande',        emoji: '🥩' },
+      { id: 'dessert', name: 'デセール',   fr: 'Dessert',       emoji: '🍮' },
+    ],
+    categories: ['見た目', '味', '発想力', 'ストーリー性'],
+    rules: [
+      '食材はすべてコンビニで購入すること（同一チェーン縛りは自由）。',
+      '予算は1人あたり2,500〜3,000円以内とする。',
+      '「袋から出して盛っただけ」の素のままでの提供は2品まで。残り3品以上はアレンジ（組み合わせ・ソース自作・温め変形など）を必須とする。',
+      '採点は「見た目・味・発想力・ストーリー性」の4項目、各10点・合計40点満点。',
+      '採点者は参加者全員（自分のコースは採点しない）。全採点の平均を最終スコアとする。',
+    ],
+    tips: '🌟 フレンチ風の大袈裟な料理名をメニュー表に書いて提出するとストーリー性点が上がる！「セブンのおでん豆腐のムース仕立て クリームチーズを添えて」など。',
+    type: 'judged',
+  },
+};
+
+// ── STATE ──
+let currentContest = null;
+let state = {}; // { cola: { participants: [], guesses: {}, courseScores: {}, photos: [] } }
+function getState(id) {
+  if (!state[id]) {
+    state[id] = { participants: [], guesses: {}, courseScores: {}, photos: [] };
+  }
+  return state[id];
+}
+
+// ══════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════
+function openContest(id) {
+  currentContest = CONTESTS[id];
+  document.getElementById('home-page').classList.remove('active');
+  document.getElementById('contest-page').classList.add('active');
+  renderContest();
+  switchTab('rules');
+}
+
+function goHome() {
+  document.getElementById('contest-page').classList.remove('active');
+  document.getElementById('home-page').classList.add('active');
+  currentContest = null;
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', ['rules','judge','results','photos'][i] === name);
+  });
+  ['rules','judge','results','photos'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === name);
+  });
+  if (name === 'results') renderResults();
+}
+
+// ══════════════════════════════════════════════
+//  RENDER CONTEST
+// ══════════════════════════════════════════════
+function renderContest() {
+  const c = currentContest;
+  const today = new Date().toLocaleDateString('ja-JP', {year:'numeric',month:'long',day:'numeric'});
+
+  // Header
+  document.getElementById('contest-header').innerHTML = `
+    <span class="emoji-big">${c.emoji}</span>
+    <h2>${c.name}</h2>
+    <p>${c.desc}</p>
+    <div class="date-display" style="margin-top:8px;">${today}</div>
+  `;
+
+  renderRules();
+  renderJudgeSheet();
+  renderPhotos();
+}
+
+// ── RULES ──
+function renderRules() {
+  const c = currentContest;
+  let samplesHtml = '';
+  if (c.type === 'tasting') {
+    samplesHtml = `
+      <div class="rule-section">
+        <div class="rule-title">📦 出場ラインナップ</div>
+        <div class="sample-list">
+          ${c.samples.map(s => `
+            <div class="sample-chip">
+              <span class="sample-label">${s.id}</span>
+              ${s.name}
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  } else {
+    samplesHtml = `
+      <div class="rule-section">
+        <div class="rule-title">🍽️ コース構成</div>
+        <div class="sample-list">
+          ${c.courses.map(s => `
+            <div class="sample-chip">
+              <span class="sample-label">${s.emoji}</span>
+              ${s.name}<br><span style="font-size:0.75rem;color:#8a6a7a">${s.fr}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="rule-section">
+        <div class="rule-title">⭐ 採点カテゴリ（各10点）</div>
+        <div class="sample-list">
+          ${c.categories.map(cat => `
+            <div class="sample-chip">
+              <span class="sample-label">10</span>${cat}
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  document.getElementById('tab-rules').innerHTML = `
+    <div class="rulebook">
+      ${samplesHtml}
+      <div class="rule-section">
+        <div class="rule-title">📜 ルール</div>
+        ${c.rules.map((r, i) => `
+          <div class="rule-item">
+            <div class="rule-num">${i + 1}</div>
+            <div>${r}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="rule-section">
+        <div class="rule-title">💡 ホストのヒント</div>
+        <div class="tip-box">${c.tips}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ── JUDGE SHEET ──
+function renderJudgeSheet() {
+  const c = currentContest;
+  const s = getState(c.id);
+
+  const participantsHtml = `
+    <div class="participants-box">
+      <div class="section-title">👥 参加者を追加</div>
+      <div class="add-participant-row">
+        <input type="text" id="p-input" placeholder="名前を入力…" onkeydown="if(event.key==='Enter')addParticipant()">
+        <button class="btn-add" onclick="addParticipant()">追加 ＋</button>
+      </div>
+      <div class="participants-chips" id="p-chips">
+        ${renderParticipantChips()}
+      </div>
+    </div>
+  `;
+
+  let scoreHtml = '';
+  if (c.type === 'tasting') {
+    scoreHtml = renderTastingSheet();
+  } else {
+    scoreHtml = renderFullcourseSheet();
+  }
+
+  document.getElementById('tab-judge').innerHTML = participantsHtml + scoreHtml;
+}
+
+function renderParticipantChips() {
+  const s = getState(currentContest.id);
+  if (!s.participants.length) return '<span style="font-size:0.82rem;color:var(--text2);font-weight:300">まだ参加者がいません</span>';
+  return s.participants.map((p, i) => `
+    <div class="p-chip">
+      ${p}
+      <button onclick="removeParticipant(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function addParticipant() {
+  const input = document.getElementById('p-input');
+  const name = input.value.trim();
+  if (!name) return;
+  const s = getState(currentContest.id);
+  if (s.participants.includes(name)) { input.value = ''; return; }
+  s.participants.push(name);
+  s.guesses[name] = {};
+  s.courseScores[name] = {};
+  input.value = '';
+  renderJudgeSheet();
+}
+
+function removeParticipant(i) {
+  const s = getState(currentContest.id);
+  const name = s.participants[i];
+  s.participants.splice(i, 1);
+  delete s.guesses[name];
+  delete s.courseScores[name];
+  renderJudgeSheet();
+}
+
+// ── TASTING SCORE SHEET ──
+function renderTastingSheet() {
+  const c = currentContest;
+  const s = getState(c.id);
+  if (!s.participants.length) return '<div class="empty-state">↑ まず参加者を追加してください</div>';
+
+  return '<div class="score-cards">' + s.participants.map(p => {
+    const guesses = s.guesses[p] || {};
+    const score = c.samples.filter((smp, i) => guesses[smp.id] === smp.name).length;
+    const initials = p.slice(0, 2);
+    return `
+      <div class="score-card">
+        <div class="score-card-name">
+          <div class="avatar">${initials}</div>
+          ${p}
+        </div>
+        <div class="guess-grid">
+          <div style="font-size:0.75rem;color:var(--text2);font-weight:300">サンプル</div>
+          <div style="font-size:0.75rem;color:var(--text2);font-weight:300">あなたの回答</div>
+          <div style="font-size:0.75rem;color:var(--text2);">判定</div>
+          ${c.samples.map(smp => {
+            const guessVal = guesses[smp.id] || '';
+            const isCorrect = guessVal === smp.name;
+            const hasGuess = guessVal !== '';
+            return `
+              <div class="guess-label">${smp.id}</div>
+              <select class="guess-select" onchange="setGuess('${p}','${smp.id}',this.value)">
+                <option value="">-- 選択 --</option>
+                ${c.samples.map(opt => `<option value="${opt.name}" ${guessVal === opt.name ? 'selected' : ''}>${opt.name}</option>`).join('')}
+              </select>
+              <div class="guess-result">${hasGuess ? (isCorrect ? '✅' : '❌') : '　'}</div>
+            `;
+          }).join('')}
+        </div>
+        <div class="score-total">
+          <span>正解数</span>
+          <div><span class="score-number">${score}</span> <span style="font-size:0.8rem">/ 5</span></div>
+        </div>
+      </div>
+    `;
+  }).join('') + '</div>';
+}
+
+function setGuess(participant, sampleId, value) {
+  const s = getState(currentContest.id);
+  if (!s.guesses[participant]) s.guesses[participant] = {};
+  s.guesses[participant][sampleId] = value;
+  // re-render just the score card
+  const c = currentContest;
+  const score = c.samples.filter(smp => s.guesses[participant][smp.id] === smp.name).length;
+  const card = [...document.querySelectorAll('.score-card')].find(el => el.querySelector('.score-card-name').textContent.trim().includes(participant));
+  if (card) {
+    const scoreNum = card.querySelector('.score-number');
+    if (scoreNum) scoreNum.textContent = score;
+    card.querySelectorAll('.guess-result').forEach((el, i) => {
+      const smp = c.samples[i];
+      const g = s.guesses[participant][smp.id];
+      el.textContent = g ? (g === smp.name ? '✅' : '❌') : '　';
+    });
+  }
+}
+
+// ── FULLCOURSE SCORE SHEET ──
+function renderFullcourseSheet() {
+  const c = currentContest;
+  const s = getState(c.id);
+  if (!s.participants.length) return '<div class="empty-state">↑ まず参加者を追加してください</div>';
+
+  return s.participants.map(p => {
+    const scores = s.courseScores[p] || {};
+    const total = c.courses.reduce((sum, course) => {
+      return sum + c.categories.reduce((cs, cat) => {
+        return cs + (parseInt(scores[course.id + '_' + cat]) || 0);
+      }, 0);
+    }, 0);
+    const maxTotal = c.courses.length * c.categories.length * 10;
+    const initials = p.slice(0, 2);
+
+    return `
+      <div class="course-judge-card">
+        <h4>
+          <div class="avatar" style="width:32px;height:32px;background:linear-gradient(135deg,var(--peach),var(--lavender));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:600;min-width:32px">${initials}</div>
+          ${p}
+        </h4>
+        <div class="course-rows">
+          ${c.courses.map(course => `
+            <div class="course-row">
+              <div class="course-row-label">
+                <span>${course.emoji} ${course.name} <span style="font-size:0.72rem;color:var(--text2)">${course.fr}</span></span>
+              </div>
+              <div class="category-scores">
+                ${c.categories.map(cat => `
+                  <div class="cat-input-wrap">
+                    <span class="cat-label">${cat}（/10）</span>
+                    <input class="cat-score" type="number" min="0" max="10"
+                      value="${scores[course.id + '_' + cat] || ''}"
+                      placeholder="0"
+                      onchange="setCourseScore('${p}','${course.id}_${cat}',this.value)">
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="grand-total">
+          <span>合計スコア</span>
+          <span class="grand-score" id="total-${p.replace(/\s/g,'_')}">${total}</span>
+          <span style="font-size:0.8rem">/ ${maxTotal}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function setCourseScore(participant, key, value) {
+  const s = getState(currentContest.id);
+  if (!s.courseScores[participant]) s.courseScores[participant] = {};
+  s.courseScores[participant][key] = parseInt(value) || 0;
+  const c = currentContest;
+  const total = c.courses.reduce((sum, course) => {
+    return sum + c.categories.reduce((cs, cat) => {
+      return cs + (s.courseScores[participant][course.id + '_' + cat] || 0);
+    }, 0);
+  }, 0);
+  const el = document.getElementById('total-' + participant.replace(/\s/g, '_'));
+  if (el) el.textContent = total;
+}
+
+// ══════════════════════════════════════════════
+//  RESULTS
+// ══════════════════════════════════════════════
+function getScore(c, s, participant) {
+  if (c.type === 'tasting') {
+    return c.samples.filter(smp => (s.guesses[participant] || {})[smp.id] === smp.name).length;
+  } else {
+    return c.courses.reduce((sum, course) => {
+      return sum + c.categories.reduce((cs, cat) => {
+        return cs + (parseInt((s.courseScores[participant] || {})[course.id + '_' + cat]) || 0);
+      }, 0);
+    }, 0);
+  }
+}
+
+function renderResults() {
+  const c = currentContest;
+  const s = getState(c.id);
+  const maxScore = c.type === 'tasting' ? 5 : c.courses.length * c.categories.length * 10;
+
+  if (!s.participants.length) {
+    document.getElementById('tab-results').innerHTML = `<div class="results-panel"><div class="empty-state">判定シートで参加者を追加してください</div></div>`;
+    return;
+  }
+
+  const ranked = [...s.participants]
+    .map(p => ({ name: p, score: getScore(c, s, p) }))
+    .sort((a, b) => b.score - a.score);
+
+  const medals = ['🥇', '🥈', '🥉'];
+  const podiumOrder = ranked.length >= 3
+    ? [ranked[1], ranked[0], ranked[2]]
+    : ranked.length === 2
+    ? [null, ranked[0], ranked[1]]
+    : [null, ranked[0], null];
+
+  const podiumHtml = `
+    <div class="podium">
+      ${podiumOrder.map((r, i) => {
+        if (!r) return '<div style="width:70px"></div>';
+        const cls = ['silver','gold','bronze'][i];
+        const label = ['2nd','1st','3rd'][i];
+        return `
+          <div class="podium-item">
+            <div class="podium-name">${r.name}</div>
+            <div class="podium-score">${r.score}<span style="font-size:0.75rem">pt</span></div>
+            <div class="podium-block ${cls}">${label}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+
+  const rankListHtml = ranked.map((r, i) => `
+    <div class="rank-row">
+      <div class="rank-pos">${medals[i] || (i + 1)}</div>
+      <div class="rank-name">${r.name}</div>
+      <div class="rank-score">${r.score} <span style="font-size:0.75rem;color:var(--text2)">/ ${maxScore}</span></div>
+    </div>
+  `).join('');
+
+  document.getElementById('tab-results').innerHTML = `
+    <div class="results-panel">
+      <div class="section-title">🏆 最終結果</div>
+      ${podiumHtml}
+      <div class="rank-list">${rankListHtml}</div>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════
+//  PHOTOS
+// ══════════════════════════════════════════════
+function renderPhotos() {
+  const s = getState(currentContest.id);
+  const photos = s.photos || [];
+
+  const gridHtml = photos.length === 0
+    ? '<div class="empty-state">📷 写真をアップロードしてみましょう</div>'
+    : `<div class="photo-grid">${photos.map((ph, i) => `
+        <div class="photo-item">
+          <img src="${ph.src}" alt="photo ${i}">
+          <div class="photo-meta">
+            <input class="photo-caption-input" type="text" placeholder="キャプションを入力…" value="${ph.caption || ''}" onchange="updateCaption(${i}, this.value)">
+            <span class="photo-time">${ph.time}</span>
+            <button class="photo-delete" onclick="deletePhoto(${i})">🗑 削除</button>
+          </div>
+        </div>
+      `).join('')}</div>`;
+
+  document.getElementById('tab-photos').innerHTML = `
+    <div class="photo-panel">
+      <label class="photo-upload-area">
+        <span class="upload-icon">📷</span>
+        <div class="upload-text">写真をアップロード<br><span style="font-size:0.75rem">クリック または ドラッグ＆ドロップ</span></div>
+        <input type="file" accept="image/*" multiple onchange="handlePhotos(this.files)">
+      </label>
+      ${gridHtml}
+    </div>
+  `;
+}
+
+function handlePhotos(files) {
+  const s = getState(currentContest.id);
+  const now = new Date().toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
+  let loaded = 0;
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      s.photos.push({ src: e.target.result, caption: '', time: now });
+      loaded++;
+      if (loaded === files.length) renderPhotos();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function updateCaption(i, val) {
+  getState(currentContest.id).photos[i].caption = val;
+}
+
+function deletePhoto(i) {
+  getState(currentContest.id).photos.splice(i, 1);
+  renderPhotos();
+}
+
+// ══════════════════════════════════════════════
+//  EXPORT
+// ══════════════════════════════════════════════
+function exportHTML() {
+  const html = document.documentElement.outerHTML;
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const today = new Date().toISOString().slice(0,10);
+  a.download = `senshuken_${currentContest ? currentContest.id : 'app'}_${today}.html`;
+  a.click();
+}
+</script>
+</body>
+</html>
