@@ -24,7 +24,6 @@ body{
   min-height:100vh;
   color:var(--text);
 }
-
 /* ===== Header ===== */
 header{
   text-align:center;
@@ -55,14 +54,12 @@ header{
   color:var(--muted);
   letter-spacing:2px;
 }
-
 /* ===== Main ===== */
 main{
   max-width:1000px;
   margin:0 auto;
   padding:10px 24px 80px;
 }
-
 .section-label{
   font-size:10px;
   letter-spacing:4px;
@@ -71,7 +68,6 @@ main{
   font-weight:700;
   margin-bottom:20px;
 }
-
 /* ===== App Grid ===== */
 .app-grid{
   display:grid;
@@ -79,7 +75,6 @@ main{
   gap:24px;
   margin-bottom:48px;
 }
-
 .app-card{
   background:var(--card);
   border-radius:18px;
@@ -96,18 +91,15 @@ main{
   transform:translateY(-5px);
   box-shadow:0 10px 36px var(--shadow);
 }
-
 .card-img{
   width:100%;
   height:160px;
   object-fit:cover;
   display:block;
 }
-
 .card-body{
   padding:18px 20px 20px;
 }
-
 .card-cat{
   font-size:10px;
   letter-spacing:2.5px;
@@ -116,14 +108,12 @@ main{
   margin-bottom:8px;
   font-weight:700;
 }
-
 .card-name-en{
   font-family:'Great Vibes',cursive;
   font-size:1.9rem;
   line-height:1.1;
   margin-bottom:4px;
 }
-
 .card-name{
   font-size:13px;
   font-weight:700;
@@ -131,14 +121,12 @@ main{
   margin-bottom:10px;
   letter-spacing:.5px;
 }
-
 .card-desc{
   font-size:12.5px;
   color:var(--muted);
   line-height:1.7;
   margin-bottom:14px;
 }
-
 .card-btn{
   display:inline-block;
   padding:8px 20px;
@@ -153,7 +141,6 @@ main{
   opacity:.85;
   transform:translateY(-1px);
 }
-
 /* ===== Footer ===== */
 footer{
   text-align:center;
@@ -163,7 +150,6 @@ footer{
   letter-spacing:2px;
   opacity:.7;
 }
-
 /* ===== Empty state ===== */
 .empty{
   text-align:center;
@@ -171,7 +157,6 @@ footer{
   color:var(--muted);
 }
 .empty p{font-size:14px;line-height:1.8;}
-
 /* ===== Divider ===== */
 .divider{
   height:1.5px;
@@ -181,26 +166,21 @@ footer{
 </style>
 </head>
 <body>
-
 <header>
   <div class="badge">Private App Suite</div>
   <h1 class="title">My Apps</h1>
   <p class="sub">satukiのプライベートアプリ一覧</p>
 </header>
-
 <main>
   <div class="section-label">Apps</div>
   <div class="divider"></div>
   <div class="app-grid" id="appGrid"></div>
 </main>
-
 <footer>
   <p>© satuki · Private · Local</p>
 </footer>
-
 <script>
 'use strict';
-
 // ============================================================
 //  アプリ一覧  ← クロちゃんが新しいアプリをここに追加します
 // ============================================================
@@ -231,28 +211,25 @@ var APPS = [
     desc:    '紅茶・緑茶・ハーブティーなど全7カテゴリのお茶を記録。水温・蒸らし時間・茶の水色まで詳細に残せます。',
     image:   'https://images.unsplash.com/photo-1597318181409-cf64d0b5d8a2?w=600&q=80&auto=format&fit=crop',
     accent:  '#9b7a4a'
-  }
-    {
+  },
+  {
     name:    '企画　記録帳',
     nameEn:  'Planing',
     file:    './senshuken-app.html',
     cat:     '企画　遊び · planing',
-    desc:    'お金をかけず全力で遊ぶ　記録。',
-    image:   'https://images.unsplash.com/photo-1597318181409-cf64d0b5d8a2?w=600&q=80&auto=format&fit=crop',
-    accent:  '#9b7a4a'
+    desc:    'お金をかけず全力で遊ぶ　記録。利きコーラ・利きポテチ・コンビニフルコース選手権のルールブック・採点・写真記録。',
+    image:   'https://images.unsplash.com/photo-1529543544282-ea669407fca3?w=600&q=80&auto=format&fit=crop',
+    accent:  '#b06090'
   }
   // ← ここにアプリを追加
 ];
 // ============================================================
-
 function renderApps() {
   var grid = document.getElementById('appGrid');
-
   if (!APPS.length) {
     grid.innerHTML = '<div class="empty"><p>まだアプリはありません。<br>クロちゃんに新しいアプリを作ってもらいましょう！</p></div>';
     return;
   }
-
   var html = APPS.map(function(app) {
     return [
       '<a class="app-card" href="' + app.file + '" target="_blank">',
@@ -267,10 +244,8 @@ function renderApps() {
       '</a>'
     ].join('');
   }).join('');
-
   grid.innerHTML = html;
 }
-
 renderApps();
 </script>
 </body>
